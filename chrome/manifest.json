@@ -1,0 +1,39 @@
+{
+  "name": "Goko Salvager",
+  "description": "Making Goko almost tolerable",
+  "version": "2.0",
+  "manifest_version": 2,
+
+  "content_scripts": [
+    {
+      "js": [
+        "Goko_Live_Log_Viewer.user.js",
+        "automatch.js",
+        "automatchGamePop.js",
+        "automatchOfferPop.js",
+        "automatchSeekPop.js",
+        "gokoHelpers.js"
+      ],
+      "matches": [
+        "http://play.goko.com/Dominion/gameClient.html",
+        "https://play.goko.com/Dominion/gameClient.html",
+        "http://beta.goko.com/Dominion/gameClient.html",
+        "https://beta.goko.com/Dominion/gameClient.html"
+      ]
+    }
+  ],
+
+  "permissions": [
+    "https://dominion.goko.com/",
+    "http://dominion.goko.com/",
+    "https://beta.goko.com/",
+    "http://beta.goko.com/"
+  ],
+
+  "icons": {
+    "16": "images/salvager16.png",
+    "48": "images/salvager48.png",
+    "128": "images/salvager128.png"
+  }
+
+}

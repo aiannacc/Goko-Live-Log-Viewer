@@ -58,11 +58,11 @@ var loadAutomatchExtension = function () {
         AM.fetchOwnSets();      // (async)
 
         // Connect to automatch server via websocket (async)
-        var url = ['wss://gokologs.drunkensailor.org',
+        AM.url = ['wss://gokologs.drunkensailor.org',
                    (AM.testing ? ':8080' : ''),
                    '/automatch?pname=', AM.player.pname].join('');
-        AM.testing && console.log('Automatch server: ' + url);
-        AM.connectToAutomatchServer(url);
+        AM.testing && console.log('Automatch server: ' + AM.url);
+        AM.connectToAutomatchServer();
 
         // Create automatch popup dialogs
         AM.appendSeekPopup($('#viewport'));
@@ -193,10 +193,10 @@ var loadAutomatchExtension = function () {
         };
     };
 
-    AM.connectToAutomatchServer = function (url) {
+    AM.connectToAutomatchServer = function () {
 
         // Open connection asynchronously
-        AM.ws = new WebSocket(url);
+        AM.ws = new WebSocket(AM.url);
 
         // If connection is lost, wait 3 second and reconnect
         // TODO: detect timeouts

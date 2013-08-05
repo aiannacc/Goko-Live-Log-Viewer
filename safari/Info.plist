@@ -3,19 +3,19 @@
 <plist version="1.0">
 <dict>
 	<key>Author</key>
-	<string>nutki &amp; michaeljb</string>
+	<string>nutki, michaeljb, ragingduckd</string>
 	<key>Builder Version</key>
 	<string>7536.30.1</string>
 	<key>CFBundleDisplayName</key>
-	<string>Dominion Online User Extension</string>
+	<string>Goko Salvager</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.dominionstrategy.dominiononlineuserextension</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.15.6</string>
+	<string>2.0</string>
 	<key>CFBundleVersion</key>
-	<string>1.15.6</string>
+	<string>2.0</string>
 	<key>Chrome</key>
 	<dict/>
 	<key>Content</key>
@@ -25,11 +25,16 @@
 			<key>End</key>
 			<array>
 				<string>Goko_Live_Log_Viewer.user.js</string>
+				<string>automatch.js</string>
+				<string>automatchGamePop.js</string>
+				<string>automatchOfferPop.js</string>
+				<string>automatchSeekPop.js</string>
+				<string>gokoHelpers.js</string>
 			</array>
 		</dict>
 	</dict>
 	<key>Description</key>
-	<string>Enhance your experience at playdominion.com</string>
+	<string>Making Goko almost tolerable</string>
 	<key>ExtensionInfoDictionaryVersion</key>
 	<string>1.0</string>
 	<key>Permissions</key>
