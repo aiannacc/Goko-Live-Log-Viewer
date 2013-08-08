@@ -7,15 +7,15 @@
 	<key>Builder Version</key>
 	<string>7536.30.1</string>
 	<key>CFBundleDisplayName</key>
-	<string>Goko Salvager</string>
+	<string>Goko Dominion Salvager</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.dominionstrategy.dominiononlineuserextension</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.0</string>
+	<string>2.1</string>
 	<key>CFBundleVersion</key>
-	<string>2.0</string>
+	<string>2.1</string>
 	<key>Chrome</key>
 	<dict/>
 	<key>Content</key>
@@ -34,7 +34,7 @@
 		</dict>
 	</dict>
 	<key>Description</key>
-	<string>Making Goko almost tolerable</string>
+	<string>Enhance your Online Dominion experience!</string>
 	<key>ExtensionInfoDictionaryVersion</key>
 	<string>1.0</string>
 	<key>Permissions</key>

@@ -1,5 +1,5 @@
-Goko Salvager
-=============
+Goko Dominion Salvager
+======================
 
 Discuss the extension at the [Dominion Strategy forum](http://goo.gl/4muRB).
 

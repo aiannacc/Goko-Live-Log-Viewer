@@ -1,7 +1,7 @@
 {
-  "name": "Goko Salvager",
-  "description": "Making Goko almost tolerable",
-  "version": "2.0",
+  "name": "Goko Dominion Salvager",
+  "description": "Enhance your Online Dominion experience!",
+  "version": "2.1",
   "manifest_version": 2,
 
   "content_scripts": [

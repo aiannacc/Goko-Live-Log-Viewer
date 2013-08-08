@@ -51,5 +51,7 @@ end
 
 Dir.glob('tasks/*.rake').each { |r| import r }
 
+# create firefox first, since it creates a temporary.zip, overwriting chrome's .zip
+# TODO: create a signed .crx for chrome instead of a .zip
 desc 'Build packages for all supported browsers'
-task :default => ['build:chrome', 'build:firefox', 'build:safari']
+task :default => ['build:firefox', 'chrome:build', 'build:safari']
