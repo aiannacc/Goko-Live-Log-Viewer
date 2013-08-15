@@ -70,18 +70,17 @@
         alwaysStack: false,
         blacklist: [""]
     };
-    var options = {};
 
     // Need this to be global so that other blocks and scripts can use it
     window.GokoSalvager = (window.GokoSalvager || {});
 
     window.GokoSalvager.options_save = function () {
-        localStorage.userOptions = JSON.stringify(options);
+        localStorage.salvagerOptions = JSON.stringify(window.GokoSalvager.options);
     };
 
     window.GokoSalvager.options_load = function () {
-        if (localStorage.userOptions) {
-            window.GokoSalvager.options = JSON.parse(localStorage.userOptions);
+        if (localStorage.salvagerOptions) {
+            window.GokoSalvager.options = JSON.parse(localStorage.salvagerOptions);
         }
         var o;
         for (o in default_options) {

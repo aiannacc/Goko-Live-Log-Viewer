@@ -284,7 +284,7 @@
                updateCards(player === newLogPlayers ? 1 : player + 1, [h[1]], 1);
                */
         } else if ((h = action.match(/^receives ([0-9]*) victory point chips$/)) !== null) {
-            vpchips[player] += h[1];
+            vpchips[player] += parseInt(h[1], 10);
             updateCards(player, []);
         } else if ((h = action.match(/^plays Bishop$/)) !== null) {
             vpchips[player] += 1;
