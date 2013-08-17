@@ -14,7 +14,7 @@ var loadTableSavingModule;
     // Wait (non-blocking) until the required objects have been instantiated
     var waitLoop = setInterval(function () {
         var gs, gso, etv, detv;
-
+        console.log('Checking for Table Saving dependencies');
         try {
             gs = window.GokoSalvager;
             gso = gs.get_option;

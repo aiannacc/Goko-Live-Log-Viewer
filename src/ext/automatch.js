@@ -15,7 +15,7 @@ var loadAutomatchModule;
     // Wait (non-blocking) until the required objects have been instantiated
     var dbWait = setInterval(function () {
         var gs, gso, conn;
-
+        console.log('Checking for Automatch dependencies');
         try {
             gs = window.GokoSalvager;
             gso = gs.get_option;
@@ -65,6 +65,7 @@ loadAutomatchModule = function (gs, conn) {
 
     // Initial state
     automatchInitStarted = false;
+    AM.tableSettings = null;
     AM.wsFailCount = 0;
     AM.state = {seek: null, offer: null, game: null};
 
@@ -141,6 +142,123 @@ loadAutomatchModule = function (gs, conn) {
 
         // Disable the butomatch button until the async init calls finish
         updateAMButton();
+
+        // Add auto-automatch option to table create dialog
+        $('.edit-table-lock-table').parent().after(
+            $('<div>').append('<input type="checkbox" id="am-onseek-box">')
+                      .append(' Use Automatch')
+                      .append(' <span id="automatch-info-span" />')
+        );
+        $('#am-onseek-box').attr('checked', gs.get_option('automatch_on_seek'));
+
+        // Show automatch information when user clicks on blue "(?)"
+        var amInfo = "<p>Automatch will search for opponents in other"
+                     + " lobbies while you're waiting at your table here.</p>"
+                     + "<p>This will not prevent players in this lobby from"
+                     + " joining your table like usual.</p>";
+        $('#automatch-info-span').html(' (?)')
+                                 .css('color', 'blue')
+                                 .click(function () {
+                console.log('clicked for AM info');
+                if ($('#automatch-info-popup').length === 0) {
+                    $('<div>').prop('id', 'automatch-info-popup')
+                              .html(amInfo)
+                              .css('z-index', '6000')
+                              .prop('title', 'Automatch Info')
+                              .appendTo(".fs-mtrm-popup-edit-table");
+                }
+                // NOTE: I had to hack the CSS to make this appear on top.
+                //       I set ".ui-front {z-index: 1000}" in the included
+                //       JQuery "smoothness" style file.
+                $('#automatch-info-popup').dialog({
+                    modal: true,
+                    width: 500,
+                    draggable: false,
+                    resizable: false
+                });
+            });
+
+        // Override table creation method to also send an automatch seek
+        AM.zch.editTable_orig = AM.zch.editTable;
+        AM.zch.editTable = function (opts) {
+            if ($('#am-onseek-box').attr('checked')) {
+                gs.set_option('automatch_on_seek', true);
+                var tSettings = JSON.parse(opts.settings);
+                console.log("Table Settings:");
+                console.log(tSettings);
+
+                // Cache table settings so that we build the same game if we
+                // end up making an automatch in Casual or Unrated.
+                AM.tableSettings = tSettings;
+
+                var tName = tSettings.name;
+                var pCount = tSettings.seatsState.filter(function (s) {
+                    return s;
+                }).length;
+                var rSystem = tSettings.ratingType;
+
+                console.log('tname: ' + tName);
+                console.log('pcount: ' + pCount);
+                console.log('rSystem: ' + rSystem);
+
+                // Match title fragments like 5432+, 5k+, 5.4k+
+                console.log('Reading min rating req');
+                var m, minRating = null;
+                if ((m = tName.match(/\b(\d\.\d+)[kK]\+/)) !== null) {
+                    console.log(m);
+                    minRating = Math.floor(1000 * parseFloat(m[1], 10));
+                } else if ((m = tName.match(/\b(\d)[kK]\+/)) !== null) {
+                    console.log(m);
+                    minRating = 1000 * parseInt(m[1], 10);
+                } else if ((m = tName.match(/\b(\d\d\d\d)\+/)) !== null) {
+                    console.log(m);
+                    minRating = parseInt(m[1], 10);
+                } else {
+                    console.log('No match');
+                    console.log(m);
+                }
+
+                // Do not automatch if looking for a particular opponent
+                if ((m = tName.toLowerCase().match(/\bfor\s*\S*\b/)) !== null) {
+                    console.log('Table is for a specific opp; no automatch');
+                } else {
+                    var np, hn, rs, ar;
+
+                    np = {rclass: 'NumPlayers', props: {}};
+                    np.props.min_players = pCount;
+                    np.props.max_players = pCount;
+
+                    hn = {rclass: 'HostName', props: {}};
+                    hn.props.hostname = AM.player.pname;
+
+                    rs = {rclass: 'RatingSystem', props: {}};
+                    rs.props.rating_system = rSystem;
+
+                    ar = {rclass: 'AbsoluteRating', props: {}};
+                    ar.props.min_pts = minRating;
+                    ar.props.max_pts = null;
+                    ar.props.rating_system = rSystem;
+
+                    // Send seek request
+                    var seek = {
+                        player: AM.player,
+                        requirements: [np, hn, rs, ar]
+                    };
+                    console.log(seek);
+
+                    // TODO: wait for seek canceled confirmation
+                    if (AM.state.seek !== null) {
+                        AM.cancelSeek(AM.state.seek);
+                    }
+                    AM.submitSeek(seek);
+                }
+
+                console.log('Should automatch');
+            } else {
+                gs.set_option('automatch_on_seek', false);
+            }
+            AM.zch.editTable_orig(opts);
+        };
 
         // Notify automatch when the player starts a game
         AM.gokoconn.bind(AM.GAME_START, AM.gameStarted);
@@ -259,8 +377,8 @@ loadAutomatchModule = function (gs, conn) {
             AM.wsFailCount = 0;
             updateAMButton();
 
-            // Ping AM server every 5 sec. Timeout if no messages (including
-            // pingbacks) received for 30 sec.
+            // Ping AM server every 25 sec. Timeout if no messages (including
+            // pingbacks) received for 60 sec.
             if (typeof AM.pingLoop !== 'undefined') {
                 clearInterval(AM.pingLoop);
             }
@@ -274,7 +392,7 @@ loadAutomatchModule = function (gs, conn) {
                     debug('Sending ping');
                     AM.ping();
                 }
-            }, 5000);
+            }, 25000);
         };
 
         AM.ws.onclose = function () {
@@ -345,20 +463,24 @@ loadAutomatchModule = function (gs, conn) {
                 || !AM.player.rating.hasOwnProperty('goko_casual_rating')
                 || !AM.player.rating.hasOwnProperty('goko_pro_rating')) {
             ready = false;
-            buttonText = 'Getting player info';
+            buttonText = 'Automatch: Getting Player Info';
         } else if (typeof AM.ws === 'undefined') {
             ready = false;
-            buttonText = 'Connecting Automatch...';
+            buttonText = 'Automatch: Connecting';
         } else if (AM.ws.readyState === WebSocket.CONNECTING) {
             ready = false;
-            buttonText = 'Connecting Automatch...';
+            buttonText = 'Automatch: Connecting';
         } else if (AM.ws.readyState === WebSocket.CLOSED
                 || AM.ws.readyState === WebSocket.CLOSING) {
             ready = false;
-            buttonText = 'Lost Automatch connection';
+            buttonText = 'Automatch: Disconnected';
         } else if (AM.ws.readyState === WebSocket.OPEN) {
             ready = true;
-            buttonText = 'Automatch';
+            if (AM.state.seek !== null) {
+                buttonText = 'Automatch: Searching';
+            } else {
+                buttonText = 'Automatch: Idle';
+            }
         }
         $('#automatchButton').prop('disabled', !ready)
                              .html(buttonText);
@@ -382,12 +504,12 @@ loadAutomatchModule = function (gs, conn) {
             clearInterval(AM.pingLoop);
         }
 
-        // Wait 5 seconds and attempt reconnect.
+        // Wait 15 seconds and attempt reconnect.
         if (AM.wsFailCount < AM.wsMaxFails) {
             setTimeout(function () {
                 connectToAutomatchServer();
                 updateAMButton();
-            }, 5000);
+            }, 15000);
         } else {
             debug('Too many Automatch failures. Giving up');
         }
@@ -405,6 +527,7 @@ loadAutomatchModule = function (gs, conn) {
             debug(crCallback);
             crCallback();
         }
+        updateAMButton();
     };
 
     confirmSeek = function (msg) {
@@ -638,21 +761,26 @@ loadAutomatchModule = function (gs, conn) {
         seatsState = [1, 2, 3, 4, 5, 6].map(function (i) {
             return (i <= opps.length + 1);
         });
+
         // TODO: random kingdom cards for casual games
-        tKingdom = ["gardens", "cellar", "smithy", "village", "councilRoom",
-                       "bureaucrat", "chapel", "workshop", "festival", "moat"];
-        tSettings = {name: 'For ' + opps.join(', '),
-                        seatsState: seatsState,
-                        gameData: {uid: ""},
-                        kingdomCards: tKingdom,
-                        platinumColony: false,
-                        useShelters: false,
-                        ratingType: ratingSystem};
+        if (AM.tableSettings !== null) {
+            tSettings = AM.tableSettings;
+        } else {
+            tKingdom = ["gardens", "cellar", "smithy", "village", "councilRoom",
+                        "bureaucrat", "chapel", "workshop", "festival", "moat"];
+            tSettings = {name: 'For ' + opps.join(', '),
+                         seatsState: seatsState,
+                         gameData: {uid: ""},
+                         kingdomCards: tKingdom,
+                         platinumColony: false,
+                         useShelters: false,
+                         ratingType: ratingSystem};
+        }
         tOpts = {settings: JSON.stringify(tSettings),
-                    isLock: false,
-                    isRequestJoin: true,
-                    isRequestSit: false,
-                    tableIndex: null};
+                 isLock: false,
+                 isRequestJoin: true,
+                 isRequestSit: false,
+                 tableIndex: null};
         AM.zch.createTable(tOpts);
     };
 

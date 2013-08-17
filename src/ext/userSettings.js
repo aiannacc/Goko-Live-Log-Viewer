@@ -10,6 +10,9 @@ var loadUserSettingsModule;
     // Wait (non-blocking) until the required objects have been instantiated
     var waitLoop = setInterval(function () {
         var gs, gso, ang;
+
+        console.log('Checking for User Settings dependencies');
+
         try {
             gs = window.GokoSalvager;
             gso = gs.get_option;

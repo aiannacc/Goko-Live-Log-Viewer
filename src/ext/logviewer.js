@@ -13,6 +13,9 @@ var loadLogViewerModule;
 
     // Wait (non-blocking) until the required objects have been instantiated
     var waitLoop = setInterval(function () {
+
+        console.log('Checking for Log Viewer dependencies');
+
         try {
             var gs = window.GokoSalvager;
             var gso = gs.get_option;

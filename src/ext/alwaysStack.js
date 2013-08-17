@@ -16,6 +16,8 @@ var loadAlwaysStackModule;
     var dbWait = setInterval(function () {
         var gs, gso, csp;
 
+        console.log('Checking for Always Stack dependencies');
+        
         try {
             gs = window.GokoSalvager;
             gso = gs.get_option;

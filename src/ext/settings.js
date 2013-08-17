@@ -20,7 +20,14 @@ var loadConfigurationModule = function (gs) {
         vp_always_on: false,
         vp_always_off: false,
         always_stack: false,
-        blacklist: []
+        blacklist: [],
+        automatch_on_seek: true,
+        automatch_min_players: 2,
+        automatch_max_players: 2,
+        automatch_min_sets: 1,
+        automatch_max_sets: 15,
+        automatch_rSystem: 'pro',
+        automatch_rdiff: 1500
     };
 
     gs.get_options = function () {

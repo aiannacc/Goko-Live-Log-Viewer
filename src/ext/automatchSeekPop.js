@@ -1,5 +1,5 @@
 /*jslint browser: true, devel: true, indent: 4, maxlen: 90, es5: true */
-/*global jQuery, $ */
+/*global jQuery, $, angular */
 
 (function () {
     "use strict"; // JSList mode
@@ -9,13 +9,14 @@
 
     AM.appendSeekPopup = function (viewport) {
         viewport.append([
-            '<div id="seekPop" style="visibility:hidden">',
+            '<div id="seekPop" style="visibility:hidden" ng:app ',
+            '     ng:controller="gokoSalvagerUserSettingsController">',
             '  <h3 style="text-align:center">Request Automatch</h3>',
             '  <table>',
             '    <tr>',
             '      <td colspan="2">',
             '        <label>Min Players:</label>',
-            '        <select id="minPlayers">',
+            '        <select id="minPlayers" ng:model="us.automatch_min_players">',
             '          <option value="2">2</option>',
             '          <option value="3">3</option>',
             '          <option value="4">4</option>',
@@ -25,7 +26,7 @@
             '      </td>',
             '      <td colspan="2">',
             '        <label>Min Sets:</label>',
-            '        <select id="minSets">',
+            '        <select id="minSets" ng:model="us.automatch_min_sets">',
             '          <option selected value="1">Base Only</option>',
             '          <option value="2">2</option>',
             '          <option value="3">3</option>',
@@ -46,7 +47,7 @@
             '    <tr>',
             '      <td colspan="2">',
             '        <label>Max Players:</label>',
-            '        <select id="maxPlayers">',
+            '        <select id="maxPlayers" ng:model="us.automatch_max_players">',
             '          <option value="2">2</option>',
             '          <option value="3">3</option>',
             '          <option value="4">4</option>',
@@ -56,7 +57,7 @@
             '      </td>',
             '      <td colspan="2">',
             '        <label>Max Sets:</label>',
-            '        <select id="maxSets">',
+            '        <select id="maxSets" ng:model="us.automatch_max_sets">',
             '          <option value="1">Base Only</option>',
             '          <option value="2">2</option>',
             '          <option value="3">3</option>',
@@ -81,7 +82,8 @@
             '        <label>Rating +/-</label>',
             '      </td>',
             '      <td colspan="1">',
-            '        <input type="number" id="rdiff" value="2000" size="4"/>',
+            '        <input type="number" id="rdiff" value="2000" size="4"',
+            '               ng:model="us.automatch_rdiff"/>',
             '      </td>',
             '    </tr>',
             '    <tr>',
@@ -89,15 +91,17 @@
             '        <label>System</label>',
             '      </td>',
             '      <td colspan="1">',
-            '        <select id="ratingSystem">',
+            '        <select id="ratingSystem" ng:model="us.automatch_rSystem">',
             '          <option value="pro">Pro</option>',
-            '          <!--option value="casual">Casual</option-->',
+            '          <option value="casual">Casual</option>',
+            '          <option value="unrated">Unrated</option>',
             '        </select>',
             '      </td>',
             '    </tr>',
             '    <tr>',
             '      <td colspan="1">',
-            '        <input type="submit" id="seekreq" value="Submit" />',
+            '        <input type="submit" id="seekreq" value="Submit"',
+            '               ng:click="save(us)" />',
             '      </td>',
             '      <td colspan="1">',
             '        <input type="submit" id="seekcan" value="Cancel" />',
@@ -149,6 +153,10 @@
 
             rs = {rclass: 'RatingSystem', props: {}};
             rs.props.rating_system = $('#ratingSystem').val();
+
+            // Clear any cached table information from an automatch request
+            // that was generated through a table create.
+            AM.tableSettings = null;
 
             // Send seek request
             AM.submitSeek({
@@ -202,6 +210,8 @@
                 $('#minSets').val($('#maxSets').val());
             }
         });
+
+        angular.bootstrap(window.document);
     };
 
     // Update and show/hide the dialog
