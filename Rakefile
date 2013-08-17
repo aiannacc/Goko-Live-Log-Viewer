@@ -19,6 +19,11 @@ def insert_set_parser_into_main_script(out_file_name)
   out.close
 end
 
+# TODO: Rather than duplicating code in every JS file, create a wrapper like
+#       run_in_page_context to make the script wait for required dependencies.
+#def wrap_requirement_wait(file, requiredObjectNames)
+#end
+
 def run_in_page_context(file)
   f = File.read(file)
   t = File.new(file, 'w')

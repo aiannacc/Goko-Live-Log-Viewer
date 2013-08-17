@@ -1,28 +1,55 @@
 /*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true */
-/*global $, _, FS, Goko */
+/*global $, _ */
+
+var loadBlacklistModule;
+(function () {
+    "use strict";
+
+    console.log('Preparing to load Blacklist module');
+
+    var exists = function (obj) {
+        return (typeof obj !== 'undefined' && obj !== null);
+    };
+
+    // Wait (non-blocking) until the required objects have been instantiated
+    var dbWait = setInterval(function () {
+        var gs, gso, mr, ctv;
+
+        try {
+            gs = window.GokoSalvager;
+            gso = gs.get_option;
+            mr = window.FS.MeetingRoom;
+            ctv = window.FS.ClassicTableView;
+        } catch (e) {}
+
+        if ([gso].every(exists)) {
+            console.log('Loading Blacklist module');
+            loadBlacklistModule(gs, mr, ctv);
+            clearInterval(dbWait);
+        }
+    }, 100);
+}());
 
 /*
  * Blacklist Module
  */
-(function () {
+loadBlacklistModule = function (gs, mr, ctv) {
     "use strict";
 
-    FS.MeetingRoom.prototype.old_onRoomChat =
-        FS.MeetingRoom.prototype.onRoomChat;
-    FS.MeetingRoom.prototype.onRoomChat = function (resp) {
+    mr.prototype.old_onRoomChat = mr.prototype.onRoomChat;
+    mr.prototype.onRoomChat = function (resp) {
         var player = this.playerList.findByAddress(resp.data.playerAddress).getName();
 
-        if (window.GokoSalvager.options.blacklist.indexOf(player) > -1) {
+        if (gs.get_option('blacklist').indexOf(player) > -1) {
             return;
         }
 
         this.old_onRoomChat(resp);
     };
 
-    FS.ClassicTableView.prototype.old_modifyDOM =
-        FS.ClassicTableView.prototype.modifyDOM;
-    FS.ClassicTableView.prototype.modifyDOM = function () {
-        FS.ClassicTableView.prototype.old_modifyDOM.call(this);
+    ctv.prototype.old_modifyDOM = ctv.prototype.modifyDOM;
+    ctv.prototype.modifyDOM = function () {
+        ctv.prototype.old_modifyDOM.call(this);
 
         var players, name, blacklisted, localPlayerJoined;
 
@@ -30,7 +57,7 @@
             players = this.model.getJoinedPlayers();
             _(players).each(function (player, index, list) {
                 name = player.getName();
-                if (window.GokoSalvager.options.blacklist.indexOf(name) > -1 && this.model && this.model.view && this.model.view.$el) {
+                if (gs.get_option('blacklist').indexOf(name) > -1 && this.model && this.model.view && this.model.view.$el) {
                     blacklisted = true;
                 }
                 if (name === this.meetingRoom.getLocalPlayer().getName()) {
@@ -45,25 +72,4 @@
             }
         }
     };
-}());
-
-//
-// Always Stack module
-//
-// Goko dependencies:
-// - addView API (setting stackCards in that function, value of autoStackCards)
-// Internal dependencies:
-// - options.alwaysStack
-//
-(function () {
-    "use strict";
-    FS.Cards.CardStackPanel.prototype.old_addView =
-        FS.Cards.CardStackPanel.prototype.addView;
-    FS.Cards.CardStackPanel.prototype.addView = function (view, index) {
-        var ret = this.old_addView(view, index);
-        if (window.GokoSalvager.options.alwaysStack && this.autoStackCards) {
-            this.stackCards = true;
-        }
-        return ret;
-    };
-}());
+};

@@ -36,10 +36,11 @@ namespace :firefox do
     end
 
     desc 'Test the Firefox extension'
+    # Note: ~/.mozilla/firefox/test should link to your testing profile dir
     task :test => [:dev] do
         sh 'cfx -v run --pkgdir=build/firefox/ --binary-args \
-            "-url https://play.goko.com/Dominion/gameClient.html \
-            -jsconsole"'
+            "-url https://play.goko.com/Dominion/gameClient.html" \
+            --profiledir ~/.mozilla/firefox/test'
     end
 
     desc 'Create the Firefox extension .xpi'

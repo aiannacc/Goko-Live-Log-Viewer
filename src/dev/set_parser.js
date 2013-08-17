@@ -14,13 +14,13 @@ var $0 = $$.length - 1;
 switch (yystate) {
 case 1:return this.$
 break;
-case 2: this.$ = $$[$0-2].concat($$[$0]); 
+case 2: this.$ = $$[$0-2].concat($$[$0]);
 break;
 case 3: this.$ = $$[$0-1]
 break;
 case 4: this.$ = [ $$[$0] ]
 break;
-case 5: this.$ = []; for (var i=0;i<$$[$0-1];i++) this.$.push($$[$0]) 
+case 5: this.$ = []; for (var i=0;i<$$[$0-1];i++) this.$.push($$[$0])
 break;
 case 6:this.$ = $$[$0-2];for(var i in $$[$0])this.$[i]=$$[$0][i]+(this.$[i]||0)
 break;

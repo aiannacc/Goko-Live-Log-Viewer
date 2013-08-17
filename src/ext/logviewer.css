@@ -30,28 +30,28 @@ h1 {
   padding: 0px 5px;
   font-size:14px;
   background-color: lightgray;
-  border: 2px solid gray; 
+  border: 2px solid gray;
   border-radius: 5px;
 }
 
 *.p1 {
   background-color: #CC33FF;
-  border-color: purple; 
+  border-color: purple;
 }
 
 *.p2 {
   background-color: lightblue;
-  border-color: blue; 
+  border-color: blue;
 }
 
 *.p3 {
   background-color: lightgreen;
-  border-color: green; 
+  border-color: green;
 }
 
 *.p4 {
 background-color: yellow;
-border-color: orange; 
+border-color: orange;
 }
 
 *.actionPhase {

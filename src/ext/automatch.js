@@ -1,8 +1,37 @@
-/*jslint browser: true, devel: true, indent: 4, maxlen: 80, es5: true */
-/*global jQuery, $, FS, WebSocket, Audio */
+/*jslint browser: true, devel: true, indent: 4, maxlen: 80, es5: true, vars:true */
+/*global jQuery, $, WebSocket, Audio */
+
+var loadAutomatchModule;
+
+(function () {
+    "use strict";
+
+    console.log('Preparing to load Automatch module');
+
+    var exists = function (obj) {
+        return (typeof obj !== 'undefined' && obj !== null);
+    };
+
+    // Wait (non-blocking) until the required objects have been instantiated
+    var dbWait = setInterval(function () {
+        var gs, gso, conn;
+
+        try {
+            gs = window.GokoSalvager;
+            gso = gs.get_option;
+            conn = window.FS.Connection;
+        } catch (e) {}
+
+        if ([gso, conn].every(exists)) {
+            console.log('Loading Automatch module');
+            loadAutomatchModule(gs, conn);
+            clearInterval(dbWait);
+        }
+    }, 100);
+}());
 
 // To be executed in Goko's namespace
-(function () {
+loadAutomatchModule = function (gs, conn) {
     "use strict";   // JSLint mode
 
     var AM, debug, initAutomatch, automatchInitStarted, addAutomatchButton,
@@ -47,8 +76,8 @@
     AM.PRO_SYS_ID = '501726b67af16c2af2fc9c54';     // Goko pro rating system
 
     // Intercept Goko server event notifications:
-    FS.Connection.prototype.trigger_orig = FS.Connection.prototype.trigger;
-    FS.Connection.prototype.trigger = function () {
+    conn.prototype.trigger_orig = conn.prototype.trigger;
+    conn.prototype.trigger = function () {
 
         // Initialize automatch if possible
         if (!automatchInitStarted) { attemptAutomatchInit(); }
@@ -635,4 +664,4 @@
     };
 
     debug('Automatch script loaded.');
-}());
+};

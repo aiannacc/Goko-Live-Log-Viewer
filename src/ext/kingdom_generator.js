@@ -1,5 +1,5 @@
 /*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true */
-/*global $, _, FS, Goko */
+/*global $, _ */
 
 /*
  * Kingdom generator module
@@ -8,31 +8,45 @@ var loadKingdomGenerator;
 (function () {
     "use strict";
 
-    // Wait (non-blocking) until Goko instantiates the FS.Dominion.DeckBuilder 
+    console.log('Preparing to load kingdom generator.');
+
+    var exists = function (obj) {
+        return (typeof obj !== 'undefined' && obj !== null);
+    };
+
+    // Wait (non-blocking) until the required objects have been instantiated
     var dbWait = setInterval(function () {
+        var gs, gso, db, dbp, detv, cdbc;
+
         try {
-            if (typeof FS.Dominion.DeckBuilder !== 'undefined') {
-                loadKingdomGenerator();
-                clearInterval(dbWait);
-            }
-        } catch (e) { }
+            gs = window.GokoSalvager;
+            gso = gs.get_option;
+            db = window.FS.Dominion.DeckBuilder;
+            dbp = window.FS.Dominion.DeckBuilder.Persistent;
+            detv = window.FS.DominionEditTableView;
+            cdbc = window.FS.Dominion.CardBuilder.Data.cards;
+        } catch (e) {}
+
+        if ([gso, db, dbp, detv, cdbc].every(exists)) {
+            console.log('Loading Kingdom Generator');
+            loadKingdomGenerator(gs, db, dbp, detv, cdbc);
+            clearInterval(dbWait);
+        }
     }, 100);
 }());
 
-loadKingdomGenerator = function () {
+loadKingdomGenerator = function (gs, db, dbp, detv, cdbc) {
     "use strict";
 
     var set_parser;
-
-    window.GokoSalvager = window.GokoSalvager || {};
 
     var canonizeName = function (n) {
         return n.toLowerCase().replace(/\W+/g, '');
     };
 
     var hideKingdomGenerator = false;
-    FS.DominionEditTableView.prototype._old_renderRandomDeck = FS.DominionEditTableView.prototype._renderRandomDeck;
-    FS.DominionEditTableView.prototype._renderRandomDeck = function () {
+    detv.prototype._old_renderRandomDeck = detv.prototype._renderRandomDeck;
+    detv.prototype._renderRandomDeck = function () {
         if (this.ratingType === 'pro') {
             hideKingdomGenerator = true;
         }
@@ -270,11 +284,11 @@ loadKingdomGenerator = function () {
     };
 
     var types = {};
-    FS.Dominion.CardBuilder.Data.cards.map(function (card) {
+    cdbc.map(function (card) {
         types[card.name[0]] = card.type;
     });
 
-    sets = {};
+    var sets = {};
     function buildSets() {
         var c, i, t, n;
         sets.all = {};
@@ -384,29 +398,26 @@ loadKingdomGenerator = function () {
 
     var myCachedCards;
     var sel = new Kingdomsel('All');
-    if (FS.Dominion.DeckBuilder.Persistent.prototype._old_proRandomMethod) {
+    if (dbp.prototype._old_proRandomMethod) {
         return;
     }
 
-    FS.Dominion.DeckBuilder.Persistent.prototype._old_proRandomMethod =
-        FS.Dominion.DeckBuilder.Persistent.prototype._proRandomMethod;
-    FS.Dominion.DeckBuilder.Persistent.prototype._proRandomMethod = function (cachedCards, exceptCards, numberCards) {
+    dbp.prototype._old_proRandomMethod = dbp.prototype._proRandomMethod;
+    dbp.prototype._proRandomMethod = function (cachedCards, exceptCards, numberCards) {
         myCachedCards = cachedCards;
         var ret = this._old_proRandomMethod(cachedCards, exceptCards, numberCards);
         return ret;
     };
 
-    FS.Dominion.DeckBuilder.Persistent.prototype._old_getRandomCards =
-        FS.Dominion.DeckBuilder.Persistent.prototype.getRandomCards;
-    FS.Dominion.DeckBuilder.Persistent.prototype.getRandomCards = function (opts, callback) {
+    dbp.prototype._old_getRandomCards = dbp.prototype.getRandomCards;
+    dbp.prototype.getRandomCards = function (opts, callback) {
         this._old_getRandomCards(opts, function (x) {
-            if (window.GokoSalvager.options.generator
-                    && !hideKingdomGenerator && opts.useEternalGenerateMethod) {
+            if (gs.get_option('generator') && !hideKingdomGenerator && opts.useEternalGenerateMethod) {
                 sel.prompt(function (val) {
                     try {
                         var all = {};
                         myCachedCards.each(function (c) {all[c.get('nameId').toLowerCase()] = c.toJSON(); });
-                        var myret = myBuildDeck(all, window.GokoSalvager.set_parser.parse(val));
+                        var myret = myBuildDeck(all, set_parser.parse(val));
                         if (myret) {
                             x = myret;
                         } else {
@@ -433,12 +444,12 @@ loadKingdomGenerator = function () {
         productions_: [0,[3,1],[4,3],[4,2],[5,1],[5,2],[8,3],[8,3],[8,3],[8,3],[8,3],[8,1],[9,1]],
         performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate, $$, _$) {
             /* this == yyval */
-    
+
             var $0 = $$.length - 1;
             var i, s;
             switch (yystate) {
                 case 1:return this.$;
-                case 2: this.$ = $$[$0-2].concat($$[$0]); 
+                case 2: this.$ = $$[$0-2].concat($$[$0]);
                         break;
                 case 3: this.$ = $$[$0-1];
                         break;
@@ -450,7 +461,7 @@ loadKingdomGenerator = function () {
                        break;
                 case 7:this.$ = $$[$0-2];for(i in $$[$0]) { delete(this.$[i]); }
                        break;
-                case 8:this.$ = {};for(i in $$[$0]) { if($$[$0-2][i]) { this.$[i]=Math.min($$[$0-2][i],$$[$0][i]); } } 
+                case 8:this.$ = {};for(i in $$[$0]) { if($$[$0-2][i]) { this.$[i]=Math.min($$[$0-2][i],$$[$0][i]); } }
                        break;
                 case 9:this.$ = $$[$0-1];
                        break;
@@ -589,17 +600,17 @@ loadKingdomGenerator = function () {
         /* generated by jison-lex 0.2.0 */
         var lexer = (function(){
             var lexer = {
-    
+
                 EOF:1,
-    
+
             parseError:function parseError(str,hash){if(this.yy.parser){this.yy.parser.parseError(str,hash);}else{throw new Error(str);}},
-    
+
             // resets the lexer, sets new input
             setInput:function (input){this._input=input;this._more=this._backtrack=this.done=false;this.yylineno=this.yyleng=0;this.yytext=this.matched=this.match="";this.conditionStack=["INITIAL"];this.yylloc={first_line:1,first_column:0,last_line:1,last_column:0};if(this.options.ranges){this.yylloc.range=[0,0];}this.offset=0;return this;},
-    
+
             // consumes and returns one char from the input
             input:function (){var ch=this._input[0];this.yytext+=ch;this.yyleng++;this.offset++;this.match+=ch;this.matched+=ch;var lines=ch.match(/(?:\r\n?|\n).*/g);if(lines){this.yylineno++;this.yylloc.last_line++;}else{this.yylloc.last_column++;}if(this.options.ranges){this.yylloc.range[1]++;}this._input=this._input.slice(1);return ch;},
-    
+
             // unshifts one char (or a string) into the input
             unput:function (ch){var len=ch.length;
                 var lines=ch.split(/(?:\r\n?|\n)/g);
@@ -617,57 +628,57 @@ loadKingdomGenerator = function () {
                     last_column:lines?(lines.length===oldLines.length?this.yylloc.first_column:0)+oldLines[oldLines.length-lines.length].length-lines[0].length:this.yylloc.first_column-len
                 };if(this.options.ranges){this.yylloc.range=[r[0],r[0]+this.yyleng-len];
             }this.yyleng=this.yytext.length;return this;},
-    
+
             // When called from action, caches matched text and appends it on next action
             more:function (){this._more=true;return this;},
-    
+
             // When called from action, signals the lexer that this rule fails to match the input, so the next matching rule (regex) should be tested instead.
             reject:function (){if(this.options.backtrack_lexer){this._backtrack=true;}else{return this.parseError("Lexical error on line "+(this.yylineno+1)+". You can only invoke reject() in the lexer when the lexer is of the backtracking persuasion (options.backtrack_lexer = true).\n"+this.showPosition(),{text:"",token:null,line:this.yylineno});}return this;},
-    
+
             // retain first n characters of the match
             less:function (n){this.unput(this.match.slice(n));},
-    
+
             // displays already matched input, i.e. for error messages
             pastInput:function (){var past=this.matched.substr(0,this.matched.length-this.match.length);return(past.length>20?"...":"")+past.substr(-20).replace(/\n/g,"");},
-    
+
             // displays upcoming input, i.e. for error messages
             upcomingInput:function (){var next=this.match;if(next.length<20){next+=this._input.substr(0,20-next.length);}return(next.substr(0,20)+(next.length>20?"...":"")).replace(/\n/g,"");},
-    
+
             // displays the character position where the lexing error occurred, i.e. for error messages
             showPosition:function (){
                 var pre=this.pastInput();
                 var c=new Array(pre.length+1).join("-");
                 return pre+this.upcomingInput()+"\n"+c+"^";},
-    
+
             // test the lexed token: return FALSE when not a match, otherwise return token
-            test_match:function (match,indexed_rule){var token,lines,backup;if(this.options.backtrack_lexer){backup={yylineno:this.yylineno,yylloc:{first_line:this.yylloc.first_line,last_line:this.last_line,first_column:this.yylloc.first_column,last_column:this.yylloc.last_column},yytext:this.yytext,match:this.match,matches:this.matches,matched:this.matched,yyleng:this.yyleng,offset:this.offset,_more:this._more,_input:this._input,yy:this.yy,conditionStack:this.conditionStack.slice(0),done:this.done};if(this.options.ranges){backup.yylloc.range=this.yylloc.range.slice(0)}}lines=match[0].match(/(?:\r\n?|\n).*/g);if(lines){this.yylineno+=lines.length}this.yylloc={first_line:this.yylloc.last_line,last_line:this.yylineno+1,first_column:this.yylloc.last_column,last_column:lines?lines[lines.length-1].length-lines[lines.length-1].match(/\r?\n?/)[0].length:this.yylloc.last_column+match[0].length};this.yytext+=match[0];this.match+=match[0];this.matches=match;this.yyleng=this.yytext.length;if(this.options.ranges){this.yylloc.range=[this.offset,this.offset+=this.yyleng]}this._more=false;this._backtrack=false;this._input=this._input.slice(match[0].length);this.matched+=match[0];token=this.performAction.call(this,this.yy,this,indexed_rule,this.conditionStack[this.conditionStack.length-1]);if(this.done&&this._input){this.done=false}if(token){if(this.options.backtrack_lexer){delete backup}return token}else if(this._backtrack){for(var k in backup){this[k]=backup[k]}return false}if(this.options.backtrack_lexer){delete backup}return false},
-    
+            test_match:function (match,indexed_rule){var token,lines,backup;if(this.options.backtrack_lexer){backup={yylineno:this.yylineno,yylloc:{first_line:this.yylloc.first_line,last_line:this.last_line,first_column:this.yylloc.first_column,last_column:this.yylloc.last_column},yytext:this.yytext,match:this.match,matches:this.matches,matched:this.matched,yyleng:this.yyleng,offset:this.offset,_more:this._more,_input:this._input,yy:this.yy,conditionStack:this.conditionStack.slice(0),done:this.done};if(this.options.ranges){backup.yylloc.range=this.yylloc.range.slice(0)}}lines=match[0].match(/(?:\r\n?|\n).*/g);if(lines){this.yylineno+=lines.length}this.yylloc={first_line:this.yylloc.last_line,last_line:this.yylineno+1,first_column:this.yylloc.last_column,last_column:lines?lines[lines.length-1].length-lines[lines.length-1].match(/\r?\n?/)[0].length:this.yylloc.last_column+match[0].length};this.yytext+=match[0];this.match+=match[0];this.matches=match;this.yyleng=this.yytext.length;if(this.options.ranges){this.yylloc.range=[this.offset,this.offset+=this.yyleng]}this._more=false;this._backtrack=false;this._input=this._input.slice(match[0].length);this.matched+=match[0];token=this.performAction.call(this,this.yy,this,indexed_rule,this.conditionStack[this.conditionStack.length-1]);if(this.done&&this._input){this.done=false}if(token){if(this.options.backtrack_lexer){delete window.backup}return token}else if(this._backtrack){for(var k in backup){this[k]=backup[k]}return false}if(this.options.backtrack_lexer){delete window.backup}return false},
+
             // return next match in input
             next:function (){if(this.done){return this.EOF}if(!this._input){this.done=true}var token,match,tempMatch,index;if(!this._more){this.yytext="";this.match=""}var rules=this._currentRules();for(var i=0;i<rules.length;i++){tempMatch=this._input.match(this.rules[rules[i]]);if(tempMatch&&(!match||tempMatch[0].length>match[0].length)){match=tempMatch;index=i;if(this.options.backtrack_lexer){token=this.test_match(tempMatch,rules[i]);if(token!==false){return token}else if(this._backtrack){match=false;continue}else{return false}}else if(!this.options.flex){break}}}if(match){token=this.test_match(match,rules[index]);if(token!==false){return token}return false}if(this._input===""){return this.EOF}else{return this.parseError("Lexical error on line "+(this.yylineno+1)+". Unrecognized text.\n"+this.showPosition(),{text:"",token:null,line:this.yylineno})}},
-    
+
             // return next match that has a token
             lex:function lex(){var r=this.next();if(r){return r}else{return this.lex()}},
-    
+
             // activates a new lexer condition state (pushes the new lexer condition state onto the condition stack)
             begin:function begin(condition){this.conditionStack.push(condition)},
-    
+
             // pop the previously active lexer condition state off the condition stack
             popState:function popState(){var n=this.conditionStack.length-1;if(n>0){return this.conditionStack.pop()}else{return this.conditionStack[0]}},
-    
+
             // produce the lexer rule set which is active for the currently active lexer condition state
             _currentRules:function _currentRules(){if(this.conditionStack.length&&this.conditionStack[this.conditionStack.length-1]){return this.conditions[this.conditionStack[this.conditionStack.length-1]].rules}else{return this.conditions["INITIAL"].rules}},
-    
+
             // return the currently active lexer condition state; when an index argument is provided it produces the N-th previous condition state, if available
             topState:function topState(n){n=this.conditionStack.length-1-Math.abs(n||0);if(n>=0){return this.conditionStack[n]}else{return"INITIAL"}},
-    
+
             // alias for begin(condition)
             pushState:function pushState(condition){this.begin(condition)},
-    
+
             // return the number of states currently on the stack
             stateStackSize:function stateStackSize(){return this.conditionStack.length},
             options: {},
             performAction: function anonymous(yy, yy_, $avoiding_name_collisions, YY_START) {
-    
+
                 var YYSTATE=YY_START;
                 switch($avoiding_name_collisions) {
                     case 0:/* skip whitespace */
