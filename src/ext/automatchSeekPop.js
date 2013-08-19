@@ -9,9 +9,34 @@
 
     AM.appendSeekPopup = function (viewport) {
         viewport.append([
-            '<div id="seekPop" style="visibility:hidden" ng:app ',
+            '<div id="seekAAPop" title="Looking for Match">',
+            '<p>Automatch is looking for players whose ',
+            '   search criteria match your table.</p>',
+            '<button id="seekAAStop">Stop Looking</button>',
+            '<button id="seekAAOkay">Keep Looking</button>',
+            '</div>'
+        ].join(''));
+
+        $('#seekAAPop').dialog({
+            modal: true,
+            width: 500,
+            draggable: false,
+            resizeable: false,
+            autoOpen: false
+        });
+
+        $('#seekAAStop').click(function () {
+            AM.showSeekPop(false);
+            AM.cancelSeek();
+        });
+
+        $('#seekAAOkay').click(function () {
+            AM.showSeekPop(false);
+        });
+
+        viewport.append([
+            '<div id="seekPop" title="Request Automatch" ng:app ',
             '     ng:controller="gokoSalvagerUserSettingsController">',
-            '  <h3 style="text-align:center">Request Automatch</h3>',
             '  <table>',
             '    <tr>',
             '      <td colspan="2">',
@@ -123,15 +148,13 @@
         $('#seekPop select').css('visibility', 'inherit');
         $('#seekPop select').css('top', 'auto');
 
-        // Make this into a lightbox-style dialog
-        $('#seekPop').css("position", "absolute");
-        $('#seekPop').css("top", "50%");
-        $('#seekPop').css("left", "50%");
-        $('#seekPop').css("height", "250px");
-        $('#seekPop').css("margin-top", "-125px");
-        $('#seekPop').css("width", "40%");
-        $('#seekPop').css("margin-left", "-20%");
-        $('#seekPop').css("background", "white");
+        $('#seekPop').dialog({
+            modal: true,
+            width: 550,
+            draggable: false,
+            resizeable: false,
+            autoOpen: false
+        });
 
         // Submit request
         $('#seekreq').click(function () {
@@ -217,9 +240,6 @@
     // Update and show/hide the dialog
     AM.showSeekPop = function (visible) {
         var seeking, canceling;
-        if (typeof visible === "undefined") {
-            visible = true;
-        }
 
         seeking = (AM.state.seek !== null);
         canceling = seeking && AM.state.seek.hasOwnProperty('canceling');
@@ -231,6 +251,16 @@
         $('#seekhide').prop('disabled', false);
         $('#seekstatus').html(seeking ? 'Looking for a match...' : '');
 
-        $('#seekPop').css('visibility', visible ? 'visible' : 'hidden');
+        if (typeof visible === "undefined") {
+            visible = true;
+        }
+
+        if (AM.tableSettings === null) {
+            $('#seekPop').dialog(visible ? 'open' : 'close');
+            $('#seekhide').focus();
+        } else {
+            $('#seekAAPop').dialog(visible ? 'open' : 'close');
+            $('#seekAAOkay').focus();
+        }
     };
 }());

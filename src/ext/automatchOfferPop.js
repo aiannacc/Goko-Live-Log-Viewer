@@ -9,15 +9,13 @@
 
     AM.appendOfferPopup = function (viewport) {
         viewport.append([
-            '<div id="offerPop" style="visibility:hidden">',
-            '  <h3 style="text-align:center">Match Found</h3>',
-            '  ',
-            '  Players:<br>',
-            '  <ul id="plist"> </ul>',
+            '<div id="offerPop" title="Automatch Found">',
             '  Host: <label id="offerhost" /><br>',
+            '  Guests:<br>',
+            '  <ul id="plist"> </ul>',
             '  Sets: <label id="offersets" /><br>',
             '  Rating: <label id="offerrating" /><br>',
-            '  Room: <label id="offerroom" /><br>',
+            //'  Room: <label id="offerroom" /><br>',
             '  ',
             '  <p id="offerwaitinfo" />',
             '  ',
@@ -26,15 +24,13 @@
             '</div>'
         ].join('\n'));
 
-        // Make this into a lightbox-style dialog
-        $('#offerPop').css("position", "absolute");
-        $('#offerPop').css("top", "50%");
-        $('#offerPop').css("left", "50%");
-        $('#offerPop').css("height", "300px");
-        $('#offerPop').css("margin-top", "-150px");
-        $('#offerPop').css("width", "40%");
-        $('#offerPop').css("margin-left", "-20%");
-        $('#offerPop').css("background", "white");
+        $('#offerPop').dialog({
+            modal: true,
+            width: 500,
+            draggable: false,
+            resizeable: false,
+            autoOpen: false
+        });
 
         $('#offeracc').click(function (evt) {
             AM.state.offer.accepted = true;
@@ -72,10 +68,13 @@
         if (AM.state.offer !== null) {
             // List players
             $('#plist').empty();
-            AM.state.offer.seeks.map(function (s) {
-                var p = s.player.pname + ' [' + s.player.rating.goko_pro_rating + ']';
-                $('#plist').append('<li>' + p + '</li>');
+            AM.state.offer.seeks.filter(function (s) {
+                return s.player.pname !== AM.state.offer.hostname;
+            }).map(function (s) {
                 // TODO: use casual rating if it's a casual game
+                var p = s.player.pname
+                        + ' [Pro Rating: ' + s.player.rating.goko_pro_rating + ']';
+                $('#plist').append('<li>' + p + '</li>');
             });
 
             // List or count card sets
@@ -103,10 +102,12 @@
             $('#offerrating').html(AM.state.offer.rating_system);
             $('#offerhost').html(AM.state.offer.hostname);
             $('#offerroom').html(AM.state.offer.roomname);
-            $('#offerwaitinfo').html('');
+            $('#offerwaitinfo').html('If you accept, Automatch will take you '
+                    + 'and your opponent(s) to ' + AM.state.offer.roomname
+                    + ' and create a new game there.');
             $('#offeracc').prop('disabled', false);
             $('#offerrej').prop('disabled', false);
         }
-        $('#offerPop').css('visibility', visible ? 'visible' : 'hidden');
+        $('#offerPop').dialog(visible ? 'open' : 'close');
     };
 }());

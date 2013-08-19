@@ -85,7 +85,7 @@ loadUserSettingsModule = function (gs) {
                 // Display as JQueryUI popup dialog
                 $('#usDialog').dialog({
                     modal: true,
-                    width: 500,
+                    width: 550,
                     closeText: 'Save',
                     draggable: false,
                     resizeable: false,

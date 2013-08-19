@@ -9,31 +9,27 @@
 
     AM.appendGamePopup = function (viewport) {
         viewport.append([
-            '<div id="gamepop" style="visibility:hidden">',
-            '  <h3 style="text-align:center">Creating Automatch Game</h3>',
+            '<div id="gamepop" title="Creating Automatch Game">',
             '  ',
             '  Host: <div id="gamehost"></div><br>',
-            '  Guest: <ul id="gameguests"></ul><br>',
+            '  Guests: <ul id="gameguests"></ul><br>',
             '  ',
             '  <p>',
-            '    Automatch will seat you automatically.',
-            '    Please do not use the Goko UI while ',
-            '    this message is on the screen.',
+            '    Automatch will create the game and seat you automatically.',
+            '    This dialog should disappear shortly.',
             '  </p>',
             '  ',
             '  <input type="button" id="abortgame" value="Abort" />',
             '</div>'
         ].join('\n'));
 
-        // Make this into a lightbox-style dialog
-        $('#gamepop').css("position", "absolute");
-        $('#gamepop').css("top", "50%");
-        $('#gamepop').css("left", "50%");
-        $('#gamepop').css("height", "350px");
-        $('#gamepop').css("margin-top", "-175px");
-        $('#gamepop').css("width", "40%");
-        $('#gamepop').css("margin-left", "-20%");
-        $('#gamepop').css("background", "white");
+        $('#gamepop').dialog({
+            modal: true,
+            width: 500,
+            draggable: false,
+            resizeable: false,
+            autoOpen: false
+        });
 
         $('#abortgame').click(function (evt) {
             $('#abortgame').prop('disabled', true);
@@ -66,6 +62,6 @@
 
             $('#abortgame').prop('disabled', false);
         }
-        $('#gamepop').css('visibility', visible ? 'visible' : 'hidden');
+        $('#gamepop').dialog(visible ? 'open' : 'close');
     };
 }());

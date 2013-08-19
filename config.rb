@@ -58,6 +58,6 @@
     ],
     :css => [
         'logviewer.css',
-        'jquery-smoothness.css'
+        'jquery-gokocolors.css'
     ]
 }
