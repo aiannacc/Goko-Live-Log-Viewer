@@ -80,6 +80,8 @@ loadAutokickModule = function (gs, zch) {
                         document.getElementById('_joinSound').play();
                     }
                 });
+            } else {
+                document.getElementById('_joinSound').play();
             }
         }
 

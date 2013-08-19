@@ -88,8 +88,10 @@ loadUserSettingsModule = function (gs) {
                     width: 500,
                     closeText: 'Save',
                     draggable: false,
-                    resizeable: false
+                    resizeable: false,
+                    autoOpen: false
                 });
+                $('#usDialog').dialog('open');
             })
     );
 };
