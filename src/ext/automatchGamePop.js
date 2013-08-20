@@ -4,10 +4,10 @@
 (function () {
     "use strict";
 
-    // Automatch global namespace
-    var AM = window.AM = (window.AM || {});
+    var gs = window.GokoSalvager;
+    gs.AM = gs.AM || {};
 
-    AM.appendGamePopup = function (viewport) {
+    gs.AM.appendGamePopup = function (viewport) {
         viewport.append([
             '<div id="gamepop" title="Creating Automatch Game">',
             '  ',
@@ -33,13 +33,13 @@
 
         $('#abortgame').click(function (evt) {
             $('#abortgame').prop('disabled', true);
-            AM.abortGame();
+            gs.AM.abortGame();
             $('#gamepop').css('visibility', 'hidden');
         });
     };
 
     // Update and show/hide the dialog
-    AM.showGamePop = function (visible) {
+    gs.AM.showGamePop = function (visible) {
         if (typeof visible === "undefined") {
             visible = true;
         }
@@ -47,15 +47,15 @@
         $('#gamehost').html();
         $('#gameguests').empty();
 
-        if (AM.state.game !== null) {
-            var hostname = AM.state.game.hostname;
+        if (gs.AM.state.game !== null) {
+            var hostname = gs.AM.state.game.hostname;
             $('#gamehost').html(hostname);
 
             // List guest names
-            AM.state.game.seeks.map(function (s) {
+            gs.AM.state.game.seeks.map(function (s) {
                 return s.player.pname;
             }).filter(function (pname) {
-                return pname !== AM.state.game.hostname;
+                return pname !== gs.AM.state.game.hostname;
             }).map(function (pname) {
                 $('#gameguests').append('<li>' + pname + '</li>');
             });

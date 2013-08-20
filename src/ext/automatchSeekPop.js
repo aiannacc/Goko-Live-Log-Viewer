@@ -4,10 +4,10 @@
 (function () {
     "use strict"; // JSList mode
 
-    // Automatch global namespace
-    var AM = window.AM = (window.AM || {});
+    var gs = window.GokoSalvager;
+    gs.AM = gs.AM || {};
 
-    AM.appendSeekPopup = function (viewport) {
+    gs.AM.appendSeekPopup = function (viewport) {
         viewport.append([
             '<div id="seekAAPop" title="Looking for Match">',
             '<p>Automatch is looking for players whose ',
@@ -26,12 +26,12 @@
         });
 
         $('#seekAAStop').click(function () {
-            AM.showSeekPop(false);
-            AM.cancelSeek();
+            gs.AM.showSeekPop(false);
+            gs.AM.cancelSeek();
         });
 
         $('#seekAAOkay').click(function () {
-            AM.showSeekPop(false);
+            gs.AM.showSeekPop(false);
         });
 
         viewport.append([
@@ -179,26 +179,26 @@
 
             // Clear any cached table information from an automatch request
             // that was generated through a table create.
-            AM.tableSettings = null;
+            gs.AM.tableSettings = null;
 
             // Send seek request
-            AM.submitSeek({
-                player: AM.player,
+            gs.AM.submitSeek({
+                player: gs.AM.player,
                 requirements: [np, ns, rr, rs]
             });
 
             // Hide the dialog
-            AM.showSeekPop(false);
+            gs.AM.showSeekPop(false);
         });
 
         // Cancel outstanding request, if any, and close dialog
         $('#seekcan').click(function () {
-            AM.cancelSeek();
-            AM.showSeekPop(false);
+            gs.AM.cancelSeek();
+            gs.AM.showSeekPop(false);
         });
 
         $('#seekhide').click(function () {
-            AM.showSeekPop(false);
+            gs.AM.showSeekPop(false);
         });
 
 
@@ -238,11 +238,11 @@
     };
 
     // Update and show/hide the dialog
-    AM.showSeekPop = function (visible) {
+    gs.AM.showSeekPop = function (visible) {
         var seeking, canceling;
 
-        seeking = (AM.state.seek !== null);
-        canceling = seeking && AM.state.seek.hasOwnProperty('canceling');
+        seeking = (gs.AM.state.seek !== null);
+        canceling = seeking && gs.AM.state.seek.hasOwnProperty('canceling');
 
         $('#seekPop select').prop('disabled', seeking || canceling);
         $('#seekPop input').prop('disabled', seeking || canceling);
@@ -255,7 +255,7 @@
             visible = true;
         }
 
-        if (AM.tableSettings === null) {
+        if (gs.AM.tableSettings === null) {
             $('#seekPop').dialog(visible ? 'open' : 'close');
             $('#seekhide').focus();
         } else {

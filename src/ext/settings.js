@@ -7,8 +7,12 @@
  * Goko dependencies: none
  * Internal dependencies: none
  */
-var loadConfigurationModule = function (gs) {
+(function () {
     "use strict";
+
+    // All extension globals should be defined here
+    window.GokoSalvager = {};
+    var gs = window.GokoSalvager;
 
     var default_options = {
         autokick: true,
@@ -52,11 +56,4 @@ var loadConfigurationModule = function (gs) {
         opts[optionName] = optionValue;
         gs.set_options(opts);
     };
-};
-
-(function () {
-    "use strict";
-    window.GokoSalvager = window.GokoSalvager || {};
-    console.log('Loading configuration module.');
-    loadConfigurationModule(window.GokoSalvager);
 }());

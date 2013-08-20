@@ -1,0 +1,5 @@
+content   gokosalvager                content/
+skin      gokosalvager  classic/1.0   skin/
+locale    gokosalvager  en-US         locale/en-US/
+
+overlay chrome://browser/content/browser.xul  chrome://gokosalvager/content/main.xul

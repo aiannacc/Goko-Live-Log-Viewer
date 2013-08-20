@@ -39,7 +39,7 @@ var loadAutomatchModule;
 loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
     "use strict";   // JSLint mode
 
-    var AM, debug, initAutomatch, automatchInitStarted, addAutomatchButton,
+    var debug, initAutomatch, automatchInitStarted, addAutomatchButton,
         fetchOwnRatings, updateAMButton, createTable,
         fetchOwnSets, handleDisconnect,
         connectToAutomatchServer, confirmReceipt, confirmSeek, offerMatch,
@@ -48,42 +48,40 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
         handleLostAutomatchConnection, enableAutoAccept, disableAutoAccept,
         gameReady, attemptAutomatchInit, testPop, sendAutoAutomatchSeekRequest;
 
-    // Automatch global namespace
-    AM = window.AM = (window.AM || {});
-
     // Configuration
-    AM.log_debugging_messages = true;
-    AM.wsMaxFails = 100;
+    gs.AM = gs.AM || {};
+    gs.AM.log_debugging_messages = true;
+    gs.AM.wsMaxFails = 100;
 
     // Use secure websockets
-    AM.server_url = 'wss://andrewiannaccone.com/automatch';
+    gs.AM.server_url = 'wss://andrewiannaccone.com/automatch';
 
     // Initial state
     automatchInitStarted = false;
-    AM.tableSettings = null;
-    AM.wsFailCount = 0;
-    AM.state = {seek: null, offer: null, game: null};
+    gs.AM.tableSettings = null;
+    gs.AM.wsFailCount = 0;
+    gs.AM.state = {seek: null, offer: null, game: null};
 
     // Goko constants
-    AM.ENTER_LOBBY = "gatewayConnect";              // Fired on lobby enter
-    AM.GAME_START = "gameServerHello";              // Fired on game start
-    AM.TABLE_STATE = "tableState";                  // Fired on table changes
-    AM.CASUAL_SYS_ID = '4fd6356ce0f90b12ebb0ff3a';  // Goko casual rating system
-    AM.PRO_SYS_ID = '501726b67af16c2af2fc9c54';     // Goko pro rating system
+    gs.AM.ENTER_LOBBY = "gatewayConnect";              // Fired on lobby enter
+    gs.AM.GAME_START = "gameServerHello";              // Fired on game start
+    gs.AM.TABLE_STATE = "tableState";                  // Fired on table changes
+    gs.AM.CASUAL_SYS_ID = '4fd6356ce0f90b12ebb0ff3a';  // Goko casual rating sys
+    gs.AM.PRO_SYS_ID = '501726b67af16c2af2fc9c54';     // Goko pro rating sys
 
     // Runs at end of script
     initAutomatch = function (mtgRoom, gokoconn, zch) {
         debug('Initializing Automatch');
 
         // Goko helper objects
-        AM.mtgRoom = mtgRoom;
-        AM.gokoconn = gokoconn;
-        AM.zch = zch;
+        gs.AM.mtgRoom = mtgRoom;
+        gs.AM.gokoconn = gokoconn;
+        gs.AM.zch = zch;
 
         // Goko player info. Ratings and sets owned via asynchronous query.
-        AM.player = {pname: AM.gokoconn.connInfo.playerName,
-                     pid: AM.gokoconn.connInfo.playerId,
-                     kind: AM.gokoconn.connInfo.kind,
+        gs.AM.player = {pname: gs.AM.gokoconn.connInfo.playerName,
+                     pid: gs.AM.gokoconn.connInfo.playerId,
+                     kind: gs.AM.gokoconn.connInfo.kind,
                      rating: {},
                      sets_owned: null};
         fetchOwnRatings(updateAMButton);
@@ -93,9 +91,9 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
         connectToAutomatchServer();
 
         // Create automatch popup dialogs
-        AM.appendSeekPopup($('#viewport'));
-        AM.appendOfferPopup($('#viewport'));
-        AM.appendGamePopup($('#viewport'));
+        gs.AM.appendSeekPopup($('#viewport'));
+        gs.AM.appendOfferPopup($('#viewport'));
+        gs.AM.appendGamePopup($('#viewport'));
 
         // Replace the "Play Now" button with an Automatch button
         $('.room-section-btn-find-table').remove();
@@ -103,7 +101,7 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
             $('<button id="automatchButton" />')
                 .addClass('fs-mtrm-text-border')
                 .addClass('fs-mtrm-dominion-btn')
-                .click(AM.showSeekPop)
+                .click(gs.AM.showSeekPop)
         );
 
         // Disable the butomatch button until the async init calls finish
@@ -163,45 +161,45 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
         });
 
         // Notify automatch when the player starts a game
-        AM.gokoconn.bind(AM.GAME_START, AM.gameStarted);
+        gs.AM.gokoconn.bind(gs.AM.GAME_START, gs.AM.gameStarted);
 
         // Refresh player's rating info after games
         // TODO: no need to refresh on room changes.
-        AM.gokoconn.bind(AM.ENTER_LOBBY, function () {
+        gs.AM.gokoconn.bind(gs.AM.ENTER_LOBBY, function () {
             fetchOwnRatings(updateAMButton);
         });
     };
 
     // Asynchronously request Goko casual and pro ratings
     fetchOwnRatings = function (frCallback) {
-        AM.player.rating = {};
+        gs.AM.player.rating = {};
 
-        if (AM.player.kind === 'guest') {
+        if (gs.AM.player.kind === 'guest') {
             // TODO: look up guest ratings correctly
-            AM.player.rating.goko_casual_rating = 1000;
-            AM.player.rating.goko_pro_rating = 1000;
+            gs.AM.player.rating.goko_casual_rating = 1000;
+            gs.AM.player.rating.goko_pro_rating = 1000;
             if (typeof frCallback !== undefined) {
                 frCallback();
             }
 
         } else {
             // Asynchronously get casual rating
-            AM.gokoconn.getRating({
-                playerId: AM.player.pid,
-                ratingSystemId: AM.CASUAL_SYS_ID
+            gs.AM.gokoconn.getRating({
+                playerId: gs.AM.player.pid,
+                ratingSystemId: gs.AM.CASUAL_SYS_ID
             }, function (resp) {
-                AM.player.rating.goko_casual_rating = resp.data.rating;
+                gs.AM.player.rating.goko_casual_rating = resp.data.rating;
                 if (typeof frCallback !== undefined) {
                     frCallback();
                 }
             });
 
             // Asynchronously get pro rating
-            AM.gokoconn.getRating({
-                playerId: AM.player.pid,
-                ratingSystemId: AM.PRO_SYS_ID
+            gs.AM.gokoconn.getRating({
+                playerId: gs.AM.player.pid,
+                ratingSystemId: gs.AM.PRO_SYS_ID
             }, function (resp) {
-                AM.player.rating.goko_pro_rating = resp.data.rating;
+                gs.AM.player.rating.goko_pro_rating = resp.data.rating;
                 if (typeof frCallback !== undefined) {
                     frCallback();
                 }
@@ -213,9 +211,9 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
 
     // Asynchronously request which card sets we own
     fetchOwnSets = function (fsCallback) {
-        if (AM.player.kind === "guest") {
+        if (gs.AM.player.kind === "guest") {
             // Guests only have Base. No need to check.
-            AM.player.sets_owned = ['Base'];
+            gs.AM.player.sets_owned = ['Base'];
             if (typeof fsCallback !== undefined) {
                 fsCallback();
             }
@@ -240,15 +238,15 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
 
             // Get all Goko items I own, filter for cards only, and then
             // translate from cards to sets
-            AM.gokoconn.getInventoryList({}, function (r) {
+            gs.AM.gokoconn.getInventoryList({}, function (r) {
                 var myInv = r.data.inventoryList.filter(function (x) {
                     return x.name === "Personal";
                 })[0];
-                AM.gokoconn.getInventory({
+                gs.AM.gokoconn.getInventory({
                     inventoryId: myInv.inventoryId,
                     tagFilter: "Dominion Card"
                 }, function (r) {
-                    AM.gokoconn.getObjects2({
+                    gs.AM.gokoconn.getObjects2({
                         objectIds: r.data.objectIds
                     }, function (r) {
                         var setsOwned = [];
@@ -258,7 +256,7 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
                                 setsOwned.push(set);
                             }
                         });
-                        AM.player.sets_owned = setsOwned;
+                        gs.AM.player.sets_owned = setsOwned;
                         if (typeof fsCallback !== undefined) {
                             fsCallback();
                         }
@@ -269,46 +267,47 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
     };
 
     connectToAutomatchServer = function () {
-        debug('Connecting to Automatch server at ' + AM.server_url);
+        debug('Connecting to Automatch server at ' + gs.AM.server_url);
 
-        AM.ws = new WebSocket(AM.server_url + '?pname=' + AM.player.pname);
-        AM.ws.lastMessageTime = new Date();
+        gs.AM.ws = new WebSocket(gs.AM.server_url
+                + '?pname=' + gs.AM.player.pname);
+        gs.AM.ws.lastMessageTime = new Date();
 
-        AM.ws.onopen = function () {
+        gs.AM.ws.onopen = function () {
             debug('Connected to Automatch server.');
-            AM.wsFailCount = 0;
+            gs.AM.wsFailCount = 0;
             updateAMButton();
 
             // Ping AM server every 25 sec. Timeout if no messages (including
             // pingbacks) received for 60 sec.
-            if (typeof AM.pingLoop !== 'undefined') {
-                clearInterval(AM.pingLoop);
+            if (typeof gs.AM.pingLoop !== 'undefined') {
+                clearInterval(gs.AM.pingLoop);
             }
-            AM.pingLoop = setInterval(function () {
+            gs.AM.pingLoop = setInterval(function () {
                 debug('Running ping loop');
-                if (new Date() - AM.ws.lastMessageTime > 30000) {
+                if (new Date() - gs.AM.ws.lastMessageTime > 30000) {
                     debug('Automatch server timed out.');
-                    clearInterval(AM.pingLoop);
+                    clearInterval(gs.AM.pingLoop);
                     handleDisconnect();
                 } else {
                     debug('Sending ping');
-                    AM.ping();
+                    gs.AM.ping();
                 }
             }, 25000);
         };
 
-        AM.ws.onclose = function () {
+        gs.AM.ws.onclose = function () {
             debug('Automatch server closed websocket.');
             handleDisconnect();
         };
 
         // Messages from server
-        AM.ws.onmessage = function (evt) {
+        gs.AM.ws.onmessage = function (evt) {
             var msg = JSON.parse(evt.data);
             debug('Got ' + msg.msgtype + ' message from Automatch server:');
             debug(msg.message);
 
-            AM.ws.lastMessageTime = new Date();
+            gs.AM.ws.lastMessageTime = new Date();
 
             switch (msg.msgtype) {
             case 'CONFIRM_RECEIPT':
@@ -338,51 +337,51 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
         };
 
         // Convenience wrapper for websocket send() method
-        AM.ws.sendMessage = function (msgtype, msg, smCallback) {
+        gs.AM.ws.sendMessage = function (msgtype, msg, smCallback) {
             var msgid, msgObj, msgStr;
 
-            msgid = AM.player.pname + Date.now();
+            msgid = gs.AM.player.pname + Date.now();
             msgObj = {msgtype: msgtype,
                       message: msg,
                       msgid: msgid};
             msgStr = JSON.stringify(msgObj);
 
-            AM.ws.callbacks[msgid] = smCallback;
-            AM.ws.send(msgStr);
+            gs.AM.ws.callbacks[msgid] = smCallback;
+            gs.AM.ws.send(msgStr);
 
             debug('Sent ' + msgtype + ' message to Automatch server:');
             debug(msgObj);
         };
 
         // Callbacks to be run when server confirms msgid received
-        AM.ws.callbacks = {};
+        gs.AM.ws.callbacks = {};
     };
 
     updateAMButton = function () {
         var connected, gotPlayerInfo, ready, buttonText, buttonColor;
 
-        if (!AM.player.hasOwnProperty('sets_owned')
-                || !AM.player.rating.hasOwnProperty('goko_casual_rating')
-                || !AM.player.rating.hasOwnProperty('goko_pro_rating')) {
+        if (!gs.AM.player.hasOwnProperty('sets_owned')
+                || !gs.AM.player.rating.hasOwnProperty('goko_casual_rating')
+                || !gs.AM.player.rating.hasOwnProperty('goko_pro_rating')) {
             ready = false;
             buttonText = 'Automatch: Getting Player Info';
             buttonColor = 'LightGray';
-        } else if (typeof AM.ws === 'undefined') {
+        } else if (typeof gs.AM.ws === 'undefined') {
             ready = false;
             buttonText = 'Automatch: Connecting';
             buttonColor = 'LightGray';
-        } else if (AM.ws.readyState === WebSocket.CONNECTING) {
+        } else if (gs.AM.ws.readyState === WebSocket.CONNECTING) {
             ready = false;
             buttonText = 'Automatch: Connecting';
             buttonColor = 'LightGray';
-        } else if (AM.ws.readyState === WebSocket.CLOSED
-                || AM.ws.readyState === WebSocket.CLOSING) {
+        } else if (gs.AM.ws.readyState === WebSocket.CLOSED
+                || gs.AM.ws.readyState === WebSocket.CLOSING) {
             ready = false;
             buttonText = 'Automatch: Offline';
             buttonColor = 'Red';
-        } else if (AM.ws.readyState === WebSocket.OPEN) {
+        } else if (gs.AM.ws.readyState === WebSocket.OPEN) {
             ready = true;
-            if (AM.state.seek !== null) {
+            if (gs.AM.state.seek !== null) {
                 buttonText = 'Automatch: Searching';
                 buttonColor = 'GreenYellow';
             } else {
@@ -397,24 +396,25 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
 
     handleDisconnect = function () {
         // Update state
-        AM.state = {seek: null, offer: null, game: null};
-        AM.wsFailCount += 1;
+        gs.AM.state = {seek: null, offer: null, game: null};
+        gs.AM.wsFailCount += 1;
 
-        debug('Automatch failed: ' + AM.wsFailCount + '/' + AM.wsMaxFails);
+        debug('Automatch failed: ' + gs.AM.wsFailCount
+                + '/' + gs.AM.wsMaxFails);
 
         // Update UI
-        AM.showSeekPop(false);
-        AM.showOfferPop(false);
-        AM.showGamePop(false);
+        gs.AM.showSeekPop(false);
+        gs.AM.showOfferPop(false);
+        gs.AM.showGamePop(false);
         updateAMButton();
 
         // Stop trying to ping
-        if (typeof AM.pingLoop !== 'undefined') {
-            clearInterval(AM.pingLoop);
+        if (typeof gs.AM.pingLoop !== 'undefined') {
+            clearInterval(gs.AM.pingLoop);
         }
 
         // Wait 15 seconds and attempt reconnect.
-        if (AM.wsFailCount < AM.wsMaxFails) {
+        if (gs.AM.wsFailCount < gs.AM.wsMaxFails) {
             setTimeout(function () {
                 connectToAutomatchServer();
                 updateAMButton();
@@ -431,7 +431,7 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
     // Invoke the callback registered to this message's id, if any.
     confirmReceipt = function (msg) {
         debug('Receipt of message confirmed: ' + msg.msgid);
-        var crCallback = AM.ws.callbacks[msg.msgid];
+        var crCallback = gs.AM.ws.callbacks[msg.msgid];
         if (typeof crCallback !== 'undefined' && crCallback !== null) {
             debug(crCallback);
             crCallback();
@@ -440,93 +440,93 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
     };
 
     confirmSeek = function (msg) {
-        AM.state.seek = msg.seek;
+        gs.AM.state.seek = msg.seek;
     };
 
     offerMatch = function (msg) {
-        AM.state.seek = null;
-        AM.state.offer = msg.offer;
-        AM.showOfferPop(true);
+        gs.AM.state.seek = null;
+        gs.AM.state.offer = msg.offer;
+        gs.AM.showOfferPop(true);
         new Audio('sounds/startTurn.ogg').play();
     };
 
     rescindOffer = function (msg) {
-        AM.state.offer = null;
+        gs.AM.state.offer = null;
         // TODO: handle this in a more UI-consistent way
-        AM.showOfferPop(false);
+        gs.AM.showOfferPop(false);
         alert('Automatch offer was rescinded:\n' + msg.reason);
     };
 
     announceGame = function (msg) {
-        AM.state.offer = null;
-        AM.state.game = msg.game;
-        AM.state.game.roomid = AM.mtgRoom.roomList
-            .where({name: AM.state.game.roomname})[0].get('roomId');
+        gs.AM.state.offer = null;
+        gs.AM.state.game = msg.game;
+        gs.AM.state.game.roomid = gs.AM.mtgRoom.roomList
+            .where({name: gs.AM.state.game.roomname})[0].get('roomId');
 
         // Show game announcement dialog
-        AM.showOfferPop(false);
-        AM.showGamePop(true);
+        gs.AM.showOfferPop(false);
+        gs.AM.showGamePop(true);
 
         // Host goes to room, creates game, notifies server
-        if (AM.state.game.hostname === AM.player.pname) {
+        if (gs.AM.state.game.hostname === gs.AM.player.pname) {
 
             var hostGame = function () {
-                AM.gokoconn.unbind(AM.ENTER_LOBBY, hostGame);
+                gs.AM.gokoconn.unbind(gs.AM.ENTER_LOBBY, hostGame);
                 createAutomatchGame(function (tableindex) {
-                    AM.state.game.tableindex = tableindex;
-                    AM.gameCreated();
+                    gs.AM.state.game.tableindex = tableindex;
+                    gs.AM.gameCreated();
                 });
             };
-            AM.gokoconn.bind(AM.ENTER_LOBBY, hostGame);
+            gs.AM.gokoconn.bind(gs.AM.ENTER_LOBBY, hostGame);
 
             // Go to room or just create the game if we're already there
-            if (AM.zch.currentRoom.get('roomId') === AM.state.game.roomid) {
+            if (gs.AM.zch.currentRoom.get('roomId') === gs.AM.state.game.roomid) {
                 hostGame();
             } else {
-                AM.zch.changeRoom(AM.state.game.roomid);
+                gs.AM.zch.changeRoom(gs.AM.state.game.roomid);
             }
         }
     };
 
     gameReady = function (msg) {
-        AM.state.offer = null;
-        AM.state.game = msg.game;
+        gs.AM.state.offer = null;
+        gs.AM.state.game = msg.game;
 
         // Guests go to room and join host's game
-        if (AM.state.game.hostname !== AM.player.pname) {
+        if (gs.AM.state.game.hostname !== gs.AM.player.pname) {
             var joinGame = function () {
-                AM.gokoconn.unbind(AM.ENTER_LOBBY, joinGame);
+                gs.AM.gokoconn.unbind(gs.AM.ENTER_LOBBY, joinGame);
                 var table, seatindex, joinOpts;
-                table = AM.mtgRoom.roomList
-                    .where({roomId: AM.mtgRoom.currentRoomId})[0]
+                table = gs.AM.mtgRoom.roomList
+                    .where({roomId: gs.AM.mtgRoom.currentRoomId})[0]
                     .get('tableList')
-                    .where({number: AM.state.game.tableindex})[0];
-                seatindex = AM.state.game.seeks.map(function (seek) {
+                    .where({number: gs.AM.state.game.tableindex})[0];
+                seatindex = gs.AM.state.game.seeks.map(function (seek) {
                     return seek.player.pname;
                 }).filter(function (pname) {
-                    return pname !== AM.state.game.hostname;
-                }).indexOf(AM.player.pname) + 1;
+                    return pname !== gs.AM.state.game.hostname;
+                }).indexOf(gs.AM.player.pname) + 1;
 
-                joinOpts = {table: AM.state.game.tableindex,
+                joinOpts = {table: gs.AM.state.game.tableindex,
                             seat: seatindex};
                 debug('Joining table:');
                 debug(joinOpts);
-                AM.gokoconn.joinAndSit(joinOpts, function () {
+                gs.AM.gokoconn.joinAndSit(joinOpts, function () {
                     joinOpts.ready = true;
-                    AM.gokoconn.setReady(joinOpts);
+                    gs.AM.gokoconn.setReady(joinOpts);
                 });
                 debug('Joined game. Automatch finished.');
-                AM.showGamePop(false);
+                gs.AM.showGamePop(false);
             };
-            AM.gokoconn.bind(AM.ENTER_LOBBY, joinGame);
-            AM.zch.changeRoom(AM.state.game.roomid);
+            gs.AM.gokoconn.bind(gs.AM.ENTER_LOBBY, joinGame);
+            gs.AM.zch.changeRoom(gs.AM.state.game.roomid);
         }
     };
 
     // TODO: deal with possibility that unannounce arrives before announce
     unannounceGame = function (msg) {
-        AM.state.game = null;
-        AM.showGamePop(false);
+        gs.AM.state.game = null;
+        gs.AM.showGamePop(false);
         alert('Automatch game canceled. Reason:\n' + msg.reason);
     };
 
@@ -534,60 +534,62 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
      * Handle messages to the automatch server
      */
 
-    AM.ping = function () {
-        AM.ws.sendMessage('PING', {});
+    gs.AM.ping = function () {
+        gs.AM.ws.sendMessage('PING', {});
     };
 
-    AM.submitSeek = function (seek) {
-        AM.state.seek = seek;
-        AM.ws.sendMessage('SUBMIT_SEEK', {seek: AM.state.seek});
+    gs.AM.submitSeek = function (seek) {
+        gs.AM.state.seek = seek;
+        gs.AM.ws.sendMessage('SUBMIT_SEEK', {seek: gs.AM.state.seek});
     };
 
-    AM.cancelSeek = function (seek) {
-        if (AM.state.seek !== null) {
-            AM.state.seek.canceling = true;
-            AM.tableSettings = null;
-            AM.ws.sendMessage('CANCEL_SEEK', {seekid: AM.state.seek.seekid},
-                function () { AM.state.seek = null; });
+    gs.AM.cancelSeek = function (seek) {
+        if (gs.AM.state.seek !== null) {
+            gs.AM.state.seek.canceling = true;
+            gs.AM.tableSettings = null;
+            gs.AM.ws.sendMessage('CANCEL_SEEK',
+                {seekid: gs.AM.state.seek.seekid},
+                function () { gs.AM.state.seek = null; });
         }
     };
 
-    AM.acceptOffer = function (aoCallback) {
-        var msg = {matchid: AM.state.offer.matchid};
-        AM.ws.sendMessage('ACCEPT_OFFER', msg, aoCallback);
+    gs.AM.acceptOffer = function (aoCallback) {
+        var msg = {matchid: gs.AM.state.offer.matchid};
+        gs.AM.ws.sendMessage('ACCEPT_OFFER', msg, aoCallback);
     };
 
-    AM.unacceptOffer = function () {
-        var msg = {matchid: AM.state.offer.matchid};
-        AM.ws.sendMessage('UNACCEPT_OFFER', msg, function () {
-            AM.state.offer = null;
+    gs.AM.unacceptOffer = function () {
+        var msg = {matchid: gs.AM.state.offer.matchid};
+        gs.AM.ws.sendMessage('UNACCEPT_OFFER', msg, function () {
+            gs.AM.state.offer = null;
         });
     };
 
-    AM.declineOffer = function () {
-        var msg = {matchid: AM.state.offer.matchid};
-        AM.ws.sendMessage('DECLINE_OFFER', msg, function () {
-            AM.state.offer = null;
+    gs.AM.declineOffer = function () {
+        var msg = {matchid: gs.AM.state.offer.matchid};
+        gs.AM.ws.sendMessage('DECLINE_OFFER', msg, function () {
+            gs.AM.state.offer = null;
         });
     };
 
-    AM.gameCreated = function () {
-        var msg = {game: AM.state.game};
-        AM.ws.sendMessage('GAME_CREATED', msg);
+    gs.AM.gameCreated = function () {
+        var msg = {game: gs.AM.state.game};
+        gs.AM.ws.sendMessage('GAME_CREATED', msg);
     };
 
-    AM.gameStarted = function () {
+    gs.AM.gameStarted = function () {
         var msg = {matchid: null};
-        if (AM.state.game !== null) {
-            msg = {matchid: AM.state.game.matchid};
+        if (gs.AM.state.game !== null) {
+            msg = {matchid: gs.AM.state.game.matchid};
         }
-        AM.ws.sendMessage('GAME_STARTED', msg);
-        AM.state = {seek: null, offer: null, game: null};
+        gs.AM.ws.sendMessage('GAME_STARTED', msg);
+        gs.AM.state = {seek: null, offer: null, game: null};
     };
 
-    AM.abortGame = function () {
-        if (AM.state.game.hasOwnProperty('matchid')) {
-            AM.ws.sendMessage('CANCEL_GAME', {matchid: AM.state.game.matchid});
+    gs.AM.abortGame = function () {
+        if (gs.AM.state.game.hasOwnProperty('matchid')) {
+            gs.AM.ws.sendMessage('CANCEL_GAME',
+                    {matchid: gs.AM.state.game.matchid});
         }
     };
 
@@ -597,14 +599,14 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
     sendAutoAutomatchSeekRequest = function () {
         console.log('Creating auto-automatch request');
 
-        var tSettings = JSON.parse(AM.mtgRoom.views.ClassicRoomsEditTable
+        var tSettings = JSON.parse(gs.AM.mtgRoom.views.ClassicRoomsEditTable
                                      .retriveDOM().settings);
         console.log("Table Settings:");
         console.log(tSettings);
 
         // Cache table settings so that we build the same game if we
         // end up making an automatch in Casual or Unrated.
-        AM.tableSettings = tSettings;
+        gs.AM.tableSettings = tSettings;
 
         var tName = tSettings.name;
         var pCount = tSettings.seatsState.filter(function (s) {
@@ -636,7 +638,7 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
             np.props.max_players = pCount;
 
             hn = {rclass: 'HostName', props: {}};
-            hn.props.hostname = AM.player.pname;
+            hn.props.hostname = gs.AM.player.pname;
 
             rs = {rclass: 'RatingSystem', props: {}};
             rs.props.rating_system = rSystem;
@@ -648,18 +650,18 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
 
             // Send seek request
             var seek = {
-                player: AM.player,
+                player: gs.AM.player,
                 requirements: [np, hn, rs, ar]
             };
             console.log(seek);
 
             // TODO: wait for seek canceled confirmation
-            if (AM.state.seek !== null) {
-                AM.cancelSeek(AM.state.seek);
+            if (gs.AM.state.seek !== null) {
+                gs.AM.cancelSeek(gs.AM.state.seek);
             }
 
             console.log('Sending auto-automatch request');
-            AM.submitSeek(seek);
+            gs.AM.submitSeek(seek);
         }
     };
 
@@ -670,12 +672,12 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
     createAutomatchGame = function (callback) {
         var oppnames, ratingSystem, listenJoin, listenCreate;
 
-        oppnames = AM.state.game.seeks.map(function (seek) {
+        oppnames = gs.AM.state.game.seeks.map(function (seek) {
             return seek.player.pname;
         }).filter(function (pname) {
-            return pname !== AM.player.pname;
+            return pname !== gs.AM.player.pname;
         });
-        ratingSystem = AM.state.game.rating_system;
+        ratingSystem = gs.AM.state.game.rating_system;
 
         // Handle join requests automatically
         enableAutoAccept(oppnames);
@@ -686,47 +688,47 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
 
         // 3. Wait for all opponents to join
         listenJoin = function () {
-            var tableModel = AM.zch.currentTable;
+            var tableModel = gs.AM.zch.currentTable;
             if (tableModel !== null &&
                     tableModel.get('joined').length === oppnames.length + 1) {
 
                 // Notify user when all opponents have joined
-                AM.gokoconn.unbind(AM.TABLE_STATE, listenJoin);
+                gs.AM.gokoconn.unbind(gs.AM.TABLE_STATE, listenJoin);
                 debug('All opponents have joined. Automatch complete.');
                 disableAutoAccept();
-                AM.showGamePop(false);
+                gs.AM.showGamePop(false);
             }
         };
 
         // 2. Notify Automatch server; listen for joins
         listenCreate = function () {
-            var tableModel = AM.zch.currentTable;
+            var tableModel = gs.AM.zch.currentTable;
             if (tableModel !== null) {
-                AM.gokoconn.unbind(AM.TABLE_STATE, listenCreate);
-                AM.gokoconn.bind(AM.TABLE_STATE, listenJoin);
+                gs.AM.gokoconn.unbind(gs.AM.TABLE_STATE, listenCreate);
+                gs.AM.gokoconn.bind(gs.AM.TABLE_STATE, listenJoin);
                 callback(tableModel.get('number'));
             }
         };
 
         // 1. Create a new game table; listen for its creation
-        AM.gokoconn.bind(AM.TABLE_STATE, listenCreate);
+        gs.AM.gokoconn.bind(gs.AM.TABLE_STATE, listenCreate);
         createTable(oppnames, ratingSystem);
     };
 
     disableAutoAccept = function () {
-        var reqView = AM.mtgRoom.views.ClassicRoomsPermit;
+        var reqView = gs.AM.mtgRoom.views.ClassicRoomsPermit;
         if (typeof reqView.showByRequest_orig !== 'undefined') {
             reqView.showByRequest = reqView.showByRequest_orig;
         }
     };
 
     enableAutoAccept = function (oppnames) {
-        var reqView = AM.mtgRoom.views.ClassicRoomsPermit;
+        var reqView = gs.AM.mtgRoom.views.ClassicRoomsPermit;
         reqView.showByRequest_orig = reqView.showByRequest;
         reqView.showByRequest = function (request) {
             var joinerName, opts, isAutomatchOpp;
 
-            joinerName = AM.mtgRoom.playerList
+            joinerName = gs.AM.mtgRoom.playerList
                         .findByAddress(request.data.playerAddress)
                         .get('playerName');
             isAutomatchOpp = oppnames.indexOf(joinerName) >= 0;
@@ -747,9 +749,9 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
 
     createTable = function (opps, ratingSystem) {
         // Leave current table first, if any
-        if (AM.zch.hasOwnProperty('currentTable')
-                && AM.zch.currentTable !== null) {
-            AM.zch.leaveTable(AM.zch.currentTable);
+        if (gs.AM.zch.hasOwnProperty('currentTable')
+                && gs.AM.zch.currentTable !== null) {
+            gs.AM.zch.leaveTable(gs.AM.zch.currentTable);
         }
 
         var seatsState, tKingdom, tSettings, tOpts;
@@ -758,16 +760,16 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
         });
 
 
-        if (AM.tableSettings !== null) {
+        if (gs.AM.tableSettings !== null) {
             // Use cached settings if available
-            tSettings = AM.tableSettings;
+            tSettings = gs.AM.tableSettings;
             tSettings.name = 'For ' + opps.join(', ');
             tOpts = {settings: JSON.stringify(tSettings),
                      isLock: false,
                      isRequestJoin: true,
                      isRequestSit: false,
                      tableIndex: null};
-            AM.zch.createTable(tOpts);
+            gs.AM.zch.createTable(tOpts);
 
         } else {
             // Otherwise generate new ones
@@ -791,14 +793,14 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
                          isRequestJoin: true,
                          isRequestSit: false,
                          tableIndex: null};
-                AM.zch.createTable(tOpts);
+                gs.AM.zch.createTable(tOpts);
             });
         }
     };
 
     // Print debugging messages to the JS console
     debug = function (str) {
-        if (AM.log_debugging_messages) {
+        if (gs.AM.log_debugging_messages) {
             console.log(str);
         }
     };

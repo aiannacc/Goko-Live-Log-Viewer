@@ -1,0 +1,89 @@
+require 'watir-webdriver'
+b = Watir::Browser.new :firefox, :profile => 'tester'
+b.goto 'https://play.goko.com/Dominion/gameClient.html'
+b.a(:id => 'fs-lg-meeting-room').wait_until_present
+b.a(:id => 'fs-lg-meeting-room').click
+b.ul(:class => 'fs-player-list').wait_until_present
+b.divs(:class => 'player-rank')
+b.divs(:class => 'player-rank') do |r|
+  puts r
+end
+b.divs(:class => 'player-rank').each do |r|
+  puts r
+end
+b.spans(:class => 'player-rank').each do |r|
+  puts r
+end
+b.span(:class => 'player-rank')
+b.span(:class => 'player-rank').html
+b.span(:class => 'player-rank').span
+b.span(:class => 'player-rank').span.html
+b.span(:class => 'player-rank').span.span.html
+b.span(:class => 'player-rank').span.span
+b.span(:class => 'player-rank').span.html
+b.span(:class => 'player-rank').span.span
+b.span(:class => 'player-rank').span.span.html
+b.span(:class => 'player-rank').span.span
+b.span(:class => 'player-rank').span
+b.span(:class => 'player-rank').span.html
+b.span(:class => 'player-rank').span.innerHTML
+b.span(:xpath => '//span[@class=player-rank]')
+b.span(:xpath => '//span[@class=player-rank]').span
+b.span(:xpath => '//span[@class=player-rank]').span.html
+b.span(:xpath => '//span[@class=player-rank]').html
+b.span(:xpath => '//span[@class="player-rank"]').html
+b.span(:xpath => '//span[@class="player-rank"]').
+html
+b.span(:xpath => '//span[@class="player-rank"]')
+b.span(:xpath => '//span[@class="player-rank"]').span()
+b.span(:xpath => '//span[@class="player-rank"]').span().html
+b.span(:xpath => '//span[@class="player-rank"]').span().span().html
+b.span(:xpath => '//span[@class="player-rank"]').span().text
+b.span(:class => "player-rank").span().text
+int(b.span(:class => "player-rank").span().text)
+b.span(:class => "player-rank").span().text.toFloat
+b.span(:class => "player-rank").span().text.to_i
+last = 9999
+b.spans(:class => "player-rank").span().text
+b.spans(:class => "player-rank").span()
+b.spans(:class => "player-rank").each do |s|
+  puts s.span().text.to_i
+end
+b.spans(:class => "player-rank").each do |s|
+  puts s.span().text.to_i
+end
+b.spans(:class => "player-rank").each do |s|
+  assert last > puts s.span().text.to_i
+  last = puts s.span().text.to_i
+end
+b.spans(:class => "player-rank").each do |s|
+last > puts s.span().text.to_i
+last = puts s.span().text.to_i
+end
+b.spans(:class => "player-rank").each do |s|
+last > s.span().text.to_i
+last = s.span().text.to_i
+end
+b.spans(:class => "player-rank").each do |s|
+if last > s.span().text.to_i { puts 'FALSE' }
+last = s.span().text.to_i
+end
+b.spans(:class => "player-rank").each do |s|
+last
+end
+last
+end
+last
+last = 9999
+b.spans(:class => "player-rank").each do |s|
+if last > s.span().text.to_i { puts 'FALSE' }
+last = s.span().text.to_i
+end
+end
+b.spans(:class => "player-rank").each do |s|
+if last > s.span().text.to_i
+puts 'ARG'
+end
+last = s.span().text.to_i
+end
+end
