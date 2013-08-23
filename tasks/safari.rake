@@ -1,10 +1,10 @@
 # encoding: UTF-8
 
 namespace :safari do
-    
+
     build_dir = 'build/safari/gokosalvager.safariextension/'
 
-    desc 'Assemble content and generate config files for Firefox Add-on'
+    desc 'Assemble content and generate config files for Safari Add-on'
     task :dev do
 
         # Prepare an empty directory to assemble the Safari extension in
@@ -36,8 +36,8 @@ namespace :safari do
 
     file 'gokosalvager.safariextz' => [:dev] do |t, args|
         Dir.chdir('build/safari') {
-            create_and_sign 'gokosalvager.safariextension', 
-                            '~/.safari-certs', 
+            create_and_sign 'gokosalvager.safariextension',
+                            '~/.safari-certs',
                             'gokosalvager.safariextz'
         }
         FileUtils.mv 'build/safari/gokosalvager.safariextz', 'build/'

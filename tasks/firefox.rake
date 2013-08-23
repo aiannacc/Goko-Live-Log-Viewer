@@ -16,7 +16,7 @@ namespace :firefox do
         # Build package description
         #pkg_json = fill_template 'src/config/firefox/package.json.erb', props
         #File.open('build/firefox/package.json', 'w') {|f| f.write pkg_json }
-   
+
         # Copy config files
         # TODO: generate these dynamically again
         FileUtils.cp_r Dir.glob('src/config/firefox/*'), 'build/firefox/'
@@ -24,7 +24,8 @@ namespace :firefox do
         # Copy js, css, and png files
         FileUtils.cp_r Dir.glob('src/ext/*.js'), 'build/firefox/content/'
         FileUtils.cp_r Dir.glob('src/ext/*.css'), 'build/firefox/content/'
-        FileUtils.cp Dir.glob('src/img/*.png'), 'build/firefox/chrome/icons/default/'
+        FileUtils.mkdir_p 'build/firefox/icons/default'
+        FileUtils.cp Dir.glob('src/img/*.png'), 'build/firefox/icons/default/'
 
         puts 'Firefox Add-On is ready to test/build'
     end

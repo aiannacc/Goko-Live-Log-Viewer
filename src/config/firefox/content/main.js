@@ -1,4 +1,4 @@
-/*jslint vars:true*/
+/*jslint vars:true, devel:true */
 /*globals Services, Components, document, gBrowser, window, GokoSalvagerChrome */
 
 /**
@@ -49,21 +49,21 @@ var myExtension = {
                     .loadSubScript(scriptDir + script, doc, "UTF-8");
             }
 
-
             // Inject css into Goko page
-            var sss = Components.classes["@mozilla.org/content/style-sheet-service;1"]
-                    .getService(Components.interfaces.nsIStyleSheetService);
-            var ios = Components.classes["@mozilla.org/network/io-service;1"]
-                    .getService(Components.interfaces.nsIIOService);
             var styleDir = "chrome://gokosalvager/content/";
             var styleFiles = [
                 'logviewer.css',
                 'jquery-gokocolors.css'
             ];
+            var ios = Components.classes["@mozilla.org/network/io-service;1"]
+                    .getService(Components.interfaces.nsIIOService);
+            var domWindowUtils = doc.defaultView
+                .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                .getInterface(Components.interfaces.nsIDOMWindowUtils);
             for (i = 0; i < styleFiles.length; i += 1) {
                 var styleFile = styleDir + styleFiles[i];
                 var styleURI = ios.newURI(styleFile, null, null);
-                sss.loadAndRegisterSheet(styleURI, sss.USER_SHEET);
+                domWindowUtils.loadSheet(styleURI, 1);
             }
         }
     }
