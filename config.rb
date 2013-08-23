@@ -39,6 +39,7 @@
 
     # JS scripts for Goko to load, in order
     :js => [
+        #'utils.js',
         'externals.js',
         'settings.js',
         'kingdom_generator.js',

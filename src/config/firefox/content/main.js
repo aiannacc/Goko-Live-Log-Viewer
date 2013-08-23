@@ -25,6 +25,7 @@ var myExtension = {
             var scriptDir = "chrome://gokosalvager/content/";
             var scriptFiles = [
                 'externals.js',
+                'utils.js',
                 'settings.js',
                 'kingdom_generator.js',
                 'settingsDialog.js',
