@@ -1,39 +1,7 @@
-/*jslint browser: true, devel: true, indent: 4, maxlen: 80, es5: true, vars:true */
+/*jslint browser: true, devel: true, indent: 4, maxlen: 80, es5: true, vars:true, white:true */
 /*global jQuery, $, WebSocket, Audio */
 
-var loadAutomatchModule;
-
-(function () {
-    "use strict";
-
-    console.log('Preparing to load Automatch module');
-
-    var exists = function (obj) {
-        return (typeof obj !== 'undefined' && obj !== null);
-    };
-
-    // Wait (non-blocking) until the required objects have been instantiated
-    var dbWait = setInterval(function () {
-        var gs, gso, gokoconn, connInfo, mr, zch;
-        console.log('Checking for Automatch dependencies');
-        try {
-            gs = window.GokoSalvager;
-            gso = gs.get_option;
-            gokoconn = window.conn;
-            connInfo = gokoconn.connInfo;
-            mr = window.mtgRoom;
-            zch = mr.helpers.ZoneClassicHelper;
-            //db = window.FS.Dominion.DeckBuilder;
-            //dbp = window.FS.Dominion.DeckBuilder.persistent;
-        } catch (e) {}
-
-        if ([gso, gokoconn, connInfo, mr, zch].every(exists)) {
-            console.log('Loading Automatch module');
-            loadAutomatchModule(gs, gokoconn, mr, zch);
-            clearInterval(dbWait);
-        }
-    }, 500);
-}());
+var loadConnWatcher, loadAutomatchModule;
 
 // To be executed in Goko's namespace
 loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
@@ -807,3 +775,29 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
     debug('Initializing automatch.');
     initAutomatch(mtgRoom, conn, zch);
 };
+
+// Automatch depends on the conn and mtgRoom objects, which never get created
+// if the user goes into Adventure mode instead of Multiplayer. Rather than
+// looping forever to see if these objects exist, we'll hijack connection
+// events, the first of which is proof that the conn object has been created.
+loadConnWatcher = function (gs, fsc) {
+    "use strict";
+    var first = true;
+    gs.alsoDo(fsc, 'trigger', function () {
+        if (first) {
+            window.GokoSalvager.depWait(
+                ['GokoSalvager',
+                 'conn',
+                 'mtgRoom',
+                 'mtgRoom.helpers.ZoneClassicHelper'],
+                5000, loadAutomatchModule, this, 'Automatch Module'
+            );
+            first = false;
+        }
+    });
+};
+
+window.GokoSalvager.depWait(
+    ['GokoSalvager', 'FS.Connection'],
+    5000, loadConnWatcher, this, 'Automatch Connection Watcher'
+);

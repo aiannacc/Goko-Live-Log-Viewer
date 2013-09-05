@@ -12,8 +12,15 @@ var myExtension = {
     init: function () {
         "use strict";
         var appcontent = document.getElementById("appcontent");   // browser
-        appcontent.addEventListener("DOMContentLoaded", myExtension.onPageLoad, true);
-        //appcontent.addEventListener("ready", myExtension.onPageLoad, true);
+        appcontent.addEventListener("DOMContentLoaded", myExtension.onPageLoad0, true);
+        //appcontent.addEventListener("onLoad", myExtension.onPageLoad, true);
+    },
+
+    onPageLoad0: function (aEvent) {
+        "use strict";
+        window.setTimeout(function () {
+            myExtension.onPageLoad(aEvent);
+        }, 100);
     },
 
     onPageLoad: function (aEvent) {
@@ -24,7 +31,8 @@ var myExtension = {
             // Load javascript files in Goko page context
             var scriptDir = "chrome://gokosalvager/content/";
             var scriptFiles = [
-                'externals.js',
+                'jquery.ui.js',
+                'angular.min.js',
                 'utils.js',
                 'settings.js',
                 'kingdom_generator.js',
@@ -34,9 +42,12 @@ var myExtension = {
                 'autokick.js',
                 'avatars.js',
                 'blacklist.js',
+                'sidebar.js',
                 'logviewer.js',
+                'vpcounter.js',
                 'lobby_ratings.js',
                 'alwaysStack.js',
+                'decktracker.js',
                 'automatchGamePop.js',
                 'automatchOfferPop.js',
                 'automatchSeekPop.js',

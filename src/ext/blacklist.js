@@ -1,39 +1,10 @@
-/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true */
+/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true, white:true */
 /*global $, _ */
-
-var loadBlacklistModule;
-(function () {
-    "use strict";
-
-    console.log('Preparing to load Blacklist module');
-
-    var exists = function (obj) {
-        return (typeof obj !== 'undefined' && obj !== null);
-    };
-
-    // Wait (non-blocking) until the required objects have been instantiated
-    var dbWait = setInterval(function () {
-        var gs, gso, mr, ctv;
-        console.log('Checking for Blacklist dependencies');
-        try {
-            gs = window.GokoSalvager;
-            gso = gs.get_option;
-            mr = window.FS.MeetingRoom;
-            ctv = window.FS.ClassicTableView;
-        } catch (e) {}
-
-        if ([gso].every(exists)) {
-            console.log('Loading Blacklist module');
-            loadBlacklistModule(gs, mr, ctv);
-            clearInterval(dbWait);
-        }
-    }, 100);
-}());
 
 /*
  * Blacklist Module
  */
-loadBlacklistModule = function (gs, mr, ctv) {
+var loadBlacklistModule = function (gs, mr, ctv) {
     "use strict";
 
     mr.prototype.old_onRoomChat = mr.prototype.onRoomChat;
@@ -73,3 +44,10 @@ loadBlacklistModule = function (gs, mr, ctv) {
         }
     };
 };
+
+window.GokoSalvager.depWait(
+    ['GokoSalvager',
+     'window.FS.MeetingRoom',
+     'window.FS.ClassicTableView'],
+    100, loadBlacklistModule, this, 'Blacklist Module'
+);

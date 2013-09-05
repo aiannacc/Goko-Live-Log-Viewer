@@ -1,39 +1,10 @@
-/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true */
+/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true, white:true */
 /*global $, _, */
-
-var loadTableSavingModule;
-(function () {
-    "use strict";
-
-    console.log('Preparing to load table state module');
-
-    var exists = function (obj) {
-        return (typeof obj !== 'undefined' && obj !== null);
-    };
-
-    // Wait (non-blocking) until the required objects have been instantiated
-    var waitLoop = setInterval(function () {
-        var gs, gso, etv, detv;
-        console.log('Checking for Table Saving dependencies');
-        try {
-            gs = window.GokoSalvager;
-            gso = gs.get_option;
-            etv = window.FS.EditTableView;
-            detv = window.FS.DominionEditTableView;
-        } catch (e) {}
-
-        if ([gso, etv, detv].every(exists)) {
-            console.log('Loading table state module');
-            loadTableSavingModule(gs, etv, detv);
-            clearInterval(waitLoop);
-        }
-    }, 100);
-}());
 
 /*
  * Saving table name and settings module
  */
-loadTableSavingModule = function (gs, etv, detv) {
+var loadTableSavingModule = function (gs, etv, detv) {
     "use strict";
 
     etv.prototype.old_modifyDOM = etv.prototype.modifyDOM;
@@ -69,3 +40,10 @@ loadTableSavingModule = function (gs, etv, detv) {
         return ret;
     };
 };
+
+window.GokoSalvager.depWait(
+    ['GokoSalvager',
+     'FS.EditTableView',
+     'FS.DominionEditTableView'],
+    100, loadTableSavingModule, this, 'Table Saving Module'
+);

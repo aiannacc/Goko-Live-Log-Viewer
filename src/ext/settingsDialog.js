@@ -11,23 +11,9 @@ window.GokoSalvager.createSettingsDialog = function () {
   <input type="checkbox" ng:model="us.generator" ng:click="save(us)" />Kingdom Generator<br />\
   <input type="checkbox" ng:model="us.proranks" ng:click="save(us)" />Display pro ratings<br />\
   <input type="checkbox" ng:model="us.sort_rating" ng:click="save(us)" />Sort by rating<br />\
-  <input type="checkbox" ng:model="us.vp_enabled" ng:click="save(us)" />Enable VP Counter<br />\
-  <div ng:show="us.vp_enabled">\
-    &nbsp;&nbsp;&nbsp;\
-    <input type="checkbox" ng:model="us.vp_always_on" ng:click="save(us)" >\
-    Enable by default (unless #vpoff in title)\
-  </div>\
-  <div ng:hide="us.vp_enabled" >\
-    &nbsp;&nbsp;&nbsp;\
-    <input type="checkbox" ng:model="us.vp_always_off" ng:click="save(us)">\
-    Disable for opponents (unless #vpon in title)\
-  </div>'
-  //<div ng:show="us.vp_enabled">\
-  //  &nbsp;&nbsp;&nbsp;\
-  //  <input type="checkbox" ng:model="us.adventurevp" ng:click="save(us)">\
-  //  Use in adventures\
-  //</div>\
-+ '<input type="checkbox" ng:model="us.always_stack" ng:click="save(us)"/>\
+  <input type="checkbox" ng:model="us.vp_request" ng:click="save(us)" />Always request VP counter (#vpon)<br />\
+  <input type="checkbox" ng:model="us.vp_disallow" ng:click="save(us)" />Always refuse VP counter (#vpoff)<br />\
+  <input type="checkbox" ng:model="us.always_stack" ng:click="save(us)"/>\
     Stack duplicate cards<br />\
   Blacklist (noplay + censor):\
   <table>\

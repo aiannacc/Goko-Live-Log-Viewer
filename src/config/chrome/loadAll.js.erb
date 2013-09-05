@@ -1,0 +1,26 @@
+/*jslint browser:true, devel:true */
+/*globals chrome */
+var i, s, JS, cssNode;
+
+var scripts =  [
+    "<%= config[:js].join("\",\n    \"") %>"
+];
+for (i = 0; i < scripts.length; i += 1) {
+    JS = document.createElement('script');
+    JS.src = chrome.extension.getURL(scripts[i]);
+    document.body.appendChild(JS);
+}
+
+var styles =  [
+    "<%= config[:css].join("\",\n    \"") %>"
+];
+var headID = document.getElementsByTagName("head")[0];         
+for (i = 0; i < styles.length; i += 1) {
+    cssNode = document.createElement('link');
+    cssNode.type = 'text/css';
+    cssNode.rel = 'stylesheet';
+    cssNode.href = chrome.extension.getURL(styles[i]);
+    //cssNode.media = 'screen';
+    headID.appendChild(cssNode);
+}
+

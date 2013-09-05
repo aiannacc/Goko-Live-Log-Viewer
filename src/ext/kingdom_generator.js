@@ -1,41 +1,7 @@
-/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true */
+/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true, white:true */
 /*global $, _ */
 
-/*
- * Kingdom generator module
- */
-var loadKingdomGenerator;
-(function () {
-    "use strict";
-
-    console.log('Preparing to load kingdom generator.');
-
-    var exists = function (obj) {
-        return (typeof obj !== 'undefined' && obj !== null);
-    };
-
-    // Wait (non-blocking) until the required objects have been instantiated
-    var dbWait = setInterval(function () {
-        var gs, gso, db, dbp, detv, cdbc;
-        console.log('Checking for Kingdom Generator dependencies');
-        try {
-            gs = window.GokoSalvager;
-            gso = gs.get_option;
-            db = window.FS.Dominion.DeckBuilder;
-            dbp = window.FS.Dominion.DeckBuilder.Persistent;
-            detv = window.FS.DominionEditTableView;
-            cdbc = window.FS.Dominion.CardBuilder.Data.cards;
-        } catch (e) {}
-
-        if ([gso, db, dbp, detv, cdbc].every(exists)) {
-            console.log('Loading Kingdom Generator');
-            loadKingdomGenerator(gs, db, dbp, detv, cdbc);
-            clearInterval(dbWait);
-        }
-    }, 100);
-}());
-
-loadKingdomGenerator = function (gs, db, dbp, detv, cdbc) {
+var loadKingdomGenerator = function (gs, db, dbp, detv, cdbc) {
     "use strict";
 
     var set_parser;
@@ -718,3 +684,12 @@ loadKingdomGenerator = function (gs, db, dbp, detv, cdbc) {
         return new Parser;
     })();
 };
+
+window.GokoSalvager.depWait(
+    ['GokoSalvager',
+     'FS.Dominion.DeckBuilder',
+     'FS.Dominion.DeckBuilder.Persistent',
+     'FS.DominionEditTableView',
+     'FS.Dominion.CardBuilder.Data.cards'],
+    100, loadKingdomGenerator, this, 'Kingdom Generator Module'
+);

@@ -8,7 +8,7 @@ namespace :firefox do
         # Prepare a blank Firefox Add-on project
         FileUtils.rm_rf 'build/firefox/'
         FileUtils.rm_rf 'build/firefox/gokosalvager.xpi'
-        FileUtils.mkdir_p 'build/firefox/'
+        FileUtils.mkdir_p 'build/firefox/chrome/icons/default'
 
         # Read properties from common config file
         #props = eval(File.open('config.rb') {|f| f.read })
@@ -22,6 +22,7 @@ namespace :firefox do
         FileUtils.cp_r Dir.glob('src/config/firefox/*'), 'build/firefox/'
 
         # Copy js, css, and png files
+        FileUtils.cp_r Dir.glob('src/lib/*.js'), 'build/firefox/content/'
         FileUtils.cp_r Dir.glob('src/ext/*.js'), 'build/firefox/content/'
         FileUtils.cp_r Dir.glob('src/ext/*.css'), 'build/firefox/content/'
         FileUtils.mkdir_p 'build/firefox/icons/default'

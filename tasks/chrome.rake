@@ -17,15 +17,15 @@ namespace :chrome do
         man_json = fill_template 'src/config/chrome/manifest.json.erb', props
         File.open('build/chrome/manifest.json', 'w') {|f| f.write man_json }
 
+        # Build script loader
+        man_json = fill_template 'src/config/chrome/loadAll.js.erb', props
+        File.open('build/chrome/loadAll.js', 'w') {|f| f.write man_json }
+
         # Copy js, css, and png files
+        FileUtils.cp_r Dir.glob('src/lib/*.js'), 'build/chrome/'
         FileUtils.cp_r Dir.glob('src/ext/*.js'), 'build/chrome/'
         FileUtils.cp_r Dir.glob('src/ext/*.css'), 'build/chrome/'
         FileUtils.cp Dir.glob('src/img/*.png'), 'build/chrome/images/'
-
-        # Wrap JS scripts to be run in Goko's gameClient.html context
-        Dir.glob('build/chrome/*.js').each do |js_script|
-            run_in_page_context(js_script)
-        end
 
         puts 'Assembled Chrome extension files. Ready to build or use as an
               unpacked extension.'

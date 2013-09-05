@@ -1,0 +1,85 @@
+    // For handling #vpon/#vpoff
+    var old_onIncomingMessage = dc.prototype.onIncomingMessage;
+    dc.prototype.onIncomingMessage = function (messageName, messageData, message) {
+        var msgSend = "", sendVpOn = false, sendVpOff = false, tablename = "";
+
+        try {
+
+            if (this.table.get("settings")) {
+                tablename = JSON.parse(this.table.get("settings")).name;
+            }
+
+            if (messageName === 'RoomChat') {
+                console.log(messageData.text);
+
+                if (messageData.text === "Dominion Online User Extension enabled (see goo.gl/4muRB)\nType \"#vpon\" before turn 5 to turn on point tracker.\nType \"#vpoff\" before turn 5 to disallow the point tracker.\n"
+                        && gs.get_option('vp_always_off')
+                        && tablename.toUpperCase().indexOf("#VPON") === -1) {
+                    sendVpOff = true;
+                }
+
+                if (gs.get_option('vp_enabled') && messageData.text.toUpperCase() === '#VPOFF' && (vpOn || vpLocked)) {
+                    if (vpLocked) {
+                        msgSend += 'Victory Point tracker setting locked\n';
+                    } else {
+                        msgSend += 'Victory Point tracker disallowed\n';
+                        vpOn = false;
+                        vpLocked = true;
+                    }
+                } else if (gs.get_option('vp_enabled') && messageData.text.toUpperCase() === '#VPON' && !vpOn) {
+                    if (vpLocked) {
+                        msgSend += 'Victory Point tracker setting locked\n';
+                    } else {
+                        msgSend += 'Victory Point tracker enabled (see http://dom.retrobox.eu/vp.html)\n';
+                        msgSend += 'Type "#vp?" at any time to display the score in the chat\n';
+                        msgSend += 'Type "#vpoff" before turn 5 to disallow the point tracker.\n';
+                        vpOn = true;
+                    }
+                } else if (gs.get_option('vp_enabled') && messageData.text.toUpperCase() === '#VP?' && vpOn) {
+                    msgSend += 'Current points: ' + vp_txt() + '\n';
+                }
+            } else if (messageName === 'gameEvent2' && messageData.code === 'system.startGame') {
+                vpOn = false;
+                vpLocked = false;
+                if (tablename) {
+                    tablename = tablename.toUpperCase();
+                    msgSend += 'Dominion Online User Extension enabled (see goo.gl/4muRB)\n';
+                    if (gs.get_option('vp_enabled') && tablename.indexOf("#VPON") !== -1) {
+                        msgSend += 'Victory Point tracker enabled and locked (see http://dom.retrobox.eu/vp.html)\n';
+                        msgSend += 'Type "#vp?" at any time to display the score in the chat\n';
+
+                        vpOn = true;
+                        vpLocked = true;
+                    } else if (gs.get_option('vp_enabled') && tablename.indexOf("#VPOFF") !== -1) {
+                        msgSend += 'Victory Point tracker disallowed and locked (see http://dom.retrobox.eu/vp.html)\n';
+
+                        vpOn = false;
+                        vpLocked = true;
+                    } else if (gs.get_option('vp_enabled') && gs.get_option('vp_always_on')) {
+                        sendVpOn = true;
+                    } else if (gs.get_option('vp_enabled')) {
+                        msgSend += 'Type "#vpon" before turn 5 to turn on point tracker.\n';
+                        msgSend += 'Type "#vpoff" before turn 5 to disallow the point tracker.\n';
+                    }
+                }
+            } else if (messageName === 'addLog' && messageData.text === 'Rating system: adventure' && gs.get_option('adventurevp')) {
+                vpOn = true;
+            }
+        } catch (e) {
+            console.log('exception :' + e);
+        }
+
+        if (msgSend.length > 0) {
+            this.clientConnection.send('sendChat', {text: msgSend});
+        }
+
+        if (sendVpOn) {
+            this.clientConnection.send('sendChat', {text: "#vpon"});
+        } else if (sendVpOff) {
+            this.clientConnection.send('sendChat', {text: "#vpoff"});
+        }
+
+        old_onIncomingMessage.call(this, messageName, messageData, message);
+    };
+
+

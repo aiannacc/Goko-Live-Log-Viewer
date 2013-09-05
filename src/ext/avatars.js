@@ -1,40 +1,10 @@
-/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true */
+/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true, white:true */
 /*global $, _ */
-
-var loadAvatarModule;
-(function () {
-    "use strict";
-
-    console.log('Preparing to load Avatar module');
-
-    var exists = function (obj) {
-        return (typeof obj !== 'undefined' && obj !== null);
-    };
-
-    // Wait (non-blocking) until the required objects have been instantiated
-    var waitLoop = setInterval(function () {
-
-        console.log('Checking for Avatar dependencies');
-
-        try {
-            var gs = window.GokoSalvager;
-            var gso = gs.get_option;
-            var gp = window.Goko.Player;
-            var ls = window.FS.Templates.LaunchScreen;
-
-            if ([gs, gso, gp, ls].every(exists)) {
-                console.log('Loading Avatar module');
-                clearInterval(waitLoop);
-                loadAvatarModule(gs, gp, ls);
-            }
-        } catch (e) {}
-    }, 100);
-}());
 
 /*
  * Custom Avatar module
  */
-loadAvatarModule = function (gs, gp, ls) {
+var loadAvatarModule = function (gs, gp, ls) {
     "use strict";
 
     var myCanvas = document.createElement("canvas");
@@ -80,3 +50,10 @@ loadAvatarModule = function (gs, gp, ls) {
             'document.getElementById(\'uploadAvatarForm\').submit();' +
             '"');
 };
+
+window.GokoSalvager.depWait(
+    ['GokoSalvager',
+     'Goko.Player',
+     'FS.Templates.LaunchScreen'],
+    100, loadAvatarModule, this, 'Avatar Module'
+);

@@ -1,21 +1,19 @@
 {
-    "name": "<%= config[:title] %>",
-    "description": "<%= config[:desc] %>",
-    "version": "<%= config[:version] %>",
-    "manifest_version": <%= config[:manifest_version] %>,
+    "name": "Goko Dominion Salvager",
+    "description": "Enhance your Online Dominion experience!",
+    "version": "2.2",
+    "manifest_version": 2,
     "content_scripts": [{
-        "css": [
-            "<%= config[:css].join("\",\n            \"") %>"
-        ],
-        "js": [
-            "<%= config[:js].join("\",\n            \"") %>"
-        ],
-        "matches": [
-            "<%= config[:targeturls].join("\",\n            \"") %>"
-        ]
+        "css": [ ],
+        "js": [ "loadAll.js" ],
+        "matches": [ "*://*.goko.com/Dominion/gameClient.html" ],
+        "run_at": "document_idle"
     }],
-    "permissions": [
-        "<%= config[:domains].join("\",\n        \"") %>"
+    "permissions": [ "webNavigation" ],
+    "web_accessible_resources": [
+        "<%= config[:js].join("\",\n        \"") %>",
+        "<%= config[:css].join("\",\n        \"") %>",
+        "<%= config[:img].join("\",\n        \"") %>"
     ],
     "icons": {
         "16": "images/<%= config[:icon16] %>",

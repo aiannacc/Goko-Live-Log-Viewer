@@ -9,80 +9,218 @@
   font-weight: bold;
   color: #5baacb;
   cursor: pointer;
-  font-family: "TrajanPro", san-serif;
+  font-family: "TrajanPro", sanserif;
 }
 
-div.newlog {
+#sidebar {
+  position:absolute;
+  background-color:white;
+  z-index:-1;
+}
+
+#prettylog {
   font-size:12px;
-  font-family:Helvetica, Arial;
+  font-family:Helvetica, Ariel;
+  overflow:auto;
+  background-color: white;
+  padding:5px 5px 5px 5px;
+  visibility: inherit;
+  line-height: 140%;
 }
 
-table {
+table.vptable {
+  padding: 2px;
+  background-color: gray;
   margin: 1px 1px;
+  visibility: inherit;
 }
 
-td {
+tr.vptable {
+  visibility: inherit;
+  padding: 4px 4px;
+}
+
+td.vptable {
   padding: 1px 4px;
+  visibility: inherit;
 }
 
-h1 {
-  margin: 0px 0px;
+h1.gameheader {
+  margin: 1px 1px;
   padding: 0px 5px;
   font-size:14px;
   background-color: lightgray;
-  border: 2px solid gray;
+  border: 1px solid gray;
   border-radius: 5px;
 }
 
-*.p1 {
+h1.turnheader {
+  margin: 1px 1px;
+  font-size:12px;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 5px;
+}
+
+.p1 {
+  padding: 0px 3px;
   background-color: #CC33FF;
   border-color: purple;
 }
 
-*.p2 {
+.p2 {
+  padding: 0px 3px;
   background-color: lightblue;
   border-color: blue;
 }
 
-*.p3 {
+.p3 {
+  padding: 0px 3px;
   background-color: lightgreen;
   border-color: green;
 }
 
-*.p4 {
-background-color: yellow;
-border-color: orange;
+.p4 {
+  padding: 0px 3px;
+  background-color: yellow;
+  border-color: orange;
 }
 
-*.actionPhase {
-  background-color: rgb(240,240,240);
+.p5 {
+  padding: 0px 3px;
+  background-color: pink;
+  border-color: brown;
 }
 
-*.buyPhase {
-  background-color: rgb(253,225,100);
+.p6 {
+  padding: 0px 3px;
+  background-color: tan;
+  border-color: black;
 }
 
-*.cleanUpPhase {
-  background-color: rgb(254,143,78);
-}
-
-span.phase {
+.phase {
   display: inline-block;
   width: 15px;
   text-align: center;
 }
 
-span.player {
-  padding: 0px 3px;
+.initPlayerPhase {
+  background-color: white;
 }
 
-span.indent {
+.actionPhase {
+  background-color: rgb(240,240,240);
+}
+
+.buyPhase {
+  background-color: rgb(253,225,100);
+}
+
+.cleanUpPhase {
+  background-color: rgb(254,143,78);
+}
+
+.gameOverPhase {
+  background-color: white;
+}
+
+.indent {
   padding-left: 20px;
 }
 
-vp-chip {
-  background-color:rgb(0,0,0);
-  border-radius: 4px;
-  padding: 0px 3px;
+.card {
+  border-radius: 8px;
+  padding: 0px 4px;
+}
+
+.action,
+.action-attack,
+.action-attack-looter,
+.action-attack-knight,
+.action-attack-prize,
+.action-attack-potion,
+.action-guilds,
+.action-looter,
+.action-prize,
+.action-potion,
+.action-potioncoin {
+  background-color: rgb(240,240,240);
+}
+
+.action-duration {
+  background-color: rgb(254,143,78);
+}
+
+.action-reaction {
+  background-color: rgb(64,168,227);
+}
+
+.action-ruins {
+  background-color: rgb(150,104,51);
+}
+
+.curse {
+  background-color: rgb(215,138,219)
+}
+
+.shelter {
+  background-color: rgb(230,108,104);
+}
+
+.treasure,
+.treasure-guilds,
+.treasure-potion,
+.treasure-philosopher,
+.treasure-prize,
+.treasureillustrated {
+  background-color: rgb(253,225,100);
+}
+
+.victory, 
+.victoryillustrated {
+  background-color: rgb(146,193,125);
+}
+
+.action-victory,
+.action-attack-knight-victory {
+  background: -webkit-linear-gradient(top, rgb(240,240,240), rgb(146,193,125));
+  background: -moz-linear-gradient(top, rgb(240,240,240), rgb(146,193,125));
+}
+
+.treasure-reaction {
+  background: -webkit-linear-gradient(top, rgb(253,225,100), rgb(64,168,227));
+  background: -moz-linear-gradient(top, rgb(253,225,100), rgb(64,168,227));
+}
+
+.treasure-victory,
+.victory-potion {
+  background: -webkit-linear-gradient(top, rgb(253,225,100), rgb(146,193,125));
+  background: -moz-linear-gradient(top, rgb(253,225,100), rgb(146,193,125));
+}
+
+.victory-shelter { 
+  background: -webkit-linear-gradient(top, rgb(230,108,104), rgb(146,193,125));
+  background: -moz-linear-gradient(top, rgb(230,108,104), rgb(146,193,125));
+}
+
+.victory-reaction {
+  background: -webkit-linear-gradient(top, rgb(146,193,125), rgb(64,168,227));
+  background: -moz-linear-gradient(top, rgb(146,193,125), rgb(64,168,227));
+}
+
+.reaction-shelter {
+  background: -webkit-linear-gradient(top, rgb(230,108,104), rgb(64,168,227));
+  background: -moz-linear-gradient(top, rgb(230,108,104), rgb(64,168,227));
+}
+
+.action-shelter{ 
+  background: -webkit-linear-gradient(top, rgb(240,240,240), rgb(230,108,104));
+  background: -moz-linear-gradient(top, rgb(240,240,240), rgb(230,108,104));
+}
+
+.vp-token {
+  border-radius: 8px;
+  padding: 0px 4px;
   color:rgb(255,255,255);
+  background-color:rgb(0,0,0);
 }

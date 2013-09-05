@@ -1,36 +1,5 @@
-/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true */
+/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true, white:true */
 /*global $, _ */
-
-var loadLobbyRatingsModule;
-(function () {
-    "use strict";
-
-    console.log('Preparing to load Lobby Ratings module');
-
-    var exists = function (obj) {
-        return (typeof obj !== 'undefined' && obj !== null);
-    };
-
-    // Wait (non-blocking) until the required objects have been instantiated
-    var waitLoop = setInterval(function () {
-
-        console.log('Checking for Lobby Ratings dependencies');
-
-        try {
-            var gs = window.GokoSalvager;
-            var gso = gs.get_option;
-            var rh = window.FS.RatingHelper;
-            var crv = window.FS.ClassicRoomView;
-            var mrs = window.FS.MeetingRoomSetting;
-
-            if ([gs, gso, rh, crv, mrs].every(exists)) {
-                console.log('Loading Lobby Ratings module');
-                clearInterval(waitLoop);
-                loadLobbyRatingsModule(gs, rh, crv, mrs);
-            }
-        } catch (e) {}
-    }, 100);
-}());
 
 /*
  * Lobby ratings module
@@ -45,7 +14,7 @@ var loadLobbyRatingsModule;
  * - option: sortrating
  * - option: blacklist
  */
-loadLobbyRatingsModule = function (gs, rh, crv, mrs) {
+var loadLobbyRatingsModule = function (gs, rh, crv, mrs) {
     "use strict";
     var insertInPlace, getSortablePlayerObjectFromElement;
 
@@ -118,3 +87,11 @@ loadLobbyRatingsModule = function (gs, rh, crv, mrs) {
         };
     };
 };
+
+window.GokoSalvager.depWait(
+    ['GokoSalvager',
+     'FS.RatingHelper',
+     'FS.ClassicRoomView',
+     'FS.MeetingRoomSetting'],
+    100, loadLobbyRatingsModule, this, 'Lobby Ratings Module'
+);

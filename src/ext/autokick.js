@@ -1,33 +1,5 @@
-/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true */
+/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true, white:true */
 /*global $, _ */
-
-var loadAutokickModule;
-(function () {
-    "use strict";
-
-    console.log('Preparing to load auto kick module');
-
-    var exists = function (obj) {
-        return (typeof obj !== 'undefined' && obj !== null);
-    };
-
-    // Wait (non-blocking) until the required objects have been instantiated
-    var dbWait = setInterval(function () {
-        var gs, gso, zch;
-        console.log('Checking for Auto Kick dependencies');
-        try {
-            gs = window.GokoSalvager;
-            gso = gs.get_option;
-            zch = window.FS.ZoneClassicHelper;
-        } catch (e) {}
-
-        if ([gso, zch].every(exists)) {
-            console.log('Loading auto kick module');
-            loadAutokickModule(gs, zch);
-            clearInterval(dbWait);
-        }
-    }, 100);
-}());
 
 /*
  * Auto kick module
@@ -40,7 +12,7 @@ var loadAutokickModule;
  *   - option: autokick
  *   - option: blacklist
  */
-loadAutokickModule = function (gs, zch) {
+var loadAutokickModule = function (gs, zch) {
     "use strict";
 
     var joinSound = document.createElement('div');
@@ -93,3 +65,9 @@ loadAutokickModule = function (gs, zch) {
         }
     };
 };
+
+window.GokoSalvager.depWait(
+    ['GokoSalvager',
+     'FS.ZoneClassicHelper'],
+    100, loadAutokickModule, this, 'Autokick module'
+);
