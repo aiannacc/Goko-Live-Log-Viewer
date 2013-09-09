@@ -24,9 +24,9 @@
         ].join('\n'));
 
         $('#gamepop').dialog({
-            modal: true,
+            modal: false,
             width: 500,
-            draggable: false,
+            draggable: true,
             resizeable: false,
             autoOpen: false
         });

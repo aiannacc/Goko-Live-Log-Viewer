@@ -39,7 +39,7 @@ var loadBlacklistModule = function (gs, mr, ctv) {
             if (blacklisted && !localPlayerJoined) {
                 this.model.view.$el.hide();
             } else if (blacklisted && localPlayerJoined) {
-                console.log("Warning: in a game with a blacklisted player.");
+                gs.debug("Warning: in a game with a blacklisted player.");
             }
         }
     };

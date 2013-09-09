@@ -1,5 +1,5 @@
-/*jslint browser: true, devel: true, indent: 4, maxlen: 80, es5: true, vars:true, white:true */
-/*global jQuery, $, WebSocket, Audio */
+/*jslint browser: true, devel: true, indent: 4, maxlen: 90, es5: true, vars:true, white:true, nomen:true */
+/*global jQuery, $, _, WebSocket, Audio */
 
 var loadConnWatcher, loadAutomatchModule;
 
@@ -7,7 +7,7 @@ var loadConnWatcher, loadAutomatchModule;
 loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
     "use strict";   // JSLint mode
 
-    var debug, initAutomatch, automatchInitStarted, addAutomatchButton,
+    var initAutomatch, automatchInitStarted, addAutomatchButton,
         fetchOwnRatings, updateAMButton, createTable,
         fetchOwnSets, handleDisconnect,
         connectToAutomatchServer, confirmReceipt, confirmSeek, offerMatch,
@@ -28,10 +28,12 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
     automatchInitStarted = false;
     gs.AM.tableSettings = null;
     gs.AM.wsFailCount = 0;
+    gs.AM.noreconnect = false;
     gs.AM.state = {seek: null, offer: null, game: null};
 
     // Goko constants
-    gs.AM.ENTER_LOBBY = "gatewayConnect";              // Fired on lobby enter
+    gs.AM.ENTER_LOBBY = "gatewayConnect";
+    gs.AM.LEAVE_LOBBY = "gatewayDisconnect";
     gs.AM.GAME_START = "gameServerHello";              // Fired on game start
     gs.AM.TABLE_STATE = "tableState";                  // Fired on table changes
     gs.AM.CASUAL_SYS_ID = '4fd6356ce0f90b12ebb0ff3a';  // Goko casual rating sys
@@ -39,7 +41,7 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
 
     // Runs at end of script
     initAutomatch = function (mtgRoom, gokoconn, zch) {
-        debug('Initializing Automatch');
+        gs.debug('Initializing Automatch');
 
         // Goko helper objects
         gs.AM.mtgRoom = mtgRoom;
@@ -51,6 +53,7 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
                      pid: gs.AM.gokoconn.connInfo.playerId,
                      kind: gs.AM.gokoconn.connInfo.kind,
                      rating: {},
+                     ratingsDirty: true,
                      sets_owned: null};
         fetchOwnRatings(updateAMButton);
         fetchOwnSets(updateAMButton);
@@ -94,7 +97,7 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
                                  .css('color', 'blue')
                                  .css('cursor', 'pointer')
                                  .click(function () {
-                console.log('clicked for AM info');
+                gs.debug('clicked for AM info');
                 if ($('#automatch-info-popup').length === 0) {
                     $('<div>').prop('id', 'automatch-info-popup')
                               .html(amInfo)
@@ -106,9 +109,9 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
                 //       I set ".ui-front {z-index: 1000}" in the included
                 //       JQuery "smoothness" style file.
                 $('#automatch-info-popup').dialog({
-                    modal: true,
+                    modal: false,
                     width: 500,
-                    draggable: false,
+                    draggable: true,
                     resizable: false
                 });
             });
@@ -119,7 +122,7 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
         //       event will trigger first.
         $('.edit-table-btn-create').click(function () {
 
-            // TODO: bind automatch_on_seek properly
+            // TODO: bind automatch_on_seek using AngularJS
             if ($('#am-onseek-box').attr('checked')) {
                 gs.set_option('automatch_on_seek', true);
                 sendAutoAutomatchSeekRequest();
@@ -129,12 +132,57 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
         });
 
         // Notify automatch when the player starts a game
-        gs.AM.gokoconn.bind(gs.AM.GAME_START, gs.AM.gameStarted);
+        // Also shut down automatch
+        gs.AM.gokoconn.bind(gs.AM.GAME_START, function () {
+            gs.AM.gameStarted();
+            gs.AM.state = {seek: null, offer: null, game: null};
+
+            // Disable auto-reconnect and disconnect from automatch server
+            gs.AM.noreconnect = true;
+            if (typeof gs.AM.ws !== 'undefined'
+                    && gs.AM.ws !== null
+                    && gs.AM.ws.readyState === 1) {
+                gs.AM.ws.close();
+            }   
+
+            // Remind us to update the ratings when next joining a lobby
+            gs.AM.player.ratingsDirty = true;
+        });
 
         // Refresh player's rating info after games
-        // TODO: no need to refresh on room changes.
         gs.AM.gokoconn.bind(gs.AM.ENTER_LOBBY, function () {
-            fetchOwnRatings(updateAMButton);
+            // Check whether we've entered a multiplayer meeting room
+            gs.debug('Entered lobby: ' + mtgRoom.currentRoomId);
+            if (mtgRoom.currentRoomId !== null) {
+
+                // Enable auto-reconnect and connect to automatch server
+                gs.AM.noreconnect = false;
+                if (typeof gs.AM.ws === 'undefined'
+                        || gs.AM.ws === null
+                        || gs.AM.ws.readyState !== 1) {
+                    connectToAutomatchServer();
+                }
+
+                // Refresh my ratings
+                if (gs.AM.player.ratingsDirty) {
+                    fetchOwnRatings(updateAMButton);
+                }
+            }
+        });
+
+        gs.AM.gokoconn.bind(gs.AM.LEAVE_LOBBY, function () {
+            // Shut down automatch when player leaves meeting room lobby
+            if (mtgRoom.currentRoomId === null) {
+                gs.AM.state = {seek: null, offer: null, game: null};
+
+                // Disable auto-reconnect and disconnect from automatch server
+                gs.AM.noreconnect = true;
+                if (typeof gs.AM.ws !== 'undefined'
+                        && gs.AM.ws !== null
+                        && gs.AM.ws.readyState === 1) {
+                    gs.AM.ws.close();
+                }   
+            }
         });
     };
 
@@ -157,6 +205,9 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
                 ratingSystemId: gs.AM.CASUAL_SYS_ID
             }, function (resp) {
                 gs.AM.player.rating.goko_casual_rating = resp.data.rating;
+                if (typeof resp.data.rating === 'undefined') {
+                    gs.AM.player.rating.goko_casual_rating = 1000;
+                }
                 if (typeof frCallback !== undefined) {
                     frCallback();
                 }
@@ -168,6 +219,10 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
                 ratingSystemId: gs.AM.PRO_SYS_ID
             }, function (resp) {
                 gs.AM.player.rating.goko_pro_rating = resp.data.rating;
+                if (typeof resp.data.rating === 'undefined') {
+                    gs.AM.player.rating.goko_pro_rating = 1000;
+                }
+                gs.AM.player.ratingsDirty = false;
                 if (typeof frCallback !== undefined) {
                     frCallback();
                 }
@@ -235,45 +290,52 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
     };
 
     connectToAutomatchServer = function () {
-        debug('Connecting to Automatch server at ' + gs.AM.server_url);
+        gs.debug('Connecting to Automatch server at ' + gs.AM.server_url);
+
+        if (gs.AM.hasOwnProperty('ws') && gs.AM.ws.readyState !== 3) {
+            gs.debug('Already connected to Automatch server.');
+            return;
+        }
 
         gs.AM.ws = new WebSocket(gs.AM.server_url
                 + '?pname=' + gs.AM.player.pname);
         gs.AM.ws.lastMessageTime = new Date();
 
         gs.AM.ws.onopen = function () {
-            debug('Connected to Automatch server.');
+            gs.debug('Connected to Automatch server.');
             gs.AM.wsFailCount = 0;
             updateAMButton();
 
             // Ping AM server every 25 sec. Timeout if no messages (including
-            // pingbacks) received for 60 sec.
+            // pingbacks) received for 180 sec.
             if (typeof gs.AM.pingLoop !== 'undefined') {
                 clearInterval(gs.AM.pingLoop);
             }
             gs.AM.pingLoop = setInterval(function () {
-                debug('Running ping loop');
-                if (new Date() - gs.AM.ws.lastMessageTime > 30000) {
-                    debug('Automatch server timed out.');
+                gs.debug('Running ping loop');
+                if (new Date() - gs.AM.ws.lastMessageTime > 180000) {
+                    gs.debug('Automatch server timed out.');
                     clearInterval(gs.AM.pingLoop);
-                    handleDisconnect();
+                    try {
+                        gs.AM.ws.close();
+                    } catch (e) {}
                 } else {
-                    debug('Sending ping');
+                    gs.debug('Sending ping');
                     gs.AM.ping();
                 }
             }, 25000);
         };
 
         gs.AM.ws.onclose = function () {
-            debug('Automatch server closed websocket.');
+            gs.debug('Automatch server closed websocket.');
             handleDisconnect();
         };
 
         // Messages from server
         gs.AM.ws.onmessage = function (evt) {
             var msg = JSON.parse(evt.data);
-            debug('Got ' + msg.msgtype + ' message from Automatch server:');
-            debug(msg.message);
+            gs.debug('Got ' + msg.msgtype + ' message from Automatch server:');
+            gs.debug(msg.message);
 
             gs.AM.ws.lastMessageTime = new Date();
 
@@ -317,8 +379,8 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
             gs.AM.ws.callbacks[msgid] = smCallback;
             gs.AM.ws.send(msgStr);
 
-            debug('Sent ' + msgtype + ' message to Automatch server:');
-            debug(msgObj);
+            gs.debug('Sent ' + msgtype + ' message to Automatch server:');
+            gs.debug(msgObj);
         };
 
         // Callbacks to be run when server confirms msgid received
@@ -367,7 +429,7 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
         gs.AM.state = {seek: null, offer: null, game: null};
         gs.AM.wsFailCount += 1;
 
-        debug('Automatch failed: ' + gs.AM.wsFailCount
+        gs.debug('Automatch connection failure: ' + gs.AM.wsFailCount
                 + '/' + gs.AM.wsMaxFails);
 
         // Update UI
@@ -381,14 +443,14 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
             clearInterval(gs.AM.pingLoop);
         }
 
-        // Wait 15 seconds and attempt reconnect.
-        if (gs.AM.wsFailCount < gs.AM.wsMaxFails) {
+        // Wait 5 seconds and attempt reconnect.
+        if (!gs.AM.noreconnect && gs.AM.wsFailCount < gs.AM.wsMaxFails) {
             setTimeout(function () {
                 connectToAutomatchServer();
                 updateAMButton();
-            }, 15000);
+            }, 5000);
         } else {
-            debug('Too many Automatch failures. Giving up');
+            gs.debug('Not attempting to reconnect to automatch server.');
         }
     };
 
@@ -398,10 +460,10 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
 
     // Invoke the callback registered to this message's id, if any.
     confirmReceipt = function (msg) {
-        debug('Receipt of message confirmed: ' + msg.msgid);
+        gs.debug('Receipt of message confirmed: ' + msg.msgid);
         var crCallback = gs.AM.ws.callbacks[msg.msgid];
         if (typeof crCallback !== 'undefined' && crCallback !== null) {
-            debug(crCallback);
+            //gs.debug(crCallback);
             crCallback();
         }
         updateAMButton();
@@ -415,7 +477,7 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
         gs.AM.state.seek = null;
         gs.AM.state.offer = msg.offer;
         gs.AM.showOfferPop(true);
-        new Audio('sounds/startTurn.ogg').play();
+        gs.alertPlayer('Automatch found', new Audio('sounds/startTurn.ogg'));
     };
 
     rescindOffer = function (msg) {
@@ -449,7 +511,8 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
             gs.AM.gokoconn.bind(gs.AM.ENTER_LOBBY, hostGame);
 
             // Go to room or just create the game if we're already there
-            if (gs.AM.zch.currentRoom.get('roomId') === gs.AM.state.game.roomid) {
+            if (gs.AM.zch.currentRoom.get('roomId')
+                    === gs.AM.state.game.roomid) {
                 hostGame();
             } else {
                 gs.AM.zch.changeRoom(gs.AM.state.game.roomid);
@@ -478,13 +541,13 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
 
                 joinOpts = {table: gs.AM.state.game.tableindex,
                             seat: seatindex};
-                debug('Joining table:');
-                debug(joinOpts);
+                gs.debug('Joining table:');
+                gs.debug(joinOpts);
                 gs.AM.gokoconn.joinAndSit(joinOpts, function () {
                     joinOpts.ready = true;
                     gs.AM.gokoconn.setReady(joinOpts);
                 });
-                debug('Joined game. Automatch finished.');
+                gs.debug('Joined game. Automatch finished.');
                 gs.AM.showGamePop(false);
             };
             gs.AM.gokoconn.bind(gs.AM.ENTER_LOBBY, joinGame);
@@ -508,6 +571,8 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
     };
 
     gs.AM.submitSeek = function (seek) {
+        seek.blacklist = _.union(gs.get_option('blacklist'),
+                gs.get_option('automatch_blacklist'));
         gs.AM.state.seek = seek;
         gs.AM.ws.sendMessage('SUBMIT_SEEK', {seek: gs.AM.state.seek});
     };
@@ -515,15 +580,22 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
     gs.AM.cancelSeek = function (seek) {
         if (gs.AM.state.seek !== null) {
             gs.AM.state.seek.canceling = true;
-            gs.AM.tableSettings = null;
             gs.AM.ws.sendMessage('CANCEL_SEEK',
                 {seekid: gs.AM.state.seek.seekid},
                 function () { gs.AM.state.seek = null; });
         }
+        gs.AM.tableSettings = null;
     };
 
     gs.AM.acceptOffer = function (aoCallback) {
         var msg = {matchid: gs.AM.state.offer.matchid};
+
+        // Close the Create Table dialog if it's open
+        var detv = mtgRoom.views.ClassicRoomsEditTable;
+        if (detv.isShow) {
+            detv.onClickCancel();
+        }
+
         gs.AM.ws.sendMessage('ACCEPT_OFFER', msg, aoCallback);
     };
 
@@ -566,12 +638,12 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
      * Send an auto-automatch request
      */
     sendAutoAutomatchSeekRequest = function () {
-        console.log('Creating auto-automatch request');
+        gs.debug('Creating auto-automatch request');
 
         var tSettings = JSON.parse(gs.AM.mtgRoom.views.ClassicRoomsEditTable
                                      .retriveDOM().settings);
-        console.log("Table Settings:");
-        console.log(tSettings);
+        gs.debug("Table Settings:");
+        gs.debug(tSettings);
 
         // Cache table settings so that we build the same game if we
         // end up making an automatch in Casual or Unrated.
@@ -583,22 +655,22 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
         }).length;
         var rSystem = tSettings.ratingType;
 
-        console.log('tname: ' + tName);
-        console.log('pcount: ' + pCount);
-        console.log('rSystem: ' + rSystem);
+        gs.debug('tname: ' + tName);
+        gs.debug('pcount: ' + pCount);
+        gs.debug('rSystem: ' + rSystem);
 
         // Match title fragments like 5432+, 5k+, 5.4k+
-        console.log('Reading min rating req');
-        var m, minRating = null;
-        if ((m = tName.match(/(\d(\.\d+){0,1})[kK]\+/)) !== null) {
-            minRating = Math.floor(1000 * parseFloat(m[1], 10));
-        } else if ((m = tName.match(/(\d\d\d\d)\+/)) !== null) {
-            minRating = parseInt(m[1], 10);
-        }
+        gs.debug('Reading rating range requirement');
+
+        // TODO: use casual rating for casual/unrated games?
+        var range = gs.parseRange(tName, gs.AM.player.rating.goko_pro_rating);
+        var minRating = range[0];
+        var maxRating = range[1];
 
         // Do not automatch if looking for a particular opponent
+        var m;
         if ((m = tName.toLowerCase().match(/for\s*\S*/)) !== null) {
-            console.log('Table is for a specific opp; no automatch');
+            gs.debug('Table is for a specific opp; no automatch');
         } else {
             var np, rs, ar;
 
@@ -611,7 +683,7 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
 
             ar = {rclass: 'AbsoluteRating', props: {}};
             ar.props.min_pts = minRating;
-            ar.props.max_pts = null;
+            ar.props.max_pts = maxRating;
             ar.props.rating_system = rSystem;
 
             // Send seek request
@@ -619,14 +691,14 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
                 player: gs.AM.player,
                 requirements: [np, rs, ar]
             };
-            console.log(seek);
+            gs.debug(seek);
 
             // TODO: wait for seek canceled confirmation
             if (gs.AM.state.seek !== null) {
                 gs.AM.cancelSeek(gs.AM.state.seek);
             }
 
-            console.log('Sending auto-automatch request');
+            gs.debug('Sending auto-automatch request');
             gs.AM.submitSeek(seek);
         }
     };
@@ -660,7 +732,7 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
 
                 // Notify user when all opponents have joined
                 gs.AM.gokoconn.unbind(gs.AM.TABLE_STATE, listenJoin);
-                debug('All opponents have joined. Automatch complete.');
+                gs.debug('All opponents have joined. Automatch complete.');
                 disableAutoAccept();
                 gs.AM.showGamePop(false);
             }
@@ -764,40 +836,31 @@ loadAutomatchModule = function (gs, conn, mtgRoom, zch) {
         }
     };
 
-    // Print debugging messages to the JS console
-    debug = function (str) {
-        if (gs.AM.log_debugging_messages) {
-            console.log(str);
-        }
-    };
-
-    debug('Automatch script loaded.');
-    debug('Initializing automatch.');
+    gs.debug('Automatch script loaded.');
+    gs.debug('Initializing automatch.');
     initAutomatch(mtgRoom, conn, zch);
 };
 
-// Automatch depends on the conn and mtgRoom objects, which never get created
-// if the user goes into Adventure mode instead of Multiplayer. Rather than
-// looping forever to see if these objects exist, we'll hijack connection
-// events, the first of which is proof that the conn object has been created.
-loadConnWatcher = function (gs, fsc) {
+// Don't loop-wait for dependencies. Listen for room join events instead.
+var loadGatewayListener = function (gs, eventDispatcher) {
     "use strict";
-    var first = true;
-    gs.alsoDo(fsc, 'trigger', function () {
-        if (first) {
-            window.GokoSalvager.depWait(
-                ['GokoSalvager',
-                 'conn',
-                 'mtgRoom',
-                 'mtgRoom.helpers.ZoneClassicHelper'],
-                5000, loadAutomatchModule, this, 'Automatch Module'
-            );
-            first = false;
+    var alreadyLoaded = false;
+    gs.alsoDo(eventDispatcher, 'trigger', null, function (msg, evt) {
+        if (msg === 'gatewayConnect' && !alreadyLoaded) {
+            try { 
+                var mtgRoom = window.mtgRoom;
+                var conn = mtgRoom.conn;
+                var zch = mtgRoom.helpers.ZoneClassicHelper;
+                if (typeof conn !== 'undefined' && typeof zch !== 'undefined') {
+                    loadAutomatchModule(gs, conn, mtgRoom, zch);
+                    alreadyLoaded = true;
+                }
+            } catch (e) {}
         }
     });
 };
 
 window.GokoSalvager.depWait(
-    ['GokoSalvager', 'FS.Connection'],
-    5000, loadConnWatcher, this, 'Automatch Connection Watcher'
+    ['GokoSalvager', 'FS.EventDispatcher'],
+    100, loadGatewayListener, this, 'Automatch Gateway Listener'
 );

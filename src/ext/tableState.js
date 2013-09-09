@@ -2,48 +2,33 @@
 /*global $, _, */
 
 /*
- * Saving table name and settings module
+ * Save table settings module
  */
-var loadTableSavingModule = function (gs, etv, detv) {
+var loadTableSavingModule = function (gs, editTableView, domEditTableView) {
     "use strict";
 
-    etv.prototype.old_modifyDOM = etv.prototype.modifyDOM;
-    etv.prototype.modifyDOM = function () {
-        var create = !_.isNumber(this.tableIndex);
-        var lasttablename = this.$tableName.val() || gs.get_option('lasttablename');
-        gs.set_option('lasttablename', lasttablename);
-        etv.prototype.old_modifyDOM.call(this);
-        if (create && lasttablename) {
-            this.$tableName.val(lasttablename);
-        }
-    };
+    // First provide our cacheSettings (# of players, rating mode, etc) to the
+    // function that populates the Create Table dialog. Let it do its thing and
+    // then override the table name it chooses (which is always "X's game")
+    gs.alsoDo(domEditTableView, 'modifyDOM', function () {
+        this.cacheSettings = gs.get_option('cacheSettings') || this.cacheSettings;
+    }, function () {
+        this.$tableName.val(gs.get_option('lasttablename'));
+    });
 
-    var firstCreateTable = true;
-    detv.prototype.old_modifyDOM = detv.prototype.modifyDOM;
-    detv.prototype.modifyDOM = function () {
-        var create = !_.isNumber(this.tableIndex);
-        if (create && firstCreateTable) {
-            if (gs.get_option('cacheSettings')) {
-                this.cacheSettings = gs.get_option('cacheSettings');
-            }
-            firstCreateTable = false;
-        }
-        detv.prototype.old_modifyDOM.call(this);
-    };
-
-    detv.prototype.old_retriveDOM = detv.prototype.retriveDOM;
-    detv.prototype.retriveDOM = function () {
-        var ret = detv.prototype.old_retriveDOM.call(this);
-        if (ret) {
+    // Cache table settings whenever a table is created manually.
+    // Note that this does not trigger when automatch creates a table.
+    gs.alsoDo(domEditTableView, 'onClickCreateTable', function () {
+        if (this.retriveDOM()) {
             gs.set_option('cacheSettings', this.cacheSettings);
+            gs.set_option('lasttablename', JSON.parse(this.tableSetting).name);
         }
-        return ret;
-    };
+    });
 };
 
 window.GokoSalvager.depWait(
     ['GokoSalvager',
      'FS.EditTableView',
      'FS.DominionEditTableView'],
-    100, loadTableSavingModule, this, 'Table Saving Module'
+    100, loadTableSavingModule, this, 'Table Settings Module'
 );

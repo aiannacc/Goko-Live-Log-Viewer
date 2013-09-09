@@ -18,9 +18,9 @@
         ].join(''));
 
         $('#seekAAPop').dialog({
-            modal: true,
+            modal: false,
             width: 500,
-            draggable: false,
+            draggable: true,
             resizeable: false,
             autoOpen: false
         });
@@ -36,12 +36,12 @@
 
         viewport.append([
             '<div id="seekPop" title="Request Automatch" ng:app ',
-            '     ng:controller="gokoSalvagerUserSettingsController">',
+            '     ng:controller="settingsController">',
             '  <table>',
             '    <tr>',
             '      <td colspan="2">',
             '        <label>Min Players:</label>',
-            '        <select id="minPlayers" ng:model="us.automatch_min_players">',
+            '        <select id="minPlayers" ng:model="so.automatch_min_players">',
             '          <option value="2">2</option>',
             '          <option value="3">3</option>',
             '          <option value="4">4</option>',
@@ -51,7 +51,7 @@
             '      </td>',
             '      <td colspan="2">',
             '        <label>Min Sets:</label>',
-            '        <select id="minSets" ng:model="us.automatch_min_sets">',
+            '        <select id="minSets" ng:model="so.automatch_min_sets">',
             '          <option selected value="1">Base Only</option>',
             '          <option value="2">2</option>',
             '          <option value="3">3</option>',
@@ -72,7 +72,7 @@
             '    <tr>',
             '      <td colspan="2">',
             '        <label>Max Players:</label>',
-            '        <select id="maxPlayers" ng:model="us.automatch_max_players">',
+            '        <select id="maxPlayers" ng:model="so.automatch_max_players">',
             '          <option value="2">2</option>',
             '          <option value="3">3</option>',
             '          <option value="4">4</option>',
@@ -82,7 +82,7 @@
             '      </td>',
             '      <td colspan="2">',
             '        <label>Max Sets:</label>',
-            '        <select id="maxSets" ng:model="us.automatch_max_sets">',
+            '        <select id="maxSets" ng:model="so.automatch_max_sets">',
             '          <option value="1">Base Only</option>',
             '          <option value="2">2</option>',
             '          <option value="3">3</option>',
@@ -108,7 +108,7 @@
             '      </td>',
             '      <td colspan="1">',
             '        <input type="number" id="rdiff" value="2000" size="4"',
-            '               ng:model="us.automatch_rdiff"/>',
+            '               ng:model="so.automatch_rdiff"/>',
             '      </td>',
             '    </tr>',
             '    <tr>',
@@ -116,7 +116,7 @@
             '        <label>System</label>',
             '      </td>',
             '      <td colspan="1">',
-            '        <select id="ratingSystem" ng:model="us.automatch_rSystem">',
+            '        <select id="ratingSystem" ng:model="so.automatch_rSystem">',
             '          <option value="pro">Pro</option>',
             '          <option value="casual">Casual</option>',
             '          <option value="unrated">Unrated</option>',
@@ -149,9 +149,9 @@
         $('#seekPop select').css('top', 'auto');
 
         $('#seekPop').dialog({
-            modal: true,
+            modal: false,
             width: 550,
-            draggable: false,
+            draggable: true,
             resizeable: false,
             autoOpen: false
         });
@@ -159,7 +159,7 @@
         // Submit request
         $('#seekreq').click(function () {
             var np, ns, rr, rs;
-            console.log('requested seek');
+            gs.debug('requested seek');
 
             np = {rclass: 'NumPlayers', props: {}};
             np.props.min_players = parseInt($('#minPlayers').val(), 10);
@@ -234,7 +234,7 @@
             }
         });
 
-        angular.bootstrap(window.document);
+        angular.bootstrap(window.document.getElementById('seekPop'));
     };
 
     // Update and show/hide the dialog
@@ -255,12 +255,12 @@
             visible = true;
         }
 
-        if (gs.AM.tableSettings === null) {
-            $('#seekPop').dialog(visible ? 'open' : 'close');
-            $('#seekhide').focus();
-        } else {
+        if (gs.AM.state.seek !== null && gs.AM.tableSettings !== null) {
             $('#seekAAPop').dialog(visible ? 'open' : 'close');
             $('#seekAAOkay').focus();
+        } else {
+            $('#seekPop').dialog(visible ? 'open' : 'close');
+            $('#seekhide').focus();
         }
     };
 }());

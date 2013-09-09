@@ -10,16 +10,22 @@ namespace :firefox do
         FileUtils.rm_rf 'build/firefox/gokosalvager.xpi'
         FileUtils.mkdir_p 'build/firefox/chrome/icons/default'
 
-        # Read properties from common config file
-        #props = eval(File.open('config.rb') {|f| f.read })
-
-        # Build package description
-        #pkg_json = fill_template 'src/config/firefox/package.json.erb', props
-        #File.open('build/firefox/package.json', 'w') {|f| f.write pkg_json }
-
         # Copy config files
         # TODO: generate these dynamically again
         FileUtils.cp_r Dir.glob('src/config/firefox/*'), 'build/firefox/'
+
+        # Read properties from common config file
+        props = eval(File.open('config.rb') {|f| f.read })
+
+        # Build main loader script dynamically
+        main_js = fill_template 'src/config/firefox/content/main.js.erb', props
+        File.open('build/firefox/content/main.js', 'w') {|f| f.write main_js }
+        FileUtils.rm 'build/firefox/content/main.js.erb'
+
+        # Build info file dynamically
+        inst_rdf = fill_template 'src/config/firefox/install.rdf.erb', props
+        File.open('build/firefox/install.rdf', 'w') {|f| f.write inst_rdf }
+        FileUtils.rm 'build/firefox/install.rdf.erb'
 
         # Copy js, css, and png files
         FileUtils.cp_r Dir.glob('src/lib/*.js'), 'build/firefox/content/'

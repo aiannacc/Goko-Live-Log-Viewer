@@ -16,12 +16,12 @@ var loadDecktracker = function (gs, domWindow, logManager, cdbc) {
     getHumanCardName = function (codedCardName) {
         // Strip the numbers
         codedCardName = codedCardName.replace(/\.\d+$/, '');
-        console.log(codedCardName);
+        gs.debug(codedCardName);
         // Translate "foolsGold" into "Fool's Gold"
         var c = cdbc.filter(function (card) {
             return card.nameId === codedCardName;
         })[0];
-        console.log(c);
+        gs.debug(c);
         return c.name[0];
     };
 
@@ -38,13 +38,13 @@ var loadDecktracker = function (gs, domWindow, logManager, cdbc) {
 
                 // This is a name like 'grandMarket.3'; translate it
                 var passedCard = move.sourceCard;
-                console.log('Passed: ' + passedCard);
+                gs.debug('Passed: ' + passedCard);
                 passedCard = getHumanCardName(passedCard);
 
-                console.log('Translated: ' + passedCard);
-                console.log(pnames);
-                console.log(srcArea.playerIndex);
-                console.log(dstArea.playerIndex);
+                gs.debug('Translated: ' + passedCard);
+                gs.debug(pnames);
+                gs.debug(srcArea.playerIndex);
+                gs.debug(dstArea.playerIndex);
 
                 // Decrement the passer's count, increment the recipient's
                 alterCardCount(pnames[srcArea.playerIndex], passedCard, -1);
@@ -100,8 +100,8 @@ var loadDecktracker = function (gs, domWindow, logManager, cdbc) {
         } else if ((m = line.match(trashPatt)) !== null) {
             actorName = m[1];
             m[2].split(', ').map(function (card) {
-                console.log(m[2]);
-                console.log('trashed card: [' + card + ']');
+                gs.debug(m[2]);
+                gs.debug('trashed card: [' + card + ']');
                 if (possessed) {
                     if (actorName !== turnPlayerName) {
                         alterCardCount(actorName, card, -1);
@@ -128,6 +128,9 @@ var loadDecktracker = function (gs, domWindow, logManager, cdbc) {
     };
 
     alterCardCount = function (pname, card, n) {
+        if (card === 'JackOfAllTrades') {
+            card = 'Jack of All Trades';
+        }
         gs.cardCounts[pname][card] = gs.cardCounts[pname][card] || 0;
         gs.cardCounts[pname][card] += n;
         if (gs.cardCounts[pname][card] === 0) {

@@ -26,7 +26,7 @@ var loadAvatarModule = function (gs, gp, ls) {
                     img2.onload = function () { callback(img2); };
                     img2.src = myCanvas.toDataURL("image/png");
                 } catch (e) {
-                    console.err(e);
+                    gs.debug(e);
                     alert(e.toString());
                     gp.old_AvatarLoader(userdata, callback);
                 }

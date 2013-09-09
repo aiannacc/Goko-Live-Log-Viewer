@@ -15,31 +15,42 @@
     var gs = window.GokoSalvager;
 
     var default_options = {
-        autokick: true,
+        autokick_by_rating: true,
+        autokick_by_forname: true,
+        alert_popups: false,
+        alert_sounds: true,
         generator: true,
         proranks: true,
         sortrating: true,
         adventurevp: true,
+        sidebar: true,
         vp_request: true,
-        vp_disallow: false,
+        vp_refuse: false,
         always_stack: false,
         blacklist: [],
+        automatch_blacklist: [],
         automatch_on_seek: true,
         automatch_min_players: 2,
         automatch_max_players: 2,
         automatch_min_sets: 1,
         automatch_max_sets: 15,
         automatch_rSystem: 'pro',
-        automatch_rdiff: 1500
+        automatch_rdiff: 1500,
+        debug_mode: false,
+        lasttablename: 'My Table'
     };
 
     gs.get_options = function () {
-        try {
-            return JSON.parse(localStorage.salvagerOptions);
-        } catch (e) {
-            gs.set_options(default_options);
-            return gs.get_options();
+        var optName, out = {};
+        if (localStorage.hasOwnProperty('salvagerOptions')) {
+            out = JSON.parse(localStorage.salvagerOptions);
         }
+        for (optName in default_options) {
+            if (!out.hasOwnProperty(optName)) {
+                out[optName] = default_options[optName];
+            }
+        }
+        return out;
     };
 
     gs.set_options = function (options) {
@@ -47,9 +58,7 @@
     };
 
     gs.get_option = function (optName) {
-        return gs.get_options().hasOwnProperty(optName)
-            ? gs.get_options()[optName]
-            : default_options[optName];
+        return gs.get_options()[optName];
     };
 
     gs.set_option = function (optionName, optionValue) {

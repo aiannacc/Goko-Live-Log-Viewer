@@ -1,12 +1,12 @@
 {
-    "name": "Goko Dominion Salvager",
-    "description": "Enhance your Online Dominion experience!",
-    "version": "2.3",
+    "name": "<%= config[:title] %>",
+    "description": "<%= config[:desc] %>",
+    "version": "<%= config[:version] %>",
     "manifest_version": 2,
     "content_scripts": [{
         "css": [ ],
         "js": [ "loadAll.js" ],
-        "matches": [ "*://*.goko.com/Dominion/gameClient.html" ],
+        "matches": [ "*://*.goko.com/Dominion/gameClient.html*" ],
         "run_at": "document_idle"
     }],
     "permissions": [ "webNavigation" ],

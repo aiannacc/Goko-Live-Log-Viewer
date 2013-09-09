@@ -7,8 +7,14 @@ var createSidebar, resizeSidebar;
 resizeSidebar = function (gs) {
     "use strict";
 
+    // Hide sidebar if disabled in options
+    if (!gs.get_option('sidebar')) {
+        $('#sidebar').css('display', 'none');
+    }
+
     // Keep Goko play area in center
     if ($('#sidebar').css('display') === 'none') {
+        $('#goko-game').attr('style', 'left: 50% !important; margin-left: -512px !important');
         return;
     }
 
@@ -25,28 +31,22 @@ resizeSidebar = function (gs) {
     $('#sidebar').css('left', goko_w + 'px')
                  .css('width', w + 'px')
                  .css('margin-top', $('#myCanvas').css('margin-top'))
-                 .css('height', $('#myCanvas').css('height'));
+                 .css('height', $('#myCanvas').css('height'))
+                 .css('border-collapse', 'collapse');
+    $('#prettylog').css('height', $('#sidebar').height() - $('#vptable').height() - 10);
 
     // Scroll to bottom of log
-    $('#prettylog').css('max-height',$('#sidebar').height() - $('#sidebar').css('margin-top').replace('px', 0));
     $('#prettylog').scrollTop(99999999);
 };
 
-// Add logviewer to GUI
+// Add sidebar to GUI
+// Children: VP table, prettified log
 createSidebar = function (gs, logManager) {
     "use strict";
-    $('#goko-game').append(
-        ['<div id="sidebar">',
-         '  <table id="vptable" class="vptable">',
-         '    <tr>',
-         '      <td>Player 1</td>',
-         '      <td>500</td>',
-         '    </tr>',
-         '  </table>',
-         '  <div id="prettylog"></div>',
-         '</div>'
-        ].join('\n')
-    );
+    $('#goko-game')
+        .append($('<div>').attr('id', 'sidebar')
+            .append($('<table>').attr('id', 'vptable'))
+            .append($('<div>').attr('id', 'prettylog')));
 
     // Hide sidebar until first game message
     $('#sidebar').hide();

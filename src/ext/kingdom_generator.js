@@ -309,7 +309,7 @@ var loadKingdomGenerator = function (gs, db, dbp, detv, cdbc) {
     }
 
     function myBuildDeck(avail, s) {
-        console.log('Entering myBuildDeck');
+        gs.debug('Entering myBuildDeck');
         var i, c;
         var chosen = {};
         var deck = new Array(11);
@@ -319,8 +319,8 @@ var loadKingdomGenerator = function (gs, db, dbp, detv, cdbc) {
                     break;
                 }
                 for (c in avail) {
-                    console.log("Sets:");
-                    console.log(sets);
+                    gs.debug("Sets:");
+                    gs.debug(sets);
                     if (!sets.cost2[c] && !sets.cost3[c]) {
                         chosen[c] = true;
                     }
@@ -378,7 +378,9 @@ var loadKingdomGenerator = function (gs, db, dbp, detv, cdbc) {
     dbp.prototype._old_getRandomCards = dbp.prototype.getRandomCards;
     dbp.prototype.getRandomCards = function (opts, callback) {
         this._old_getRandomCards(opts, function (x) {
-            if (gs.get_option('generator') && !hideKingdomGenerator && opts.useEternalGenerateMethod) {
+            if (gs.get_option('generator') && !hideKingdomGenerator 
+                    && (!gs.AM.hasOwnProperty('state') || gs.AM.state.game === null)
+                    && opts.useEternalGenerateMethod) {
                 sel.prompt(function (val) {
                     try {
                         var all = {};

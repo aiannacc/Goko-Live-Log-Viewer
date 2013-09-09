@@ -1,4 +1,4 @@
-/*jslint browser: true, devel: true, indent: 4, maxlen: 90, es5: true */
+/*jslint browser: true, devel: true, indent: 4, maxlen: 90, es5: true, vars:true */
 /*global jQuery, $ */
 
 (function () {
@@ -25,9 +25,9 @@
         ].join('\n'));
 
         $('#offerPop').dialog({
-            modal: true,
+            modal: false,
             width: 500,
-            draggable: false,
+            draggable: true,
             resizeable: false,
             autoOpen: false
         });
@@ -38,11 +38,11 @@
             // Disable UI while waiting for server response.
             $('#offeracc').prop('disabled', true);
             $('#offerrej').prop('disabled', true);
-            $('#offerwaitinfo').html('Accepted. Waiting for confirmation.');
+            $('#offerwaitinfo').text('Accepted. Waiting for confirmation.');
 
             // Notify server
             gs.AM.acceptOffer(function () {
-                $('#offerwaitinfo').html('Accepted offer. Waiting for opp(s).');
+                $('#offerwaitinfo').text('Accepted offer. Waiting for opp(s).');
                 $('#offeracc').prop('disabled', true);
                 $('#offerrej').prop('disabled', false);
             });
@@ -78,31 +78,35 @@
             });
 
             // List or count card sets
-            var hostsets = gs.AM.state.offer.seeks.map(function (seek) {
+            var host = gs.AM.state.offer.seeks.map(function (seek) {
                 return seek.player;
             }).filter(function (player) {
                 return player.pname === gs.AM.state.offer.hostname;
-            })[0].sets_owned;
+            })[0];
+            var hostsets = host.sets_owned;
 
             switch (hostsets.length) {
             case 15:
-                $('#offersets').html('All Cards');
+                $('#offersets').text('All Cards');
                 break;
             case 1:
-                $('#offersets').html('Base Only');
+                $('#offersets').text('Base Only');
                 break;
             case 2:
             case 3:
-                $('#offersets').html(hostsets.join(', '));
+                $('#offersets').text(hostsets.join(', '));
                 break;
             default:
-                $('#offersets').html(hostsets.length + ' sets');
+                $('#offersets').text(hostsets.length + ' sets');
             }
 
-            $('#offerrating').html(gs.AM.state.offer.rating_system);
-            $('#offerhost').html(gs.AM.state.offer.hostname);
-            $('#offerroom').html(gs.AM.state.offer.roomname);
-            $('#offerwaitinfo').html('If you accept, Automatch will take you '
+            $('#offerrating').text(gs.AM.state.offer.rating_system);
+
+            $('#offerhost').text(gs.AM.state.offer.hostname
+                        + ' [Pro Rating: ' + host.rating.goko_pro_rating + ']');
+
+            $('#offerroom').text(gs.AM.state.offer.roomname);
+            $('#offerwaitinfo').text('If you accept, Automatch will take you '
                     + 'and your opponent(s) to ' + gs.AM.state.offer.roomname
                     + ' and create a new game there.');
             $('#offeracc').prop('disabled', false);

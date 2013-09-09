@@ -29,20 +29,28 @@
 }
 
 table.vptable {
-  padding: 2px;
-  background-color: gray;
-  margin: 1px 1px;
+  padding: 0px 5px;
   visibility: inherit;
+  border-radius: 5px;
+  border-collapse: separate; 
+  border-spacing: 0px 1px;
 }
 
-tr.vptable {
+table.vptable tr {
   visibility: inherit;
-  padding: 4px 4px;
+  border: 1px solid black;
+  border-radius: 5px;
 }
 
-td.vptable {
-  padding: 1px 4px;
+table.vptable tr:first-child, table.vptable td:first-child { border-top-left-radius: 5px; }
+table.vptable tr:first-child, table.vptable td:last-child { border-top-right-radius: 5px; }
+table.vptable tr:last-child, table.vptable td:first-child { border-bottom-left-radius: 5px; }
+table.vptable tr:last-child, table.vptable td:last-child { border-bottom-right-radius: 5px; }
+
+table.vptable td {
+  padding: 0px 4px;
   visibility: inherit;
+  border: 1px solid;
 }
 
 h1.gameheader {
@@ -122,6 +130,10 @@ h1.turnheader {
 
 .gameOverPhase {
   background-color: white;
+}
+
+.indented {
+  margin-left: 20px;
 }
 
 .indent {
