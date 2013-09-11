@@ -19,7 +19,7 @@
                      .attr('ng-show', 'vp.vpon')
             .append($('<tbody>')
                 .append($('<tr>').attr('ng-repeat',
-                                       'player in vp.players | orderBy:"vps":true')
+                                       'player in playerList | orderBy:"vps":true')
                     .addClass('{{player.pclass}}')
                     .append($('<td>').text('{{player.pname}}'))
                     .append($('<td>').attr('ng-show', 'debugMode')
@@ -33,7 +33,13 @@
         // Bind UI to model using AngularJS
         window.vpController = function ($scope) {
             $scope.vp = gs.vp;
+            $scope.playerList = _.values(gs.vp.players);
             $scope.debug = gs.debugMode;
+            $scope.$watch(function () {
+                return gs.vp.players;
+            }, function () {
+                $scope.playerList = _.values(gs.vp.players);
+            }, true);
         };
         angular.bootstrap($('#vptable'));
     };
@@ -41,48 +47,49 @@
     // Calculate VPs from info provided by decktracker.js
     var loadVPCalculator = function (gs, cdbc) {
 
+        var gokoCardData = function (englishCardName) {
+            return cdbc.filter(function (c) {
+                return c.name[0] === englishCardName;
+            })[0];
+        };
+
         // A single card's VP, given the final deck
         var cardVPValue = function (card, deck) {
-
-            // goko's data on this card
-            var cardData = cdbc.filter(function (c) {
-                return c.name[0] === card;
-            })[0];
-
-            var c, d = deck;
+            var cname;
             switch (card) {
             case 'Duke':
-                return d.Duchy || 0;
+                return deck.Duchy || 0;
             case 'Fairgrounds':
-                return 2 * Math.floor(_.size(d) / 5);
+                return 2 * Math.floor(_.size(deck) / 5);
             case 'Feodum':
-                return Math.floor((d.Silver || 0) / 3);
+                return Math.floor((deck.Silver || 0) / 3);
             case 'Gardens':
-                return Math.floor(_.values(d).reduce(sum) / 10);
+                return Math.floor(_.values(deck).reduce(sum) / 10);
             case 'Silk Road':
                 var vpCardCount = 0;
-                for (c in d) {
-                    if (cardData.type.match(/victory/)) {
-                        vpCardCount += d[c];
+                for (cname in deck) {
+                    if (gokoCardData(cname).type.match(/victory/)) {
+                        vpCardCount += deck[cname];
                     }
                 }
                 return Math.floor(vpCardCount / 4);
             case 'Vineyard':
                 var actionCardCount = 0;
-                for (c in d) {
-                    if (cardData.type.match(/action/)) {
-                        actionCardCount += d[c];
+                for (cname in deck) {
+                    if (gokoCardData(cname).type.match(/action/)) {
+                        actionCardCount += deck[cname];
                     }
                 }
                 return Math.floor(actionCardCount / 3);
             case 'Farmland':
             case 'Tunnel':
+            case 'Nobles':
             case 'Dame Josephine':
                 return 2;
             default:
                 // Use goko's data except for Farmland, Tunnel, and Dame J., 
                 // which they have wrong in Dominion.CardDuilder.Data.cards
-                return cardData.vp;
+                return gokoCardData(card).vp;
             }
         };
 
@@ -225,15 +232,15 @@
             // Player info
             gs.vp.players = {};
             gameData.playerInfos.map(function (pinfo) {
-                var pindex = pinfo.playerIndex - gameData.playerToMove;
-                pindex = (pindex + gameData.numPlayers) % gameData.numPlayers + 1;
+                //var pindex = pinfo.playerIndex - gameData.playerToMove;
+                //pindex = (pindex + gameData.numPlayers) % gameData.numPlayers + 1;
                 gs.vp.players[pinfo.name] = {
                     pname: pinfo.name,
                     vps: null,
                     request: null,
                     wantsChange: false,
                     isBot: pinfo.hasOwnProperty('bot') && pinfo.bot,
-                    pclass: 'p' + pindex
+                    pclass: 'p' + pinfo.playerIndex
                 };
             });
 

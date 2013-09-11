@@ -6,13 +6,13 @@ var loadLogviewerModule, createLogviewer, resizeLogviewer;
 /*
  * Log viewer module
  */
-loadLogviewerModule = function (gs, cdbc, lm, dw) {
+loadLogviewerModule = function (gs, cdbc, lm, dw, dc) {
     "use strict";   // JSLint setting
 
-    var parseLogLine, logAppendCards, logAppend, logAppendPlayer;
+    var parseLogLine, logAppendCards, logAppend, logAppendPlayer, logNewline;
 
-    // Map from player name to turn order
-    var pname2pindex;
+    // Map from player name to class
+    var pname2pclass;
 
     // Current player/phase
     var gamePhase, logPhase, possessed, gameStarted, gameOver;
@@ -21,6 +21,15 @@ loadLogviewerModule = function (gs, cdbc, lm, dw) {
     // of the new phase.
     gs.alsoDo(dw, '_updateState', function (opt) {
         gamePhase = opt.dominionPhase || gamePhase;
+    });
+
+    gs.alsoDo(dc, 'onIncomingMessage', null, function (msgType, msgData) {
+        if (msgType === 'gameSetup') {
+            pname2pclass = {};
+            msgData.playerInfos.map(function (pinfo) {
+                pname2pclass[pinfo.name] = 'p' + pinfo.playerIndex;
+            });
+        }
     });
 
     // "Listen" to log additions
@@ -49,7 +58,8 @@ loadLogviewerModule = function (gs, cdbc, lm, dw) {
     }).join('|'), 'g');
 
     // Append a list of formatted cards to the log
-    // Ex: ['Copper', 'Estate'] appends <span class="treasure">Copper</span>, <span class="victory">Estate</span>
+    // Ex: ['Copper', 'Estate'] appends 
+    // <span class="treasure">Copper</span>, <span class="victory">Estate</span>
     logAppendCards = function (cardList) {
         var i, card, cardTitle;
         for (i = 0; i < cardList.length; i += 1) {
@@ -65,12 +75,17 @@ loadLogviewerModule = function (gs, cdbc, lm, dw) {
         }
     };
 
-    logAppendPlayer = function (pname, pindex) {
-        logAppend('<span class="p' + pindex + '">' + pname + '</span>');
+    logAppendPlayer = function (pname) {
+        $('#prettylog').append($('<span>').addClass(pname2pclass[pname])
+                                          .text(pname));
     };
 
     logAppend = function (text) {
-        $('#prettylog').append(text);
+        $('#prettylog').append($('<span>').text(text));
+    };
+
+    logNewline = function () {
+        $('#prettylog').append($('<br>'));
     };
 
     var setupPatt = new RegExp(/^-+ Game Setup -+$/);
@@ -81,42 +96,38 @@ loadLogviewerModule = function (gs, cdbc, lm, dw) {
     var gameOverPatt = new RegExp(/^-+ Game Over -+$/);
 
     parseLogLine = function (line) {
-        var m, pname, pindex;
+        var m, pname, pclass;
 
         if (line.match(setupPatt)) {
             $('#prettylog').empty();
-            pname2pindex = {};
             logAppend($('<h1/>').addClass('gameheader').text('Game Setup'));
             gameStarted = false;
 
         } else if ((m = line.match(supplyPatt)) !== null) {
             logAppend('Supply Cards: ');
             logAppendCards(m[1].split(', '));
-            logAppend('<br>');
-
-        } else if ((m = line.match(startingCardsPatt)) !== null) {
-            pname = m[1];
-            pindex = _.size(pname2pindex) + 1;
-            pname2pindex[pname] = pindex;
-
-            var startingCards = m[2];
-            logAppendPlayer(pname, pindex);
-            logAppend(' starting cards: ');
-            logAppendCards(m[2].split(', '));
-            logAppend('<br>');
+            logNewline();
 
         } else if ((m = line.match(turnPatt)) !== null) {
             pname = m[2];
-            pindex = pname2pindex[pname];
-            logAppend($('<h1/>').addClass('turnheader')
-                                .addClass('p' + pindex)
-                                .text(m[1]));
+            pclass = pname2pclass[pname];
+            $('#prettylog').append($('<h1>').addClass('turnheader')
+                                            .addClass(pclass)
+                                            .text(m[1]));
             gameStarted = true;
+
+        } else if ((m = line.match(startingCardsPatt)) !== null) {
+            pname = m[1];
+            var startingCards = m[2];
+            logAppendPlayer(pname);
+            logAppend(' starting cards: ');
+            logAppendCards(m[2].split(', '));
+            logNewline();
 
         } else if ((m = line.match(actPatt)) !== null) {
             // Parse the log line
             pname = m[1];
-            pindex = pname2pindex[pname];
+            pclass = pname2pclass[pname];
             var action = m[3];
             var rest = m[4] || '';
 
@@ -129,9 +140,9 @@ loadLogviewerModule = function (gs, cdbc, lm, dw) {
             // Print new phase's initial or just indent
             logAppend($('<span/>').addClass('phase')
                                   .addClass(logPhase + 'Phase')
-                                  .html(phaseInitial));
+                                  .text(phaseInitial));
             logAppend(' ');
-            logAppendPlayer(pname, pindex);
+            logAppendPlayer(pname);
             logAppend(' ' + action + ' ');
 
             // Parse out and format card names, vp tokens, coin tokens
@@ -147,7 +158,7 @@ loadLogviewerModule = function (gs, cdbc, lm, dw) {
                     logAppendCards([cards[i]]);
                 }
             }
-            logAppend('<br>');
+            logNewline();
 
         } else if (line.match(gameOverPatt)) {
             logAppend($('<h1/>').addClass('gameheader').text('Game Over'));
@@ -155,7 +166,7 @@ loadLogviewerModule = function (gs, cdbc, lm, dw) {
 
         } else {
             logAppend(line);
-            logAppend('<br>');
+            logNewline();
         }
     };
 };
@@ -164,6 +175,7 @@ window.GokoSalvager.depWait(
     ['GokoSalvager',
      'FS.Dominion.CardBuilder.Data.cards',
      'Dom.LogManager',
-     'Dom.DominionWindow'],
+     'Dom.DominionWindow',
+     'DominionClient'],
     100, loadLogviewerModule, this, 'Logviewer Module'
 );

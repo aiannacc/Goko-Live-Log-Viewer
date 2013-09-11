@@ -48,6 +48,8 @@ table.vptable tr:last-child, table.vptable td:first-child { border-bottom-left-r
 table.vptable tr:last-child, table.vptable td:last-child { border-bottom-right-radius: 5px; }
 
 table.vptable td {
+  font-size: 16px;
+  //font-family: TrajanPro;
   padding: 0px 4px;
   visibility: inherit;
   border: 1px solid;
@@ -70,37 +72,37 @@ h1.turnheader {
   border-radius: 5px;
 }
 
-.p1 {
+.p0 {
   padding: 0px 3px;
-  background-color: #CC33FF;
+  background-color: #DD55FF;
   border-color: purple;
 }
 
-.p2 {
+.p1 {
   padding: 0px 3px;
   background-color: lightblue;
   border-color: blue;
 }
 
-.p3 {
+.p2 {
   padding: 0px 3px;
   background-color: lightgreen;
   border-color: green;
 }
 
-.p4 {
+.p3 {
   padding: 0px 3px;
   background-color: yellow;
   border-color: orange;
 }
 
-.p5 {
+.p4 {
   padding: 0px 3px;
   background-color: pink;
   border-color: brown;
 }
 
-.p6 {
+.p5 {
   padding: 0px 3px;
   background-color: tan;
   border-color: black;
@@ -189,7 +191,8 @@ h1.turnheader {
 }
 
 .victory, 
-.victoryillustrated {
+.victoryillustrated,
+.victory-potion {
   background-color: rgb(146,193,125);
 }
 
@@ -204,8 +207,7 @@ h1.turnheader {
   background: -moz-linear-gradient(top, rgb(253,225,100), rgb(64,168,227));
 }
 
-.treasure-victory,
-.victory-potion {
+.treasure-victory {
   background: -webkit-linear-gradient(top, rgb(253,225,100), rgb(146,193,125));
   background: -moz-linear-gradient(top, rgb(253,225,100), rgb(146,193,125));
 }
