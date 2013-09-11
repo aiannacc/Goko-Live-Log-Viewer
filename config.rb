@@ -1,9 +1,9 @@
 {
     # Info for extension configuration files (package.json, manifest.json, etc)
     :name => 'gokosalvager',
-    :version => '2.3',
+    :version => '2.3.1',
     :title => 'Goko Dominion Salvager',
-    :desc => 'Enhance your Online Dominion experience!',
+    :desc => 'Enhance your Online Dominion experience',
     :author => 'The unofficial forum.dominionstrategy dev team',
     :contributors => [
         'philosophyguy',
@@ -21,13 +21,36 @@
     :manifest_version => '2',
     :safarixtz_url => 'http://goo.gl/1SJmbB',
     :targeturls => [
-        '*.goko.com'
+        'http://play.goko.com/Dominion/gameClient.html',
+        'https://play.goko.com/Dominion/gameClient.html',
+        'http://beta.goko.com/Dominion/gameClient.html',
+        'https://beta.goko.com/Dominion/gameClient.html'
+    ],
+    :hostServer => 'www.andrewiannaccone.com',
+    :hostDir => '/home/ai/code/goko-dominion-tools/web/static/gokosalvager/',
+    :hostPort => '8888',
+    :hostURLBase => '/gs/',
+    :extinfo => 'index.html',
+    :extupdate => {
+        :firefox => 'update_firefox.rdf',
+        :chrome => 'update_chrome.xml',
+        :safari => 'update_safari.plist'
+    },
+    :firefox_minversion => '19.0',
+    :firefox_maxversion => '23.*',
+
+    # AI's Safari Developer Certificate ID:
+    :safari_dev_cert_id => '366P22F9M8',
+
+    # Internally-stored versions, so be loaded by Chrome and Firefox. Safari
+    # has to load external version.
+    :jslib => [
+        'jquery.ui.js',
+        'angular.min.js'
     ],
 
     # JS scripts for Goko to load, in order
     :js => [
-        'jquery.ui.js',
-        'angular.min.js',
         'utils.js',
         'settings.js',
         'kingdom_generator.js',

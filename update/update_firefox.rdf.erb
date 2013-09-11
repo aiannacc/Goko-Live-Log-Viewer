@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<RDF:RDF xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+
+  <RDF:Description about="urn:mozilla:extension:jid1-R9otFQC4GvKlUQ@jetpack">
+    <em:updates>
+      <RDF:Seq>
+
+        <RDF:li>
+          <RDF:Description>
+            <em:version><%= config[:version] %></em:version>
+
+            <em:targetApplication>
+              <RDF:Description>
+                <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+                <em:minVersion><%= config[:firefox_minversion] %></em:minVersion>
+                <em:maxVersion><%= config[:firefox_maxversion] %></em:maxVersion>
+                <em:updateLink>https://<%= config[:hostServer] %>:<%= config[:hostPort] %><%= config[:hostURLBase] %>v<%= config[:version] %>/gokosalvager.xpi</em:updateLink>
+                <em:updateInfoURL>https://<%= config[:hostServer] %>:<%= config[:hostPort] %><%= config[:hostURLBase] %>v<%= config[:version] %>/updateinfo.html</em:updateInfoURL>
+              </RDF:Description>
+            </em:targetApplication>
+          </RDF:Description>
+        </RDF:li>
+
+      </RDF:Seq>
+    </em:updates>
+
+  </RDF:Description>
+</RDF:RDF>

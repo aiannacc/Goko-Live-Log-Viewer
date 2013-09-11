@@ -3,6 +3,7 @@
 var i, s, JS, cssNode;
 
 var scripts =  [
+    "<%= config[:jslib].join("\",\n    \"") %>"
     "<%= config[:js].join("\",\n    \"") %>"
 ];
 for (i = 0; i < scripts.length; i += 1) {

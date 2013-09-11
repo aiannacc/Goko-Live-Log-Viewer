@@ -8,7 +8,6 @@ CLEAN.include 'build/*/'
 CLOBBER.include 'build'
 
 PARSER = 'src/dev/set_parser.js'
-WRAPPER = 'src/dev/runInPageContext.js'
 
 # TODO: Restore this. I didn't understand it before, but it's better than
 #       manually merging set_parser.js and kingdom_builder.js as I'm doing now.
@@ -19,10 +18,7 @@ def insert_set_parser_into_main_script(out_file_name)
   out.close
 end
 
-# TODO: Rather than duplicating code in every JS file, create a wrapper like
-#       run_in_page_context to make the script wait for required dependencies.
-#def wrap_requirement_wait(file, requiredObjectNames)
-#end
+WRAPPER = 'src/dev/runInPageContext.js'
 
 def run_in_page_context(file)
   f = File.read(file)
@@ -34,6 +30,7 @@ def run_in_page_context(file)
   end
   t.close
 end
+
 
 def fill_template(templatefile, property_hash)
     config = property_hash

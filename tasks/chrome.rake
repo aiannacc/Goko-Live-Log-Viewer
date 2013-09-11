@@ -3,7 +3,7 @@
 namespace :chrome do
 
     desc 'Assemble content and generate config files for Chrome extension'
-    task :dev do
+    task :build do
 
         # Prepare a blank Chrome Extension project
         FileUtils.rm_rf 'build/chrome/'
@@ -31,14 +31,18 @@ namespace :chrome do
               unpacked extension.'
     end
 
-    file 'build/gokosalvager.zip' => ['chrome:dev'] do |t|
+    desc 'Create a .zip for Chrome'
+    task :zip => ['chrome:build'] do
         FileUtils.rm_rf 'build/gokosalvager.zip'
         Dir.chdir('build/chrome') { sh 'zip -r ../gokosalvager.zip *' }
+        puts 'build/gokosalvager.zip created'
     end
 
-    desc 'Create a .zip for Chrome'
-    task :build => ['build/gokosalvager.zip'] do
-      puts 'build/gokosalvager.zip created'
+    desc 'Create a signed .crx for Chrome'
+    task :crx => ['chrome:build'] do
+        sh './crxmake.sh build/chrome ~/.private/chrome_key.pem'
+        FileUtils.mv 'chrome.crx', 'build/gokosalvager.crx'
+        puts 'build/gokosalvager.crx created'
     end
 
 end

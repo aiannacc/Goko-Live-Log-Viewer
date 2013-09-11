@@ -56,7 +56,7 @@ def create_and_sign(src_dir, cert_dir, target)
 
     # Required Apple Safari developer security files:
     # - cert.der, cert01, cert02, key.pem, size.txt
-    cert_dir = File.expand_path('~/.safari-certs')
+    cert_dir = File.expand_path('~/.private/safari')
     size_file = File.join(cert_dir, 'size.txt')
 
     # Create the extension archive file

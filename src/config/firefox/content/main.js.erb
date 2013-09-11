@@ -31,6 +31,7 @@ var myExtension = {
             // Load javascript files in Goko page context
             var scriptDir = "chrome://gokosalvager/content/";
             var scriptFiles = [
+                "<%= config[:jslib].join("\",\n                \"") %>",
                 "<%= config[:js].join("\",\n                \"") %>",
             ];
             var i;

@@ -3,7 +3,9 @@
 (function () {
     "use strict";
 
-    window.GokoSalvager = window.GokoSalvager || {};
+    window.GokoSalvager = {};
+
+    console.log('Running Goko Salvager v2.3.x');
 
     window.GokoSalvager.debugMode = false;
     window.GokoSalvager.debug = function (text) {

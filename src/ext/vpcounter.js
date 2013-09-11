@@ -1,5 +1,5 @@
 /*jslint browser:true, devel:true, nomen:true, forin:true, vars:true, regexp:true, white:true */
-/*globals $, _, angular */
+/*globals $, _ */
 
 (function () {
     "use strict";
@@ -350,7 +350,7 @@
         locked: false
     };
     window.GokoSalvager.depWait(
-        ['GokoSalvager'], // TODO: also wait for $('#sidebar') element
+        ['GokoSalvager', 'jQuery', '#sidebar', 'angular'],
         100, buildUI, this, 'VP Table'
     );
     window.GokoSalvager.depWait(
