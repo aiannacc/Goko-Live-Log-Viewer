@@ -76,7 +76,7 @@
             case 'Vineyard':
                 var actionCardCount = 0;
                 for (cname in deck) {
-                    if (gokoCardData(cname).type.match(/action/)) {
+                    if (gokoCardData(cname).type.match(/(^|[^e])action/)) {
                         actionCardCount += deck[cname];
                     }
                 }
