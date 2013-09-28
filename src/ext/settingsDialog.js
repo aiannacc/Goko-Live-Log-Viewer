@@ -1,10 +1,15 @@
 /*jslint browser:true, devel:true, white:true, es5:true */
-/*globals $, angular */
+/*globals $, angular, GS */
 
 (function () {
     "use strict";
 
-    var createSettingsDialog = function (gs) {
+    console.log('Loading Settings Dialog');
+
+    GS.modules.settingsDialog = new GS.Module('User Settings Dialog');
+    GS.modules.settingsDialog.dependencies =
+        ['$', 'angular', '#viewport', '.fs-rs-logout-row'];
+    GS.modules.settingsDialog.load = function () {
 
         // Create dialog
         $('#viewport')
@@ -117,7 +122,7 @@
                       }));
 
         window.settingsController = function ($scope) {
-            $scope.so = gs.get_options();
+            $scope.so = GS.get_options();
             $scope.blAdd = function () {
                 if ($scope.newBlacklistee) {
                     $scope.so.blacklist.push($scope.newBlacklistee);
@@ -136,9 +141,10 @@
                 }
             };
             $scope.amblRemove = function (pname) {
-                $scope.so.automatch_blacklist = $scope.so.automatch_blacklist.filter(function (pn) {
-                    return pn !== pname;
-                });
+                $scope.so.automatch_blacklist =
+                    $scope.so.automatch_blacklist.filter(function (pn) {
+                        return pn !== pname;
+                    });
             };
             $scope.$watch('so.vp_refuse', function () {
                 $scope.so.vp_request = $scope.so.vp_request && !$scope.so.vp_refuse;
@@ -147,20 +153,12 @@
                 $scope.so.vp_refuse = $scope.so.vp_refuse && !$scope.so.vp_request;
             });
             $scope.$watch('so', function () {
-                gs.set_options($scope.so);
+                GS.set_options($scope.so);
             }, true);
-            $scope.$watch(gs.get_options, function () {
-                $scope.so = gs.get_options();
+            $scope.$watch(GS.get_options, function () {
+                $scope.so = GS.get_options();
             }, true);
         };
         angular.bootstrap($('#settingsDialog'));
     };
-
-    window.GokoSalvager.depWait(
-        ['GokoSalvager', 'GokoSalvager.get_option',
-         'jQuery', 'angular',
-         '#viewport', '.fs-rs-logout-row'],
-        100, createSettingsDialog, this, 'User Settings Dialog'
-    );
 }());
-

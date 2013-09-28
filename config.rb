@@ -1,7 +1,7 @@
 {
     # Info for extension configuration files (package.json, manifest.json, etc)
     :name => 'gokosalvager',
-    :version => '2.3.2',
+    :version => '2013.9.27.1',
     :title => 'Goko Dominion Salvager',
     :desc => 'Enhance your Online Dominion experience',
     :author => 'The unofficial forum.dominionstrategy dev team',
@@ -26,7 +26,7 @@
         'http://beta.goko.com/Dominion/gameClient.html',
         'https://beta.goko.com/Dominion/gameClient.html'
     ],
-    :hostServer => 'www.andrewiannaccone.com',
+    :hostServer => 'www.gokosalvager.com',
     :hostDir => '/home/ai/code/goko-dominion-tools/web/static/gokosalvager/',
     :hostPort => '8888',
     :hostURLBase => '/gs/',
@@ -51,10 +51,10 @@
 
     # JS scripts for Goko to load, in order
     :js => [
+        'init.js',
         'utils.js',
-        'settings.js',
-        'kingdom_generator.js',
         'settingsDialog.js',
+        'kingdom_generator.js',
         'tableState.js',
         'autokick.js',
         'avatars.js',
@@ -68,7 +68,8 @@
         'automatchGamePop.js',
         'automatchOfferPop.js',
         'automatchSeekPop.js',
-        'automatch.js'
+        'automatch.js',
+        'module_loader.js'
     ],
 
     # CSS to be injected

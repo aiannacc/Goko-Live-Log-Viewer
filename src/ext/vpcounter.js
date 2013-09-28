@@ -1,5 +1,5 @@
 /*jslint browser:true, devel:true, nomen:true, forin:true, vars:true, regexp:true, white:true */
-/*globals $, _ */
+/*globals $, _, angular, GS, FS, DominionClient, mtgRoom */
 
 (function () {
     "use strict";
@@ -9,8 +9,16 @@
     var or = function (a, b) { return a || b; };
     var and = function (a, b) { return a && b; };
 
-    var buildUI = function (gs) {
+    GS.modules.vpcounterui = new GS.Module('VP Counter');
+    GS.modules.vpcounterui.dependencies = ['$', '#sidebar', 'angular'];
 
+    GS.modules.vptoggle = new GS.Module('VP Toggle');
+    GS.modules.vptoggle.dependencies = ['DominionClient', 'mtgRoom'];
+
+    GS.modules.vpcalculator = new GS.Module('VP Calculator');
+    GS.modules.vpcalculator.dependencies = ['FS.Dominion.CardBuilder.Data.cards'];
+
+    GS.modules.vpcounterui.load = function () {
         // Build UI using jQuery
         $('#vptable').attr('ng-app', 'vpApp')
                      .attr('ng-controller', 'vpController')
@@ -32,23 +40,23 @@
 
         // Bind UI to model using AngularJS
         window.vpController = function ($scope) {
-            $scope.vp = gs.vp;
-            $scope.playerList = _.values(gs.vp.players);
-            $scope.debug = gs.debugMode;
+            $scope.vp = GS.vp;
+            $scope.playerList = _.values(GS.vp.players);
+            $scope.debug = GS.debugMode;
             $scope.$watch(function () {
-                return gs.vp.players;
+                return GS.vp.players;
             }, function () {
-                $scope.playerList = _.values(gs.vp.players);
+                $scope.playerList = _.values(GS.vp.players);
             }, true);
         };
         angular.bootstrap($('#vptable'));
     };
 
     // Calculate VPs from info provided by decktracker.js
-    var loadVPCalculator = function (gs, cdbc) {
+    GS.modules.vpcalculator.load = function () {
 
         var gokoCardData = function (englishCardName) {
-            return cdbc.filter(function (c) {
+            return FS.Dominion.CardBuilder.Data.cards.filter(function (c) {
                 return c.name[0] === englishCardName;
             })[0];
         };
@@ -94,16 +102,16 @@
         };
 
         // Sum of card VP values and vp tokens
-        gs.getVPTotal = function (pname) {
-            var deck = gs.cardCounts[pname];
+        GS.getVPTotal = function (pname) {
+            var deck = GS.cardCounts[pname];
             if (typeof deck === 'undefined') { return 0; }
             return _.keys(deck).map(function (card) {
                 return cardVPValue(card, deck) * deck[card];
-            }).reduce(sum) + gs.vptokens[pname];
+            }).reduce(sum) + GS.vptokens[pname];
         };
     };
 
-    var loadVPToggle = function (gs, dc, mroom) {
+    GS.modules.vptoggle.load = function () {
         var initialize,
             onTurnStart,
             onToggleChatRequest,
@@ -127,31 +135,31 @@
 
         // Are there at least two human players?
         var isMultiplayer = function () {
-            return _.pluck(gs.vp.players, 'isBot').filter(function (x) {
+            return _.pluck(GS.vp.players, 'isBot').filter(function (x) {
                 return !x;
             }).length > 1;
         };
 
         var allWantOn = function () {
-            return _.values(gs.vp.players).every(function (p) {
+            return _.values(GS.vp.players).every(function (p) {
                 return p.isBot || (p.request === true);
             });
         };
 
         var allWantChange = function () {
-            return _.values(gs.vp.players).every(function (p) {
+            return _.values(GS.vp.players).every(function (p) {
                 return p.isBot || (p.wantsChange === true);
             });
         };
 
         var reqcount = function () {
-            return _.values(gs.vp.players).map(function (p) {
+            return _.values(GS.vp.players).map(function (p) {
                 return (p.request !== null) ? 1 : 0;
             }).reduce(sum);
         };
 
         // Handle VP toggle events from Goko server
-        gs.alsoDo(dc, 'onIncomingMessage', null, function (msgType, msgData) {
+        GS.alsoDo(DominionClient, 'onIncomingMessage', null, function (msgType, msgData) {
             if (msgType === 'gameSetup') {
                 // Gather game and player info; set initial VP counter state
                 initialize(msgData, this);
@@ -165,12 +173,12 @@
 
                 // Update VP totals
                 var pname;
-                for (pname in gs.vp.players) {
-                    gs.vp.players[pname].vps = gs.getVPTotal(pname);
+                for (pname in GS.vp.players) {
+                    GS.vp.players[pname].vps = GS.getVPTotal(pname);
                 }
 
             } else if (msgType === 'RoomChat') {
-                var speaker = mroom.playerList.findByAddress(msgData.playerAddress)
+                var speaker = mtgRoom.playerList.findByAddress(msgData.playerAddress)
                                               .get('playerName');
 
                 if (msgData.text.match(/^#vpon$/i)) {
@@ -188,8 +196,8 @@
                     }
 
                 } else if (msgData.text.match(/^#vp\?$/i)) {
-                    if (gs.vp.vpon) {
-                        var vpMessage = _.values(gs.vp.players).map(function (p) {
+                    if (GS.vp.vpon) {
+                        var vpMessage = _.values(GS.vp.players).map(function (p) {
                             sendChat(p.pname + ': ' + p.vps);
                         });
                     } else if (speaker !== myname) {
@@ -197,23 +205,23 @@
                     }
 
                 } else if (msgData.text.match(/^#vpx$/i)) {
-                    if (!gs.vp.locked) {
+                    if (!GS.vp.locked) {
                         if (speaker === myname) {
                             showChat('Your VP counter is not locked. Use '
                                    + '"#vpon" or "#vpoff" instead.');
                         }
                     } else {
                         // Override lock only if all players request it.
-                        gs.vp.players[speaker].wantsChange = true;
+                        GS.vp.players[speaker].wantsChange = true;
                         if (allWantChange()) {
-                            gs.vp.vpon = !gs.vp.vpon;
-                            sendChat('My VP counter is now ' + (gs.vp.vpon ? 'on' : 'off'));
-                            _.values(gs.vp.players).map(function (p) {
+                            GS.vp.vpon = !GS.vp.vpon;
+                            sendChat('My VP counter is now ' + (GS.vp.vpon ? 'on' : 'off'));
+                            _.values(GS.vp.players).map(function (p) {
                                 p.wantsChange = false;
                             });
                         } else if (speaker === myname) {
-                            sendChat('My VP counter is locked to ' + (gs.vp.vpon ? 'on' : 'off')
-                                   + ', but I\'d like to turn it ' + (gs.vp.vpon ? 'off' : 'on')
+                            sendChat('My VP counter is locked to ' + (GS.vp.vpon ? 'on' : 'off')
+                                   + ', but I\'d like to turn it ' + (GS.vp.vpon ? 'off' : 'on')
                                    + ' anyway. To allow, please say "#vpx"');
                         }
                     }
@@ -227,14 +235,14 @@
         initialize = function (gameData, domClient) {
             // Game info
             chatConn = domClient.clientConnection;
-            myname = mroom.localPlayer.get('playerName');
+            myname = mtgRoom.localPlayer.get('playerName');
 
             // Player info
-            gs.vp.players = {};
+            GS.vp.players = {};
             gameData.playerInfos.map(function (pinfo) {
                 //var pindex = pinfo.playerIndex - gameData.playerToMove;
                 //pindex = (pindex + gameData.numPlayers) % gameData.numPlayers + 1;
-                gs.vp.players[pinfo.name] = {
+                GS.vp.players[pinfo.name] = {
                     pname: pinfo.name,
                     vps: null,
                     request: null,
@@ -245,27 +253,27 @@
             });
 
             // Initial toggle state
-            gs.vp.locked = false;
+            GS.vp.locked = false;
             if (isMultiplayer()) {
                 // Default from user settings
-                gs.vp.vpon = gs.get_option('vp_request');
+                GS.vp.vpon = GS.get_option('vp_request');
 
                 // Tablename trumps user settings
                 try {
-                    var tablename = JSON.parse(mroom.getCurrentTable().get('settings')).name;
+                    var tablename = JSON.parse(mtgRoom.getCurrentTable().get('settings')).name;
                     if (tablename.match(/#vpon/i)) {
-                        gs.vp.vpon = true;
-                        gs.vp.locked = true;
+                        GS.vp.vpon = true;
+                        GS.vp.locked = true;
                     } else if (tablename.match(/#vpoff/i)) {
-                        gs.vp.vpon = false;
-                        gs.vp.locked = true;
+                        GS.vp.vpon = false;
+                        GS.vp.locked = true;
                     }
                 } catch (e) {
                     // Bot and adventure games don't have table names
                 }
             } else {
                 // Always enabled in bot games
-                gs.vp.vpon = true;
+                GS.vp.vpon = true;
             }
         };
 
@@ -274,28 +282,28 @@
             // Option "vp_request" automatcially chats "#vpon" on my Turn 2.
             // We wait until T2 to be sure that all players have arrived.
             if (turnNumber === 2 && pname === myname
-                    && gs.get_option('vp_request')
+                    && GS.get_option('vp_request')
                     && isMultiplayer()
                     && reqcount() === 0
-                    && !gs.vp.locked) {
+                    && !GS.vp.locked) {
                 sendChat('#vpon');
             }
 
             // Lock on Turn 5
             if (turnNumber === 5) {
-                gs.vp.locked = true;
+                GS.vp.locked = true;
             }
         };
 
         onMyToggleChatRequest = function (vpon) {
-            gs.vp.players[myname].request = vpon;
+            GS.vp.players[myname].request = vpon;
 
             if (!isMultiplayer()) {
-                gs.vp.vpon = vpon;
+                GS.vp.vpon = vpon;
 
-            } else if (gs.vp.locked) {
+            } else if (GS.vp.locked) {
                 // Explain how to override lock
-                if (vpon !== gs.vp.vpon) {
+                if (vpon !== GS.vp.vpon) {
                     showChat('Your VP counter is locked. Say "#vpx" to'
                            + ' ask your opponent to let you change it.');
                 }
@@ -303,10 +311,10 @@
             } else if (vpon) {
                 // Turn on counter. Lock if all have said #vpon or explain the
                 // counter if no opponent has said #vpon/#vpoff yet.
-                gs.vp.vpon = true;
+                GS.vp.vpon = true;
 
                 if (allWantOn()) {
-                    gs.vp.locked = true;
+                    GS.vp.locked = true;
                 } else {
                     // Wait for auto-responses before sending explanation
                     setTimeout(function () {
@@ -320,52 +328,40 @@
                 }
 
             } else {
-                gs.vp.vpon = false;
-                gs.vp.locked = true;
+                GS.vp.vpon = false;
+                GS.vp.locked = true;
             }
         };
 
         onOppToggleChatRequest = function (oppname, vpon) {
-            gs.vp.players[oppname].request = vpon;
-            if (gs.vp.locked) {
-                if (vpon !== gs.vp.vpon) {
+            GS.vp.players[oppname].request = vpon;
+            if (GS.vp.locked) {
+                if (vpon !== GS.vp.vpon) {
                     sendChat('Sorry. My VP counter is locked to '
-                           + (gs.vp.vpon ? 'on.' : 'off.'));
+                           + (GS.vp.vpon ? 'on.' : 'off.'));
                 }
             } else if (vpon) {
                 // Auto-reply to opponent's request
-                if (gs.vp.players[myname].request === null) {
-                    if (gs.get_option('vp_refuse')) {
+                if (GS.vp.players[myname].request === null) {
+                    if (GS.get_option('vp_refuse')) {
                         sendChat('#vpoff');
-                    } else if (gs.get_option('vp_request')) {
+                    } else if (GS.get_option('vp_request')) {
                         sendChat('#vpon');
                     }
                 }
-                gs.vp.locked = gs.vp.locked || (allWantOn() === true);
+                GS.vp.locked = GS.vp.locked || (allWantOn() === true);
             } else {
                 sendChat('Ok, my VP counter is off.');
-                gs.vp.vpon = false;
-                gs.vp.locked = true;
+                GS.vp.vpon = false;
+                GS.vp.locked = true;
             }
         };
     };
 
     // Initialize
-    window.GokoSalvager.vp = {
+    window.GS.vp = {
         players: {},
         vpon: false,
         locked: false
     };
-    window.GokoSalvager.depWait(
-        ['GokoSalvager', 'jQuery', '#sidebar', 'angular'],
-        100, buildUI, this, 'VP Table'
-    );
-    window.GokoSalvager.depWait(
-        ['GokoSalvager', 'DominionClient', 'mtgRoom'],
-        100, loadVPToggle, this, 'VP Toggle'
-    );
-    window.GokoSalvager.depWait(
-        ['GokoSalvager', 'FS.Dominion.CardBuilder.Data.cards'],
-        100, loadVPCalculator, this, 'VP Calculator'
-    );
 }());

@@ -1,0 +1,105 @@
+/*jslint browser:true, devel:true, vars:true, forin:true */
+/*globals GS */
+
+(function () {
+    "use strict";
+
+    // TODO: Insert version number on build
+    console.log('Running Goko Salvager <%= config[:version] %>');
+
+    // Global namespace
+    // TODO: deal with possibility that a modules runs before this code
+    window.GS = {
+        modules: {}
+    };
+
+    var default_options = {
+        autokick_by_rating: true,
+        autokick_by_forname: true,
+        alert_popups: false,
+        alert_sounds: true,
+        generator: true,
+        proranks: true,
+        sortrating: true,
+        adventurevp: true,
+        sidebar: true,
+        vp_request: true,
+        vp_refuse: false,
+        always_stack: false,
+        blacklist: [],
+        automatch_blacklist: [],
+        automatch_on_seek: true,
+        automatch_min_players: 2,
+        automatch_max_players: 2,
+        automatch_min_sets: 1,
+        automatch_max_sets: 15,
+        automatch_rSystem: 'pro',
+        automatch_rdiff: 1500,
+        debug_mode: false,
+        lasttablename: 'My Table'
+    };
+
+    GS.get_options = function () {
+        var optName, out = {};
+        if (localStorage.hasOwnProperty('salvagerOptions')) {
+            out = JSON.parse(localStorage.salvagerOptions);
+        }
+        for (optName in default_options) {
+            if (!out.hasOwnProperty(optName)) {
+                out[optName] = default_options[optName];
+            }
+        }
+        return out;
+    };
+
+    GS.set_options = function (options) {
+        localStorage.salvagerOptions = JSON.stringify(options);
+    };
+
+    GS.get_option = function (optName) {
+        return GS.get_options()[optName];
+    };
+
+    GS.set_option = function (optionName, optionValue) {
+        var opts = GS.get_options();
+        opts[optionName] = optionValue;
+        GS.set_options(opts);
+    };
+
+    // Generic module with name, dependency-checking, and a loader function
+    // TODO: deal with possibility that a modules runs before this code
+    GS.Module = function (moduleName) {
+        this.name = moduleName;
+
+        // To be defined in subclasses
+        this.dependencies = [];
+
+        // To be defined in subclasses
+        this.load = function () {
+            throw 'No loader defined for module ' + moduleName;
+        };
+
+        this.getMissingDeps = function () {
+            var index = function (obj, i) { return obj[i]; };
+            return this.dependencies.filter(function (depName) {
+                var dep;
+                if (depName[0] === '#') {
+                    dep = document.getElementById(depName.substr(1));
+                } else if (depName[0] === '.') {
+                    dep = document.getElementsByClassName(depName.substr(1))[0];
+                } else {
+                    try {
+                        dep = depName.split('.').reduce(index, window);
+                    } catch (e) {
+                        return false;
+                    }
+                }
+                return typeof dep === 'undefined' || dep === null;
+            });
+        };
+
+        this.hasAllDeps = function () {
+            return this.getMissingDeps().length === 0;
+        };
+    };
+}());

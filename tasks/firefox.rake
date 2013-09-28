@@ -34,6 +34,10 @@ namespace :firefox do
         FileUtils.mkdir_p 'build/firefox/icons/default'
         FileUtils.cp Dir.glob('src/img/*.png'), 'build/firefox/icons/default/'
 
+        # Insert build version and copy init script
+        init_json = fill_template 'src/ext/init.js.erb', props
+        File.open('build/firefox/content/init.js', 'w') {|f| f.write init_json }
+
         puts 'Firefox Add-On is ready to test/build'
     end
 

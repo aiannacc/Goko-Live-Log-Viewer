@@ -26,6 +26,10 @@ namespace :safari do
         FileUtils.cp_r Dir.glob('src/ext/*.css'), build_dir
         FileUtils.cp Dir.glob('src/img/*.png'), build_dir
 
+        # Insert build version and copy init script
+        init_json = fill_template 'src/ext/init.js.erb', props
+        File.open(build_dir + 'init.js', 'w') {|f| f.write init_json }
+
         # Wrap JS scripts to be run in Goko's gameClient.html context
         Dir.glob(build_dir + '*.js').each do |js_script|
             run_in_page_context(js_script)

@@ -27,6 +27,10 @@ namespace :chrome do
         FileUtils.cp_r Dir.glob('src/ext/*.css'), 'build/chrome/'
         FileUtils.cp Dir.glob('src/img/*.png'), 'build/chrome/images/'
 
+        # Insert build version and copy init script
+        init_json = fill_template 'src/ext/init.js.erb', props
+        File.open('build/chrome/init.js', 'w') {|f| f.write init_json }
+
         puts 'Assembled Chrome extension files. Ready to build or use as an
               unpacked extension.'
     end
