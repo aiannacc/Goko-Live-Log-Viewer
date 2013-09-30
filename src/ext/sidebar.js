@@ -8,7 +8,7 @@
     mod.dependencies = ['Dom.LogManager'];
     mod.load = function () {
         // Resize and reposition the logviewer to match the new window size
-        var resizeSidebar = function () {
+        GS.resizeSidebar = function () {
         
             // Hide sidebar if disabled in options
             if (!GS.get_option('sidebar')) {
@@ -36,7 +36,19 @@
                          .css('margin-top', $('#myCanvas').css('margin-top'))
                          .css('height', $('#myCanvas').css('height'))
                          .css('border-collapse', 'collapse');
-            $('#prettylog').css('height', $('#sidebar').height() - $('#vptable').height() - 10);
+            if ($('#vptable').is(':visible')) {
+                $('#prettylog').css('height', $('#sidebar').height()
+                                              - $('#vptable').height() - 20 - 200);
+            } else {
+                $('#prettylog').css('height', $('#sidebar').height() - 20 - 200);
+            }
+            $('#chatdiv').css('height', 200);
+
+            $('#chatarea').width($('#chatdiv').width()-2)
+                          .height(166);
+            $('#chatline').width($('#chatdiv').width()-2)
+                          .height(20);
+
         
             // Scroll to bottom of log
             $('#prettylog').scrollTop(99999999);
@@ -47,7 +59,8 @@
         $('#goko-game')
             .append($('<div>').attr('id', 'sidebar')
                 .append($('<table>').attr('id', 'vptable'))
-                .append($('<div>').attr('id', 'prettylog')));
+                .append($('<div>').attr('id', 'prettylog'))
+                .append($('<div>').attr('id', 'chatdiv')));
      
         // Hide sidebar until first game message
         $('#sidebar').hide();
@@ -56,13 +69,13 @@
             if ($('#goko-game').css('display') !== 'none') {
                 // TODO: this is excessive
                 $('#sidebar').show();
-                resizeSidebar();
+                GS.resizeSidebar();
             }
         });
      
         window.addEventListener('resize', function () {
             setTimeout(function () {
-                resizeSidebar();
+                GS.resizeSidebar();
             }, 100);
         }, false);
     };

@@ -28,6 +28,25 @@
   line-height: 140%;
 }
 
+#chatdiv {
+  background-color: lightGray;
+}
+
+#chatarea {
+  font-size:12px;
+  font-family:Helvetica, Ariel;
+  overflow:auto;
+  visibility: inherit;
+
+  background-color: lightGray;
+  padding:5px 5px 5px 5px;
+  margin: 1px 1px;
+  border-width: 2px;
+  border-radius: 2px;
+  border-style: solid;
+  border-color: darkGray;
+}
+
 table.vptable {
   padding: 0px 5px;
   visibility: inherit;
@@ -74,8 +93,8 @@ h1.turnheader {
 
 .p0 {
   padding: 0px 3px;
-  background-color: #DD55FF;
-  border-color: purple;
+  background-color: pink;
+  border-color: red;
 }
 
 .p1 {

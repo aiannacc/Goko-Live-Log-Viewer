@@ -1,5 +1,5 @@
 /*jslint browser: true, devel: true, indent: 4, es5: true, vars: true, nomen: true, regexp: true, forin: true */
-/*globals GS, mtgRoom */
+/*globals $, GS, mtgRoom */
 
 (function () {
     "use strict";
@@ -113,11 +113,8 @@
 
     // Show a message in my chat box without sending
     GS.showRoomChat = function (message) {
-        var gc = GS.getGameClient();
-        gc.clientConnection.trigger("addChat", {
-            playerName: '**',
-            text: message
-        });
+        var oldText = $('#chatarea').val();
+        $('#chatarea').val(oldText + '\n' + '*** ' + message);
     };
 
     GS.alertPlayer = function (message, sound) {

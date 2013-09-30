@@ -18,6 +18,7 @@
         'kingdomGenerator',
         'sidebar',
         'logviewer',
+        'chatbox',
         'vpcalculator',
         'vptoggle',
         'vpcounterui',

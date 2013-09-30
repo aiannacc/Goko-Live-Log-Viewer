@@ -79,6 +79,7 @@
         'blacklist.js',
         'sidebar.js',
         'logviewer.js',
+        'chatbox.js',
         'vpcalculator.js',
         'vpcounterui.js',
         'vptoggle.js',

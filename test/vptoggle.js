@@ -29,6 +29,7 @@
         // TODO: add random delays
         toggle.onMyChat(msg);
     };
+    GS.resizeSidebar = function () {};
     GS.sendScores = function () {
         GS.sendRoomChat('me: 5, opp: 7');
     };
