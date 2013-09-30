@@ -1,7 +1,7 @@
 {
     # Info for extension configuration files (package.json, manifest.json, etc)
     :name => 'gokosalvager',
-    :version => '2013.9.27.1',
+    :version => '2013.9.29.1',
     :title => 'Goko Dominion Salvager',
     :desc => 'Enhance your Online Dominion experience',
     :author => 'The unofficial forum.dominionstrategy dev team',
@@ -29,7 +29,7 @@
     :hostServer => 'www.gokosalvager.com',
     :hostDir => '/home/ai/code/goko-dominion-tools/web/static/gokosalvager/',
     :hostPort => '8888',
-    :hostURLBase => '/gs/',
+    :hostURLBase => '/',
     :extinfo => 'index.html',
     :extupdate => {
         :firefox => 'update_firefox.rdf',
@@ -41,6 +41,24 @@
 
     # AI's Safari Developer Certificate ID:
     :safari_dev_cert_id => '366P22F9M8',
+
+    # CSS to be injected
+    :css => [
+        'logviewer.css',
+        'jquery-gokocolors.css'
+    ],
+
+    :img => [
+        'images/ui-icons_454545_256x240.png',
+        'images/ui-icons_222222_256x240.png',
+        'images/ui-bg_fine-grain_20_cbaa6e_60x60.png',
+        'images/ui-bg_glass_65_ffffff_1x400.png',
+        'images/ui-bg_glass_75_dadada_1x400.png',
+        'images/ui-bg_glass_75_e6e6e6_1x400.png',
+        'images/ui-icons_888888_256x240.png',
+        'images/ui-bg_flat_0_aaaaaa_40x100.png',
+        'images/ui-bg_fine-grain_10_c3c3c3_60x60.png'
+    ],
 
     # Internally-stored versions, so be loaded by Chrome and Firefox. Safari
     # has to load external version.
@@ -61,7 +79,9 @@
         'blacklist.js',
         'sidebar.js',
         'logviewer.js',
-        'vpcounter.js',
+        'vpcalculator.js',
+        'vpcounterui.js',
+        'vptoggle.js',
         'lobby_ratings.js',
         'alwaysStack.js',
         'decktracker.js',
@@ -70,23 +90,5 @@
         'automatchSeekPop.js',
         'automatch.js',
         'module_loader.js'
-    ],
-
-    # CSS to be injected
-    :css => [
-        'logviewer.css',
-        'jquery-gokocolors.css'
-    ],
-
-    :img => [
-        'images/ui-icons_454545_256x240.png',
-        'images/ui-icons_222222_256x240.png',
-        'images/ui-bg_fine-grain_20_cbaa6e_60x60.png',
-        'images/ui-bg_glass_65_ffffff_1x400.png',
-        'images/ui-bg_glass_75_dadada_1x400.png',
-        'images/ui-bg_glass_75_e6e6e6_1x400.png',
-        'images/ui-icons_888888_256x240.png',
-        'images/ui-bg_flat_0_aaaaaa_40x100.png',
-        'images/ui-bg_fine-grain_10_c3c3c3_60x60.png'
     ]
 }

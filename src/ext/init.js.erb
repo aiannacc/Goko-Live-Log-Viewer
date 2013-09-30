@@ -1,5 +1,4 @@
 /*jslint browser:true, devel:true, vars:true, forin:true */
-/*globals GS */
 
 (function () {
     "use strict";
@@ -9,7 +8,7 @@
 
     // Global namespace
     // TODO: deal with possibility that a modules runs before this code
-    window.GS = {
+    var GS = window.GS = {
         modules: {}
     };
 

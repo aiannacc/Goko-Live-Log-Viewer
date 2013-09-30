@@ -1,5 +1,5 @@
 /*jslint browser: true, devel: true, indent: 4, es5: true, vars: true, nomen: true, regexp: true, forin: true */
-/*globals GS */
+/*globals GS, mtgRoom */
 
 (function () {
     "use strict";
@@ -81,12 +81,53 @@
         return [minRating, maxRating];
     };
 
+    GS.getTableName = function () {
+        try {
+            return JSON.parse(mtgRoom.getCurrentTable().get('settings')).name;
+        } catch (e) {
+            return null;
+        }
+    };
+
+    GS.getMyName = function () {
+        return mtgRoom.localPlayer.get('playerName');
+    };
+
+    GS.getGameClient = function () {
+        if (typeof mtgRoom !== 'undefined') {
+            var roomId = mtgRoom.currentRoomId;
+            if (roomId !== null) {
+                var table = mtgRoom.getCurrentTable();
+                var tableNo = table !== null ? table.get('number') : 0;
+                var key = roomId + ':' + tableNo;
+                return mtgRoom.games[key];
+            }
+        }
+        return null;
+    };
+    
+    GS.sendRoomChat = function (message) {
+        var gc = GS.getGameClient();
+        gc.clientConnection.send('sendChat', {text: message});
+    };
+
+    // Show a message in my chat box without sending
+    GS.showRoomChat = function (message) {
+        var gc = GS.getGameClient();
+        gc.clientConnection.trigger("addChat", {
+            playerName: '**',
+            text: message
+        });
+    };
+
     GS.alertPlayer = function (message, sound) {
         if (GS.get_option('alert_sounds')) {
             sound.play();
         }
         if (GS.get_option('alert_popups')) {
-            alert(message);
+            window.alert(message);
         }
     };
+
+    GS.url = 'www.gokosalvager.com';
 }());

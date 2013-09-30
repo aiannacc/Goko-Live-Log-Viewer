@@ -12,6 +12,9 @@
     ];
     mod.load = function () {
         var alterCardCount, parseLogLine, pnames, getHumanCardName;
+
+        GS.cardCounts = {};
+        GS.vptokens = {};
     
         // "Listen" to live log messages
         GS.alsoDo(Dom.LogManager, 'addLog', function (opt) {
