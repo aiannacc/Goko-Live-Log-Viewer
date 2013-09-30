@@ -1,3 +1,10 @@
+body {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -khtml-user-select: text;
+  -o-user-select: text;
+}
+
 .fs-launch-game-wrapper .header-bar .fs-rs-logout-row .fs-lg-settings-btn {
   height: 30px;
   line-height: 30px;

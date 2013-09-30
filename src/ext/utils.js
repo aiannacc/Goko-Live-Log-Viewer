@@ -113,8 +113,12 @@
 
     // Show a message in my chat box without sending
     GS.showRoomChat = function (message) {
-        var oldText = $('#chatarea').val();
-        $('#chatarea').val(oldText + '\n' + '*** ' + message);
+        var gc = GS.getGameClient();
+        gc.clientConnection.trigger("addChat", {
+            playerName: '**',
+            text: message
+        });
+        gc.clientConnection.send('sendChat', {text: message});
     };
 
     GS.alertPlayer = function (message, sound) {

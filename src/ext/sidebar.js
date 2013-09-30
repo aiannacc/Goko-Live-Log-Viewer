@@ -36,19 +36,18 @@
                          .css('margin-top', $('#myCanvas').css('margin-top'))
                          .css('height', $('#myCanvas').css('height'))
                          .css('border-collapse', 'collapse');
-            if ($('#vptable').is(':visible')) {
-                $('#prettylog').css('height', $('#sidebar').height()
-                                              - $('#vptable').height() - 20 - 200);
-            } else {
-                $('#prettylog').css('height', $('#sidebar').height() - 20 - 200);
-            }
-            $('#chatdiv').css('height', 200);
 
+            $('#chatdiv').css('visibility', GS.get_option('sidebar_chat') ? 'visible' : 'hidden');
+            $('#chatdiv').css('height', 200);
             $('#chatarea').width($('#chatdiv').width()-2)
                           .height(166);
             $('#chatline').width($('#chatdiv').width()-2)
                           .height(20);
 
+            var logheight = $('#sidebar').height() - 20
+                - ($('#vptable').is(':visible') ? $('#vptable').height() : 0)
+                - ($('#chatdiv').is(':visible') ? $('#chatdiv').height() : 0);
+            $('#prettylog').css('height', logheight);
         
             // Scroll to bottom of log
             $('#prettylog').scrollTop(99999999);

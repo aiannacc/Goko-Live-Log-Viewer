@@ -48,7 +48,10 @@
                                     .addClass('indented'))
                 .append('Display pro ratings<br>')
 
-                .append($('<div>').text('VP Counter:'))
+                .append($('<input>').attr('type', 'checkbox')
+                                    .attr('ng-model', 'so.sidebar'))
+                .append('In-game sidebar (vp counter, log, chat)<br>')
+
                 .append($('<input>').attr('type', 'checkbox')
                                     .attr('ng-model', 'so.vp_request')
                                     .addClass('indented'))
@@ -57,11 +60,10 @@
                                     .attr('ng-model', 'so.vp_refuse')
                                     .addClass('indented'))
                 .append('Always refuse (#vpoff)<br>')
-
                 .append($('<input>').attr('type', 'checkbox')
-                                    .attr('ng-model', 'so.sidebar')
+                                    .attr('ng-model', 'so.sidebar_chat')
                                     .addClass('indented'))
-                .append('Show VP counter and log in sidebar<br>')
+                .append('Replace Goko chat window<br>')
 
                 .append($('<input>').attr('type', 'checkbox')
                                     .attr('ng-model', 'so.generator'))
