@@ -478,7 +478,7 @@
                 GS.AM.state.seek = null;
                 GS.AM.state.offer = msg.offer;
                 GS.AM.showOfferPop(true);
-                GS.alertPlayer('Automatch found', new Audio('sounds/startTurn.ogg'));
+                GS.notifyUser('Automatch found', new Audio('sounds/startTurn.ogg'));
             };
         
             rescindOffer = function (msg) {

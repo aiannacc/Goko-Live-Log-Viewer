@@ -9,6 +9,7 @@
     // Module load order
     var modNames = [
         'settingsDialog',
+        'notifications',
         'lobbyRatings',
         'decktracker',
         'tableState', 

@@ -97,7 +97,7 @@
                     playerAddress: joiner.get('playerAddress')
                 });
             } else {
-                GS.alertPlayer('Opponent joined', new Audio('sounds/startTurn.ogg'));
+                GS.notifyUser('Opponent joined', new Audio('sounds/startTurn.ogg'));
             }
         };
     

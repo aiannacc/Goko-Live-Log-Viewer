@@ -30,13 +30,18 @@
 
                 .append($('<div>').text('Notifications:'))
                 .append($('<input>').attr('type', 'checkbox')
-                                    .attr('ng-model', 'so.alert_sounds')
+                                    .attr('ng-model', 'so.audio_notifications')
                                     .addClass('indented'))
-                .append('Play sounds<br>')
+                .append('Sounds<br>')
+                .append($('<input>').attr('id', 'desktopnotificationcheckbox')
+                                    .attr('type', 'checkbox')
+                                    .attr('ng-model', 'so.desktop_notifications')
+                                    .addClass('indented'))
+                .append('HTML5 "Desktop" Notifications (recommended)<br>')
                 .append($('<input>').attr('type', 'checkbox')
-                                    .attr('ng-model', 'so.alert_popups')
+                                    .attr('ng-model', 'so.popup_notifications')
                                     .addClass('indented'))
-                .append('Create popups<br>')
+                .append('Traditional popups<br>')
 
                 .append($('<div>').text('Lobby Ratings:'))
                 .append($('<input>').attr('type', 'checkbox')
@@ -48,10 +53,17 @@
                                     .addClass('indented'))
                 .append('Display pro ratings<br>')
 
+                .append($('<div>').text('In-game sidebar'))
                 .append($('<input>').attr('type', 'checkbox')
                                     .attr('ng-model', 'so.sidebar'))
-                .append('In-game sidebar (vp counter, log, chat)<br>')
+                                    .addClass('indented')
+                .append('Show sidebar (VPs, log, chat)<br>')
+                .append($('<input>').attr('type', 'checkbox')
+                                    .attr('ng-model', 'so.sidebar_chat')
+                                    .addClass('indented'))
+                .append('Replace Goko chat window<br>')
 
+                .append($('<div>').text('VP Counter'))
                 .append($('<input>').attr('type', 'checkbox')
                                     .attr('ng-model', 'so.vp_request')
                                     .addClass('indented'))
@@ -60,10 +72,6 @@
                                     .attr('ng-model', 'so.vp_refuse')
                                     .addClass('indented'))
                 .append('Always refuse (#vpoff)<br>')
-                .append($('<input>').attr('type', 'checkbox')
-                                    .attr('ng-model', 'so.sidebar_chat')
-                                    .addClass('indented'))
-                .append('Replace Goko chat window<br>')
 
                 .append($('<input>').attr('type', 'checkbox')
                                     .attr('ng-model', 'so.generator'))
@@ -153,6 +161,14 @@
             });
             $scope.$watch('so.vp_request', function () {
                 $scope.so.vp_refuse = $scope.so.vp_refuse && !$scope.so.vp_request;
+            });
+            $scope.$watch('so.desktop_notifications', function () {
+                $scope.so.popup_notifications = 
+                    $scope.so.popup_notifications && !$scope.so.desktop_notifications;
+            });
+            $scope.$watch('so.popup_notifications', function () {
+                $scope.so.desktop_notifications =
+                    $scope.so.desktop_notifications && !$scope.so.popup_notifications;
             });
             $scope.$watch('so', function () {
                 GS.set_options($scope.so);
