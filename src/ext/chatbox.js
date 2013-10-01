@@ -35,7 +35,9 @@
                 e.preventDefault();
                 var text = $('#chatline').val();
                 $('#chatline').val('');
-                GS.sendRoomChat(text);
+                if (text) {
+                    GS.sendRoomChat(text);
+                }
             }
         });
 
