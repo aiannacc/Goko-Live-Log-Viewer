@@ -45,7 +45,7 @@
 
                 .append($('<div>').text('Lobby Ratings:'))
                 .append($('<input>').attr('type', 'checkbox')
-                                    .attr('ng-model', 'so.sort_rating')
+                                    .attr('ng-model', 'so.sortrating')
                                     .addClass('indented'))
                 .append('Sort players by rating<br>')
                 .append($('<input>').attr('type', 'checkbox')
@@ -55,8 +55,8 @@
 
                 .append($('<div>').text('In-game sidebar'))
                 .append($('<input>').attr('type', 'checkbox')
-                                    .attr('ng-model', 'so.sidebar'))
-                                    .addClass('indented')
+                                    .attr('ng-model', 'so.sidebar')
+                                    .addClass('indented'))
                 .append('Show sidebar (VPs, log, chat)<br>')
                 .append($('<input>').attr('type', 'checkbox')
                                     .attr('ng-model', 'so.sidebar_chat')
