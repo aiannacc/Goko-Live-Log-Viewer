@@ -1,10 +1,16 @@
 /*jslint browser:true, devel:true, nomen:true, forin:true, vars:true, regexp:true, white:true */
-/*globals $, _, angular, FS, DominionClient, GameInstance */
+/*globals $, _, angular, FS, DominionClient, GS */
 
 (function () {
     "use strict";
 
-    var redefineEDEmit = function (gs, gsad) {
+    GS.modules.eventLogger = new GS.Module('Event Logger');
+    GS.modules.eventLogger.dependencies = [
+        'DominionClient', 
+        'FS.Connection',
+        'FS.GameInstance'
+    ];
+    GS.modules.eventLogger.load = function () {
         window.eventHistory = {
             DominionClient: [],
             MeetingRoom: [],
@@ -13,26 +19,26 @@
         };
         var eh = window.eventHistory;
 
-        gs.alsoDo(FS.MeetingRoom, 'trigger', function (msg) {
+        GS.alsoDo(FS.MeetingRoom, 'trigger', function (msg) {
             //eh.MeetingRoom.push(arguments);
             console.log('MeetingRoom: ' + msg);
             console.log(Array.prototype.slice.call(arguments,1));
         });
 
-        gs.alsoDo(FS.Connection, 'trigger', function (msg) {
+        GS.alsoDo(FS.Connection, 'trigger', function (msg) {
             if (msg === 'gameMessage') { return; }
             //eh.Connection.push(arguments);
             console.log('Connection: ' + msg);
             console.log(Array.prototype.slice.call(arguments,1));
         });
         
-        //gs.alsoDo(FS.GameInstance, 'trigger', function (msg) {
+        //GS.alsoDo(FS.GameInstance, 'trigger', function (msg) {
         //    eh.MeetingRoom.push(arguments);
         //    console.log('GameInstance: ' + msg);
         //    console.log(Array.prototype.slice.call(arguments,1));
         //});
 
-        gs.alsoDo(DominionClient, 'trigger', function (msg) {
+        GS.alsoDo(DominionClient, 'trigger', function (msg) {
             switch (msg) {
             case 'incomingMessage:messageGroup':
             case 'incomingMessage:gamePingMessage':
@@ -50,10 +56,4 @@
             }
         });
     };
-
-    window.GokoSalvager.depWait(
-        ['GokoSalvager', 'GokoSalvager.alsoDo', 'DominionClient', 
-         'FS.Connection', 'FS.GameInstance'],
-        100, redefineEDEmit, this, 'EventDispatcher Listener'
-    );
 }());

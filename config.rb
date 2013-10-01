@@ -72,6 +72,7 @@
         'init.js',
         'utils.js',
         'settingsDialog.js',
+        'eventLogger.js',
         'notifications.js',
         'kingdom_generator.js',
         'tableState.js',

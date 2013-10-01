@@ -135,7 +135,7 @@
                 var rest = m[4] || '';
 
                 // Determine whether this is the start of a new phase
-                var newPhase = logPhase !== gamePhase;
+                var newPhase = (logPhase !== gamePhase);
                 logPhase = gameOver ? 'gameOver' : gamePhase;
                 var phaseInitial = (!newPhase || !gameStarted || gameOver) ?
                                     '&nbsp;' : logPhase.charAt(0).toUpperCase();

@@ -372,10 +372,11 @@
             if (typeof data.text === 'undefined') { return; }
 
             var m = data.text.match(/^-+ (.*): turn ([0-9]*)/);
-            if (m === null) { return; }
-            var pname = m[1];
-            var turnNumber = parseInt(m[2], 10);
-            GS.vp.toggle.onTurn(pname, turnNumber);
+            if (m !== null) {
+                var pname = m[1];
+                var turnNumber = parseInt(m[2], 10);
+                GS.vp.toggle.onTurn(pname, turnNumber);
+            }
             updateTable();
         };
 

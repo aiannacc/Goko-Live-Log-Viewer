@@ -44,8 +44,7 @@ body {
   font-family:Helvetica, Ariel;
   overflow:auto;
   visibility: inherit;
-
-  background-color: lightGray;
+  background-color: #f8f8f8;
   padding:5px 5px 5px 5px;
   margin: 1px 1px;
   border-width: 2px;

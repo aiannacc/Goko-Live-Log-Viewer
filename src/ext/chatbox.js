@@ -6,7 +6,6 @@
 (function () {
     "use strict";
 
-    var pname2pclass;
 
     GS.modules.chatbox = new GS.Module('Chat Box');
     GS.modules.chatbox.dependencies = [
@@ -16,7 +15,9 @@
     ];
     GS.modules.chatbox.load = function () {
 
-        var onGameSetup, onRoomChat, checkGameOver;
+        var onGameSetup, onRoomChat;
+        var pname2pclass;
+        var gameClient;
 
         var chatHistory = [];
 
@@ -94,18 +95,29 @@
             $('#chatarea').scrollTop(99999999);
         };
 
+        var playersExited;
+        var onOppExit = function (msg, data) {
+            console.log('OPP EXIT');
+            var pname = data.player.get('player').get('playerName');
+            if (playersExited.indexOf(pname) === -1) {
+                playersExited.push(pname);
+                GS.showRoomChat(pname + ' has left the game.');
+            }
+        };
+
         // Listen to VP toggle events in room chat and when the game starts
         mtgRoom.conn.bind('roomChat', onRoomChat);
         mtgRoom.conn.bind('gameServerHello', function (msg) {
-            GS.getGameClient().bind('incomingMessage:gameSetup', onGameSetup);
-            GS.getGameClient().bind('incomingMessage', checkGameOver);
+            // Stop listening to the old game client
+            if (typeof gameClient !== 'undefined' && gameClient !== null) {
+                gameClient.unbind('incomingMessage:gameSetup', onGameSetup);
+                mtgRoom.unbind('MeetingRoom:Game:ClientExit', onOppExit);
+            }
+            // Start listening to the new one
+            gameClient = GS.getGameClient();
+            gameClient.bind('incomingMessage:gameSetup', onGameSetup);
+            mtgRoom.bind('MeetingRoom:Game:ClientExit', onOppExit);
+            playersExited = [];
         });
-
-        // Stop listening at the end of the game
-        checkGameOver = function (msg) {
-            if (msg !== 'gameOver') { return; }
-            GS.getGameClient().unbind('incomingMessage:gameSetup', onGameSetup);
-            GS.getGameClient().unbind('incomingMessage', checkGameOver);
-        };
     };
 }());
