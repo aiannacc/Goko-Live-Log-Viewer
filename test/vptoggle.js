@@ -15,26 +15,40 @@
         }
     };
 
-    // GS object stub. GS.VPToggle expects to use these methods.
-    GS.debug = function (arg) {
-        log(arg);
-    };
-    GS.showRoomChat = function (msg) {
-        log('Show chat: ' + msg);
-        toggle.shownChat.push(msg);
-    };
-    GS.sendRoomChat = function (msg) {
-        log('Send chat: ' + msg);
-        toggle.sentChat.push(msg);
-        // TODO: add random delays
-        toggle.onMyChat(msg);
-    };
-    GS.resizeSidebar = function () {};
-    GS.sendScores = function () {
-        GS.sendRoomChat('me: 5, opp: 7');
+    var createGSStub = function (gs) {
+        // GS object stub. GS.VPToggle expects to use these methods.
+        gs.debug = function (arg) {
+            log(arg);
+        };
+        gs.showRoomChat = function (msg) {
+            log('Show chat: ' + msg);
+            toggle.shownChat.push(msg);
+        };
+
+        // Mock sending chat
+        gs.getGameClient = function () {
+            return {
+                clientConnection: {
+                    send: function (msg, data) {
+                        if (msg === 'sendChat') {
+                            log('Send chat: ' + data.text);
+                            toggle.sentChat.push(data.text);
+                            // TODO: add random delays
+                            toggle.onMyChat(data.text);
+                        }
+                    }
+                }
+            };
+        };
+
+        gs.resizeSidebar = function () {};
+        gs.sendScores = function () {
+            gs.sendRoomChat('me: 5, opp: 7');
+        };
     };
 
     var botSetup = function (request, refuse, title) {
+        createGSStub(GS);
         log('---');
         if (typeof title === 'undefined') {
             title = 'my game';
@@ -46,6 +60,7 @@
     };
 
     var humanSetup = function (request, refuse, title) {
+        createGSStub(GS);
         log('---');
         if (typeof title === 'undefined') {
             title = 'my game';
@@ -229,11 +244,9 @@
     });
 
     test("request - init", function () {
-        consoleLogging = true;
         humanSetup(true, false);
         state(true, false, null);
         shownChats(/is ON/, /#vphelp/);
-        consoleLogging = false;
     });
 
     test("request - Opp #vpon", function () {

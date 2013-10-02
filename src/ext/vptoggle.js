@@ -334,6 +334,35 @@
                 }
                 this.beforeT5 = false;
             }
+        },
+
+        isChatCommand: function (chat) {
+            switch (chat) {
+            case '#vpon':
+            case '#vpoff':
+            case '#vp?':
+            case '#vpx':
+            case '#vphelp':
+                return true;
+            default:
+                return false;
+            }
+        },
+
+        handleChatCommand: function (chat) {
+            switch (chat) {
+            case '#vpon':
+            case '#vpoff':
+            case '#vp?':
+            case '#vpx':
+                GS.sendRoomChat(chat, true);
+                break;
+            case '#vphelp':
+                vpinfo.map(GS.showRoomChat);
+                break;
+            default:
+                throw 'Unreachable condition';
+            }
         }
     };
 

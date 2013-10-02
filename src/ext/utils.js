@@ -106,9 +106,15 @@
         return null;
     };
     
-    GS.sendRoomChat = function (message) {
-        var gc = GS.getGameClient();
-        gc.clientConnection.send('sendChat', {text: message});
+    GS.sendRoomChat = function (message, nocheck) {
+        if (typeof GS.vp.toggle !== 'undefined'
+                && GS.vp.toggle.isChatCommand(message)
+                && (typeof nocheck === 'undefined' || !nocheck)) {
+            GS.vp.toggle.handleChatCommand(message);
+        } else {
+            var gc = GS.getGameClient();
+            gc.clientConnection.send('sendChat', {text: message});
+        }
     };
 
     // Show a message in my chat box without sending
