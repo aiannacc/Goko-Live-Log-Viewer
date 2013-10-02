@@ -99,11 +99,13 @@
 
         var playersExited;
         var onOppExit = function (msg, data) {
-            console.log('OPP EXIT');
-            var pname = data.player.get('player').get('playerName');
-            if (playersExited.indexOf(pname) === -1) {
-                playersExited.push(pname);
-                GS.showRoomChat(pname + ' has left the game.');
+            if (GS.get_option('sidebar_chat')) {
+                console.log('OPP EXIT');
+                var pname = data.player.get('player').get('playerName');
+                if (playersExited.indexOf(pname) === -1) {
+                    playersExited.push(pname);
+                    GS.showRoomChat(pname + ' has left the game.');
+                }
             }
         };
 

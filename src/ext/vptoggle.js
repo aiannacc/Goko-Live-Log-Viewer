@@ -33,6 +33,7 @@
         this.myName = myName;
         this.players = {};
         this.beforeT5 = true;
+        this.announced = false;
         var i;
         for (i = 0; i < pnames.length; i += 1) {
             this.players[pnames[i]] = {
@@ -197,7 +198,7 @@
                 // Wait for auto-responses before sending explanation
                 var that = this;
                 setTimeout(function () {
-                    if (that.reqcount() === 1) {
+                    if (that.reqcount() === 1 && that.announced) {
                         GS.sendRoomChat('I\'d like to use a VP counter '
                                + '(See gokosalvager.com). '
                                + 'You can say "#vpoff" before Turn 5 to disallow '
@@ -315,6 +316,7 @@
                 if (this.always_request && !this.locked) {
                     GS.sendRoomChat('#vpon');
                 } else if (this.vpon && this.locked) {
+                    this.announced = true;
                     GS.sendRoomChat('I am using a VP counter (gokosalvager.com). '
                                   + 'Say #vp? to see the score in chat or '
                                   + '#vphelp for more info.');

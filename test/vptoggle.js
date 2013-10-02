@@ -344,6 +344,16 @@
         shownChats(/is OFF and LOCKED/, /#vphelp/);
     });
 
+    test("tablename #vpon - Turn 2, opp #vpoff", function () {
+        humanSetup(false, false, '#vpon');
+        state(true, true, /table name contained/);
+        shownChats(/is ON and LOCKED/, /#vphelp/);
+        toggle.onTurn('me', 2);
+        sentChats(/I am using/, /#vpon/);
+        toggle.onOppChat('opp', '#vpoff');
+        sentChats(/Sorry.*table name/);
+    });
+
     test("locked ON - opp #vpon", function () {
         humanSetup(false, false);
         setState(true, true, 'reason');
