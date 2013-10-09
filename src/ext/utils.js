@@ -95,15 +95,23 @@
 
     GS.getGameClient = function () {
         if (typeof mtgRoom !== 'undefined') {
-            var roomId = mtgRoom.currentRoomId;
-            if (roomId !== null) {
+            var roomId;
+            if (mtgRoom.getCurrentTable() !== null) {
+                roomId = mtgRoom.getCurrentTable().get('room').get('roomId');
+            } else {
+                roomId = mtgRoom.currentRoomId;
+            }
+
+            if (typeof roomId === 'undefined' || roomId === null) {
+                throw 'Could not determine room id';
+            } else {
                 var table = mtgRoom.getCurrentTable();
                 var tableNo = table !== null ? table.get('number') : 0;
                 var key = roomId + ':' + tableNo;
                 return mtgRoom.games[key];
             }
         }
-        return null;
+        throw 'Meeting Room undefined';
     };
     
     GS.sendRoomChat = function (message, nocheck) {

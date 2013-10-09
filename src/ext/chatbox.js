@@ -75,8 +75,6 @@
             gameData.playerInfos.map(function (pinfo) {
                 pname2pclass[pinfo.name] = 'p' + pinfo.playerIndex;
             });
-            $('#chatarea').empty();
-            $('#chatline').empty();
             if (GS.get_option('sidebar_chat')) {
                 $('#chatline').focus();
                 Dom.DominionWindow.prototype._createChatManager = createFakeGokoChatManager;
@@ -111,18 +109,28 @@
         };
 
         // Listen to VP toggle events in room chat and when the game starts
-        mtgRoom.conn.bind('roomChat', onRoomChat);
         mtgRoom.conn.bind('gameServerHello', function (msg) {
-            // Stop listening to the old game client
-            if (typeof gameClient !== 'undefined' && gameClient !== null) {
-                gameClient.unbind('incomingMessage:gameSetup', onGameSetup);
-                mtgRoom.unbind('MeetingRoom:Game:ClientExit', onOppExit);
+            if (GS.get_option('sidebar_chat')) {
+                // Stop listening to the old game client
+                if (typeof gameClient !== 'undefined' && gameClient !== null) {
+                    gameClient.unbind('incomingMessage:gameSetup', onGameSetup);
+                    mtgRoom.unbind('MeetingRoom:Game:ClientExit', onOppExit);
+                }
+
+                // Start listening to the new one
+                gameClient = GS.getGameClient();
+                gameClient.bind('incomingMessage:gameSetup', onGameSetup);
+                mtgRoom.bind('MeetingRoom:Game:ClientExit', onOppExit);
+                playersExited = [];
+
+                // Listen to chat until we leave the room
+                mtgRoom.conn.bind('roomChat', onRoomChat);
+                mtgRoom.conn.bind('gatewayDisconnect', function () {
+                    mtgRoom.conn.unbind('roomChat', onRoomChat);
+                    $('#chatarea').empty();
+                    $('#chatline').empty();
+                });
             }
-            // Start listening to the new one
-            gameClient = GS.getGameClient();
-            gameClient.bind('incomingMessage:gameSetup', onGameSetup);
-            mtgRoom.bind('MeetingRoom:Game:ClientExit', onOppExit);
-            playersExited = [];
         });
     };
 }());

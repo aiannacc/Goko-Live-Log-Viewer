@@ -1,11 +1,11 @@
 /*jslint browser: true, devel: true, indent: 4, es5: true, vars: true, nomen: true, regexp: true, forin: true, white:true */
-/*global $, Audio, GS, Dom  */
+/*global $, Audio, GS, Dom, mtgRoom  */
 
 (function () {
     "use strict";
 
     var mod = GS.modules.sidebar = new GS.Module('Sidebar');
-    mod.dependencies = ['Dom.LogManager'];
+    mod.dependencies = ['Dom.LogManager', 'mtgRoom.conn', '#goko-game'];
     mod.load = function () {
         // Resize and reposition the logviewer to match the new window size
         GS.resizeSidebar = function () {
@@ -61,8 +61,6 @@
                 .append($('<div>').attr('id', 'prettylog'))
                 .append($('<div>').attr('id', 'chatdiv')));
      
-        // Hide sidebar until first game message
-        $('#sidebar').hide();
      
         GS.alsoDo(Dom.LogManager, 'addLog', null, function (opt) {
             if ($('#goko-game').css('display') !== 'none') {
@@ -72,6 +70,13 @@
             }
         });
      
+        // Hide sidebar until first game message and after any game
+        // Note: also hides after any room change, but that won't hurt
+        mtgRoom.conn.bind('gatewayDisconnect', function (msg) {
+            $('#sidebar').hide();
+        });
+        $('#sidebar').hide();
+
         window.addEventListener('resize', function () {
             setTimeout(function () {
                 GS.resizeSidebar();

@@ -14,6 +14,7 @@
         '#desktopnotificationcheckbox'
     ];
     GS.modules.notifications.load = function () {
+        var openNotifications = [];
 
         var requestNotificationPermission = function () {
             switch (GS.getBrowser()) {
@@ -105,20 +106,33 @@
         });
 
         var createDesktopNotification = function (message) {
+            var n;
             switch (GS.getBrowser()) {
             case 'Firefox':
-                var n = new Notification(message, {icon: GS.salvagerIconURL});
+                n = new Notification(message, {icon: GS.salvagerIconURL});
+                openNotifications.push(n);
                 break;
             case 'Chrome':
-                window.webkitNotifications.createNotification(GS.salvagerIconURL,
-                        'Goko Salvager', message).show();
+                n = window.webkitNotifications.createNotification(GS.salvagerIconURL,
+                        'Goko Salvager', message);
+                n.show();
+                openNotifications.push(n);
                 break;
             case 'Safari':
-                break;
+                throw 'Impossible to reach this code.';
             default:
                 throw 'Unknown browser ' + GS.getBrowser();
             }
         };
+
+        // Close notifications whenever user clicks anywhere
+        $('body').click(function () {
+            var i, temp = openNotifications.slice(0);
+            openNotifications = [];
+            for (i = 0; i < temp.length; i += 1) {
+                temp[i].close();
+            }
+        });
 
         var n;
         GS.notifyUser = function (message, sound) {
