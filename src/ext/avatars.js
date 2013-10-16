@@ -20,36 +20,47 @@
 
         // Cache goko's avatar loading method
         var gokoAvatarLoader = FS.AvatarHelper.loadAvatarImage;
+		var hasAvatar = new Object();
 
         // Define our own avatar loading method
         var customAvatarLoader = function (playerId, which, callback) {
             var size = [50, 100, 256][which];
             var img = new Image();
-            img.onerror = function () {
-                // When no URL for a custom avatar can be found
-                gokoAvatarLoader(playerId, which, callback);
-            };
-            img.onload = function() {
-                // When custom avatar is found
-
-                // Draw a resized version
-                myCanvas.width = size;
-                myCanvas.height = size;
-                myContext.drawImage(img, 0, 0, img.width, img.height, 0, 0, size, size);
-                
-                var img2 = new Image();
-                // Convert the resized version to a URL
-                img2.onload = function () {
-                    //console.log('Found avatar for ' + playerId);
-                    var user = {};
-                    user.playerid = playerId;
-                    user.image = img2;
-                    callback(user);
-                };
-                img2.src = myCanvas.toDataURL("image/png");
-            };
-            img.crossOrigin = "Anonymous";
-            img.src = "http://dom.retrobox.eu/avatars/" + playerId + ".png";
+			if (typeof hasAvatar[playerId] == 'undefined') {
+				hasAvatar[playerId] = true;
+			}
+			
+			img.onerror = function () {
+					// When no URL for a custom avatar can be found
+					hasAvatar[playerId] = false;
+					gokoAvatarLoader(playerId, which, callback);
+			};
+			
+			img.onload = function() {
+					// When custom avatar is found
+					// Draw a resized version
+					myCanvas.width = size;
+					myCanvas.height = size;
+					myContext.drawImage(img, 0, 0, img.width, img.height, 0, 0, size, size);
+		
+					var img2 = new Image();
+					// Convert the resized version to a URL
+					img2.onload = function () {
+						//console.log('Found avatar for ' + playerId);
+						var user = {};
+						user.playerid = playerId;
+						user.image = img2;
+						callback(user);
+					};
+					img2.src = myCanvas.toDataURL("image/png");
+			};
+			
+			if (hasAvatar[playerId]) {
+				img.crossOrigin = "Anonymous";
+				img.src = "http://dom.retrobox.eu/avatars/" + playerId + ".png";
+			} else {
+				gokoAvatarLoader(playerId, which, callback);
+			}
         };
 
         // Let Goko handle the large avatar images ('which' >=3). I believe
@@ -94,7 +105,7 @@
         var setLoginScreenAvatar = function () {
             var myPlayerId = mtgRoom.conn.connInfo.playerId;
             var myAvatarURL = "http://dom.retrobox.eu/avatars/" + myPlayerId + ".png";
-            $.ajax({
+			$.ajax({
                 url: myAvatarURL,
                 type: 'HEAD',
                 error: function() {
@@ -108,6 +119,7 @@
                     //console.log($('#fs-player-pad-avatar img').attr('src'));
                 }
             });
+
         };
 
         GS.alsoDo(FS.LaunchScreen.View.Container, '_gameBackgroundCallback',
