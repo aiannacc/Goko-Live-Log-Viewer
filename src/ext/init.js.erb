@@ -16,10 +16,10 @@
     var default_options = {
         autokick_by_rating: true,
         autokick_by_forname: true,
-	quick_game_name: 'My Table',
-	quick_game_type: 'pro',
-	quick_game_players: 2,
-	quick_game_automatch: false,
+        quick_game_name: 'My Table',
+        quick_game_type: 'pro',
+        quick_game_players: 2,
+        quick_game_automatch: false,
         audio_notifications: true,
         html5_notifications: false,
         popup_notifications: false,
@@ -42,7 +42,23 @@
         automatch_rSystem: 'pro',
         automatch_rdiff: 1500,
         debug_mode: false,
-        lasttablename: 'My Table'
+        lasttablename: 'My Table',
+        createGame: {
+            title: "Let's play Dominion!",
+            numPlayers: 2,
+            rSystem: 'pro',
+            minRating: null,
+            maxRating: null,
+            oppName: null,
+            myBlacklist: true,
+            commonBlacklist: false,
+            ifStandardJoin: 'ask',
+            vpon: 'on',
+            veto: 'off',
+            shelters: 'random',
+            colonies: 'random',
+            kingdom: 'random'
+        }
     };
 
     GS.get_options = function () {
@@ -58,8 +74,29 @@
         return out;
     };
 
+    GS.get_cg_options = function () {
+        var opts = GS.get_options();
+        if (!opts.hasOwnProperty('createGame')) {
+            return default_options.createGame;
+        }
+        var out = opts.createGame;
+        var optName;
+        for (optName in default_options.createGame) {
+            if (!out.hasOwnProperty(optName)) {
+                out[optName] = default_options.createGame[optName];
+            }
+        }
+        return out;
+    };
+
     GS.set_options = function (options) {
         localStorage.salvagerOptions = JSON.stringify(options);
+    };
+
+    GS.set_cg_options = function (createGame_options) {
+        var opts = GS.get_options();
+        opts.createGame = createGame_options;
+        GS.set_options(opts);
     };
 
     GS.get_option = function (optName) {

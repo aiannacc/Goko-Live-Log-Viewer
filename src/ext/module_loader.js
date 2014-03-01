@@ -30,7 +30,8 @@
         'automatchSeekPop',
         'automatch',
 	'quickGame',
-	'launchScreenLoader'
+	'launchScreenLoader',
+        'createGameDialog'
     ];
 
     var loadModule = function (i) {

@@ -75,6 +75,14 @@
                         .addClass('fs-mtrm-dominion-btn')
                         .click(GS.AM.showSeekPop)
                 );
+        $('.room-section-btn-create-table').remove();
+        $('.room-section-header-buttons').append(
+            $('<button id="automatchButton" />')
+                .addClass('fs-mtrm-text-border')
+                .addClass('fs-mtrm-dominion-btn')
+                .html('Create Game II')
+                .click(GS.showCreateGameDialog)
+        );
         
                 // Disable the butomatch button until the async init calls finish
                 updateAMButton();
