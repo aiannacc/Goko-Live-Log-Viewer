@@ -1,4 +1,4 @@
-/*jslint browser: true, devel: true, indent: 4, maxlen: 90, es5: true */
+/*jslint browser: true, devel: true, indent: 4, maxlen: 90, es5: true, vars: true */
 /*global $, angular, GS */
 
 (function () {
@@ -165,7 +165,7 @@
         ].join(''));
 
         $('#cgButton').click(function () {
-            console.log('Creating new game');
+            console.log('TODO: Create new game');
             console.log(GS.get_cg_options());
             GS.showCreateGameDialog(false);
         });
