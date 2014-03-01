@@ -96,8 +96,10 @@
         'automatch.js',
         'createTable.js',
         'createGameDialog.js',
-	'quickGame.js',
+        'quickGame.js',
         'launchScreenLoader.js',
+        'kingdomParser.js',
+        'kingdomGenerator2.js',
         'module_loader.js'
     ]
 }

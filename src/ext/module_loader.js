@@ -28,10 +28,11 @@
         'automatchOfferPop',
         'automatchSeekPop',
         'automatch',
-	'quickGame',
-	'launchScreenLoader',
+        'quickGame',
+        'launchScreenLoader',
         'createTable',
-        'createGameDialog'
+        'createGameDialog',
+        'kingdomGenerator2'
     ];
 
     var loadModule = function (i) {
