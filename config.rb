@@ -94,6 +94,7 @@
         'automatchOfferPop.js',
         'automatchSeekPop.js',
         'automatch.js',
+        'createTable.js',
         'createGameDialog.js',
 	'quickGame.js',
         'launchScreenLoader.js',

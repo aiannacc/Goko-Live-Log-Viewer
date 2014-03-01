@@ -17,7 +17,6 @@
         'autokick',
         'blacklist',
         'avatars',
-        'kingdomGenerator',
         'sidebar',
         'logviewer',
         'chatbox',
@@ -31,6 +30,7 @@
         'automatch',
 	'quickGame',
 	'launchScreenLoader',
+        'createTable',
         'createGameDialog'
     ];
 
