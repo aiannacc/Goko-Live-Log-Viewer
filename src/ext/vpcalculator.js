@@ -63,7 +63,7 @@
         GS.vp.getVPTotal = function (pname) {
             var deck = GS.cardCounts[pname];
             if (typeof deck === 'undefined') { return 0; }
-            if (typeof deck[0] === 'undefined') { return 0; }
+            if (Object.keys(deck).length === 0) { return 0; }
             return _.keys(deck).map(function (card) {
                 return cardVPValue(card, deck) * deck[card];
             }).reduce(sum) + GS.vptokens[pname];
