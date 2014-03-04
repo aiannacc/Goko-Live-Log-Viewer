@@ -45,12 +45,14 @@ body {
   overflow:auto;
   visibility: inherit;
   background-color: #f8f8f8;
-  padding:5px 5px 5px 5px;
+  padding:0px 0px 0px 0px;
   margin: 1px 1px;
   border-width: 2px;
   border-radius: 2px;
   border-style: solid;
   border-color: darkGray;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 table.vptable {
