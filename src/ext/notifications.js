@@ -130,7 +130,15 @@
             var i, temp = openNotifications.slice(0);
             openNotifications = [];
             for (i = 0; i < temp.length; i += 1) {
-                temp[i].close();
+                // Firefox needs "close."  Chrome needs "cancel."  This should blast both to hell.
+                try {
+                    console.log(temp[i]);
+                    temp[i].close();
+                } catch (e) { }
+                try {
+                    console.log(temp[i]);
+                    temp[i].cancel();
+                } catch (e2) { }
             }
         });
 
