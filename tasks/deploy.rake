@@ -34,6 +34,9 @@ task :deploy => ['firefox:build', 'chrome:crx', 'safari:build'] do
     sh 'scp build/gokosalvager.crx ' + props[:hostServer] + ':' + scpDir
     sh 'scp build/gokosalvager.safariextz ' + props[:hostServer] + ':' + scpDir
     cmd = 'cd ' + props[:hostDir] + ' && '\
+        + 'rm -f firefox-latest-gokosalvager.xpi && '\
+        + 'ln -s v' + props[:version] + '/gokosalvager.xpi firefox-latest-gokosalvager.xpi'
+    cmd = 'cd ' + props[:hostDir] + ' && '\
         + 'rm -f safari-latest-gokosalvager.safariextz && '\
         + 'ln -s v' + props[:version] + '/gokosalvager.safariextz safari-latest-gokosalvager.safariextz'
     sh 'ssh ' + props[:hostServer] + ' "' + cmd + '"'
