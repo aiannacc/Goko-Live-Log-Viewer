@@ -8,6 +8,7 @@
 
     // Module load order
     var modNames = [
+        'state',
         'settingsDialog',
         //'eventLogger',
         'notifications',
@@ -16,7 +17,7 @@
         'tableState', 
         'autokick',
         'blacklist',
-        'avatars',
+        //'avatars',
         'kingdomGenerator',
         'sidebar',
         'logviewer',

@@ -67,6 +67,7 @@
     :js => [
         'init.js',
         'utils.js',
+        'state.js',
         'settingsDialog.js',
         'eventLogger.js',
         'notifications.js',
