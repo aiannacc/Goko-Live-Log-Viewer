@@ -61,7 +61,6 @@
         };
 
         $('#desktopnotificationcheckbox').click(function () {
-            console.log('clicked');
             if ($(this).is(':checked')) {
                 var p = getNotificationPermission();
                 if (p === NOT_SET) {
@@ -132,11 +131,9 @@
             for (i = 0; i < temp.length; i += 1) {
                 // Firefox needs "close."  Chrome needs "cancel."  This should blast both to hell.
                 try {
-                    console.log(temp[i]);
                     temp[i].close();
                 } catch (e) { }
                 try {
-                    console.log(temp[i]);
                     temp[i].cancel();
                 } catch (e2) { }
             }

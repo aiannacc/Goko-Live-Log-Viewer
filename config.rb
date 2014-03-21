@@ -1,7 +1,7 @@
 {
     # Info for extension configuration files (package.json, manifest.json, etc)
     :name => 'gokosalvager',
-    :version => '2.4.7',
+    :version => '2.5',
     :title => 'Goko Dominion Salvager',
     :desc => 'Enhance your Online Dominion experience',
     :author => 'The unofficial forum.dominionstrategy dev team',
@@ -47,6 +47,7 @@
     :img => [
         'images/ui-icons_454545_256x240.png',
         'images/ui-icons_222222_256x240.png',
+        'images/ui-bg_fine-grain_10_c3c3c3_60x60.png',
         'images/ui-bg_fine-grain_20_cbaa6e_60x60.png',
         'images/ui-bg_glass_65_ffffff_1x400.png',
         'images/ui-bg_glass_75_dadada_1x400.png',
@@ -56,26 +57,28 @@
         'images/ui-bg_fine-grain_10_c3c3c3_60x60.png'
     ],
 
-    # Internally-stored versions, so be loaded by Chrome and Firefox. Safari
-    # has to load external version.
+    # Internally-stored versions, to be loaded by Chrome and Firefox. Safari
+    # has to load external versions, so add links to src/ext/safari_libs.js
     :jslib => [
         'jquery.ui.js',
-        'angular.min.js'
+        'angular.min.js',
     ],
 
     # JS scripts for Goko to load, in order
     :js => [
         'init.js',
         'utils.js',
+        'eventIntermediary.js',
         'state.js',
+        'avatarUpload.js',
+        'blacklist.js',
+        'blacklistSync.js',
         'settingsDialog.js',
-        'eventLogger.js',
         'notifications.js',
         'kingdom_generator.js',
         'tableState.js',
         'autokick.js',
         'avatars.js',
-        'blacklist.js',
         'sidebar.js',
         'logviewer.js',
         'chatbox.js',
@@ -92,6 +95,7 @@
         'automatch.js',
         'quickGame.js',
         'launchScreenLoader.js',
+        'connection.js',
         'module_loader.js'
     ]
 }

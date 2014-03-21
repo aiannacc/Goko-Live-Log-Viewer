@@ -1,31 +1,34 @@
-/*jslint browser:true, devel:true, vars:true, forin:true */
-/*globals $ */
+/*jslint browser:true, devel:true, vars:true, forin:true, nomen:true */
+/*globals $, _ */
 
 (function () {
     "use strict";
 
     // TODO: Insert version number on build
-    console.log('Running Goko Salvager <%= config[:version] %>');
+    console.log('Starting Goko Salvager <%= config[:version] %>');
 
     // Global namespace
     // TODO: deal with possibility that a modules runs before this code
     var GS = window.GS = {
-        modules: {}
+        modules: {},
+        version: '<%= config[:version] %>'
     };
 
     var default_options = {
         autokick_by_rating: true,
         autokick_by_forname: true,
-	quick_game_name: 'My Table',
-	quick_game_type: 'pro',
-	quick_game_players: 2,
-	quick_game_automatch: false,
+        quick_game_name: 'My Table',
+        quick_game_type: 'pro',
+        quick_game_players: 2,
+        quick_game_automatch: false,
         audio_notifications: true,
         html5_notifications: false,
         popup_notifications: false,
+        greeting: "",
         generator: false,
         proranks: true,
-        sortrating: true,
+        isoranks: false,
+        sortkey: 'pro',
         adventurevp: true,
         sidebar: true,
         sidebar_chat: true,
@@ -33,8 +36,6 @@
         vp_request: false,
         vp_refuse: false,
         always_stack: true,
-        blacklist: [],
-        automatch_blacklist: [],
         automatch_on_seek: true,
         automatch_min_players: 2,
         automatch_max_players: 2,
@@ -45,7 +46,35 @@
         speed_tweak_uniform: false,
         speed_tweak_faster: false,
         debug_mode: false,
-        lasttablename: 'My Table'
+        lasttablename: 'My Table',
+        blacklist2: {},
+        blacklist_common: 0
+    };
+
+    // Transform old blacklist data structure to new one
+    var transformBlacklist = function (opts) {
+
+        if (opts.hasOwnProperty('automatch_blacklist')) {
+            opts.automatch_blacklist.map(function (pname) {
+                opts.blacklist2[pname] = {
+                    noplay: false,
+                    nomatch: true,
+                    censor: false
+                };
+            });
+        }
+        delete opts.automatch_blacklist;
+
+        if (opts.hasOwnProperty('blacklist')) {
+            opts.blacklist.map(function (pname) {
+                opts.blacklist2[pname] = {
+                    noplay: true,
+                    nomatch: true,
+                    censor: true
+                };
+            });
+        }
+        delete opts.blacklist;
     };
 
     GS.get_options = function () {
@@ -58,11 +87,15 @@
                 out[optName] = default_options[optName];
             }
         }
+        if (out.hasOwnProperty('blacklist')
+                || out.hasOwnProperty('automatch_blacklist')) {
+            transformBlacklist(out);
+        }
         return out;
     };
 
-    GS.set_options = function (options) {
-        localStorage.salvagerOptions = JSON.stringify(options);
+    GS.set_options = function (o) {
+        localStorage.salvagerOptions = JSON.stringify(o);
     };
 
     GS.get_option = function (optName) {
@@ -93,14 +126,14 @@
             return this.dependencies.filter(function (depName) {
                 var dep;
                 if (depName[0] === '#') {
-                    dep = $(depName);
+                    dep = $(depName)[0];
                 } else if (depName[0] === '.') {
                     dep = $(depName);
                 } else {
                     try {
                         dep = depName.split('.').reduce(index, window);
                     } catch (e) {
-                        return false;
+                        return true;
                     }
                 }
                 return typeof dep === 'undefined' || dep === null;

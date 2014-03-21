@@ -81,7 +81,9 @@
             this.alreadyResponded = false;
             
             if (this.isMultiplayer()) {
-                GS.sendRoomChat('I have joined the game.');
+                if (GS.get_option('greeting').length > 0) {
+                    GS.sendRoomChat(GS.get_option('greeting'));
+                }
             }
 
             // Initialize toggle state and explain commands
@@ -368,7 +370,11 @@
     GS.vp.toggle = new GS.VPToggle(false, false, 'My Table', '', [], []);
 
     GS.modules.vptoggle = new GS.Module('VP Toggle');
-    GS.modules.vptoggle.dependencies = ['DominionClient', 'mtgRoom', '#vptable'];
+    GS.modules.vptoggle.dependencies = [
+        'DominionClient',
+        'mtgRoom.conn',
+        '#vptable'
+    ];
     GS.modules.vptoggle.load = function () {
 
         var onGameSetup, onRoomChat, onAddLog, checkGameOver;

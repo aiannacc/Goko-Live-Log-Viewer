@@ -53,6 +53,7 @@ type = {"firefox" => {:ext => "xpi",
         "safari"  => {:ext => "safariextz",
                       :update => "plist"}}
 
+desc 'Deploy official release -- for all users'
 task :deploy_official do |task,args|
     puts '*** Deploying official release ***'
     Rake::Task[:build].invoke()
@@ -62,6 +63,7 @@ task :deploy_official do |task,args|
     Rake::Task[:update_indices].invoke()
 end
 
+desc 'Deploy beta release -- for beta testers only'
 task :deploy_beta do |task,args|
     puts '*** Deploying beta release ***'
     Rake::Task[:build].invoke('true')
