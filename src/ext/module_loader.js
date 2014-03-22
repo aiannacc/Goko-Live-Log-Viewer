@@ -8,6 +8,7 @@
 
     // Module load order
     var modNames = [
+        'eventIntermediary',
         'state',
         'wsConnection',
         'avatars',
@@ -15,7 +16,6 @@
         'blacklist',
         'blacklistSync',
         'settingsDialog',       // Depends on blacklist, blacklistSync
-        //'eventLogger',
         'notifications',
         'lobbyRatings',
         'decktracker',
