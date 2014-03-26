@@ -95,6 +95,7 @@
         'quickGame.js',
         'launchScreenLoader.js',
         'connection.js',
+        'extUsers.js',
         'autozap.js',
         'module_loader.js'
     ]
