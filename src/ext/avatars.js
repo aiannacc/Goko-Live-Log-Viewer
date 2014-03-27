@@ -17,11 +17,12 @@
         var gsAvatarLoader, retroboxAvatarLoader, gokoAvatarLoader;
 
         // Populate a local list of who has a custom avatar
-        // TODO: have server update this list when appropriate
         GS.noAvatarCacheWarned = false;
-        GS.WS.waitSendMessage('QUERY_AVATAR_TABLE', {}, function (resp) {
-            console.log('Loaded avatar cache from ' + GS.WS.domain);
-            GS.hasAvatar = resp.available;
+        GS.modules.wsConnection.listenForConnection(function () {
+            GS.WS.sendMessage('QUERY_AVATAR_TABLE', {}, function (resp) {
+                console.log('Loaded avatar cache from ' + GS.WS.domain);
+                GS.hasAvatar = resp.available;
+            });
         });
 
         // Goko's default avatar loader and our replacement function
