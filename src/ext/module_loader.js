@@ -42,6 +42,7 @@
     var loadModule = function (i) {
         var failCount = 0;
         var mod = GS.modules[modNames[i]];
+        console.log('Preparing to load module ' + mod.name);
         var missing = mod.getMissingDeps();
 
         if (missing.length === 0) {

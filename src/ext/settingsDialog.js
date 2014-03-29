@@ -190,7 +190,11 @@
                 .append($('<input>').attr('type', 'checkbox')
                                     .attr('ng-model', 'so.autokick_by_rating')
                                     .addClass('indented'))
-                .append('By rating range<br>')
+                .append('By Goko Pro rating<br>')
+                .append($('<input>').attr('type', 'checkbox')
+                                    .attr('ng-model', 'so.autokick_by_level')
+                                    .addClass('indented'))
+                .append('By TrueSkill (Isotropish) level<br>')
                 .append($('<input>').attr('type', 'checkbox')
                                     .attr('ng-model', 'so.autokick_by_forname')
                                     .addClass('indented'))
@@ -275,11 +279,17 @@
         });
 
         window.settingsController = function ($scope) {
+
             $scope.sortkeys = [
                 {name: 'pname', text: 'Username'},
                 {name: 'rating', text: 'Pro/Casual Rating'},
                 {name: 'iso', text: 'Isotropish Rating'}
             ];
+
+            if (!_.contains(['pname', 'rating', 'iso'], GS.get_option('sortkey'))) {
+                GS.set_option('sortkey', 'rating');
+            }
+
             $scope.quick_game_types = [
                 {name: 'pro'},
                 {name: 'casual'},

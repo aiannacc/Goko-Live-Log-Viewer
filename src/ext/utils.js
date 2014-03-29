@@ -45,42 +45,6 @@
         };
     };
 
-    // Parse numbers like 303 and 4.23k
-    GS.parseNum = function (str) {
-        try {
-            var m = str.match(/^([0-9.]+)([kK]?)$/);
-            return Math.floor(parseFloat(m[1]) * (m[2] !== '' ? 1000 : 1));
-        } catch (e) {
-            // Fail silently if unparseable strings get here
-            return null;
-        }
-    };
-
-    // Parse titles like X+, Y-, X-Y, and +/-Z
-    // Precedence: +/- > range > min thresh > max thresh
-    GS.parseRange = function (tablename, myRating) {
-        var m, minRating = null, maxRating = null;
-
-        if ((m = tablename.match(/(\d+(.\d+)?([kK])?)-/)) !== null) {
-            minRating = null;
-            maxRating = this.parseNum(m[1]);
-        }
-        if ((m = tablename.match(/(\d+(.\d+)?([kK])?)\+/)) !== null) {
-            minRating = this.parseNum(m[1]);
-            maxRating = null;
-        }
-        if ((m = tablename.match(/(\d+(.\d+)?([kK])?)-(\d+(.\d+)?([kK])?)/)) !== null) {
-            minRating = this.parseNum(m[1]);
-            maxRating = this.parseNum(m[4]);
-        }
-        if ((m = tablename.match(/\+\/-(\d+(.\d+)?([kK])?)/)) !== null) {
-            minRating = myRating - this.parseNum(m[1]);
-            maxRating = myRating + this.parseNum(m[1]);
-        }
-
-        return [minRating, maxRating];
-    };
-
     GS.getTableName = function () {
         try {
             return JSON.parse(mtgRoom.getCurrentTable().get('settings')).name;
@@ -148,4 +112,42 @@
 
     GS.salvagerIconURL = 'http://gokologs.drunkensailor.org/static/img/salvager128.png';
     GS.url = 'www.gokosalvager.com';
+
+    // Parse numbers like 303 and 4.23k
+    // Fail noisily if unparseable strings get here
+    GS.parseNum = function (str) {
+        var m = str.match(/^([0-9.]+)([kK]?)$/);
+        return Math.floor(parseFloat(m[1]) * (m[2] !== '' ? 1000 : 1));
+    };
+
+    // Parse Goko Pro rating ranges that can be used in game titles
+    // Valid forms are like X+, Y-, X-Y, +/-R,
+    //   where X,Y,R are numbers like 4000 or 4k or 4.00k
+    // Only the first expression encountered will be parsed
+    // Precedence: +/- > range > min thresh > max thresh
+    GS.parseProRange = function (tablename) {
+        var m, range = {};
+
+        if ((m = tablename.match(/^(.* |)(\d+(.\d+)?([kK])?)\+(?!\S)/)) !== null) {
+            range.min = GS.parseNum(m[2]);
+        }
+        if ((m = tablename.match(/^(.* |)(\d+(.\d+)?([kK])?)\-(?!\S)/)) !== null) {
+            range.max = GS.parseNum(m[2]);
+        }
+        if ((m = tablename.match(/^(.* |)(\d+(.\d+)?([kK])?)-(\d+(.\d+)?([kK])?)(?!\S)/)) !== null) {
+            range.min = GS.parseNum(m[2]);
+            range.max = GS.parseNum(m[5]);
+        }
+        if ((m = tablename.match(/^(.* |)\+\/\-(\d+(.\d+)?([kK])?)(?!\S)/)) !== null) {
+            range.difference = GS.parseNum(m[2]);
+        }
+        return range;
+    };
+
+    // For Isotropish ranges, valid forms must have an "L" in front.
+    // The regex syntax is otherwise identical
+    GS.parseIsoRange = function (tablename) {
+        var m = tablename.match(/L(\S*)/);
+        return m === null ? GS.parseProRange('') : GS.parseProRange(m[1]);
+    };
 }());
