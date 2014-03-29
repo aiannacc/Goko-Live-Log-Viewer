@@ -25,8 +25,12 @@
     // Connection variables
     GS.WS = {};
     GS.WS.domain = 'gokosalvager.com';
-    GS.WS.port = 7889;  // TODO: Switch from port 8889 back to 443 after 
-                        //       server transition
+    if (GS.get_option('testmode')) {
+        GS.WS.port = 7889;  // TODO: Switch from port 8889 back to 443 after 
+                            //       server transition
+    } else {
+        GS.WS.port = 8889;
+    }
     GS.WS.url = "wss://" + GS.WS.domain + ":" + GS.WS.port + "/gs/websocket";
     GS.WS.noreconnect = false;
     GS.WS.maxFails = 36;
