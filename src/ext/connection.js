@@ -23,21 +23,16 @@
     ];
 
     // Connection variables
-    GS.WS = {};
-    GS.WS.domain = 'gokosalvager.com';
-    if (GS.get_option('testmode')) {
-        GS.WS.port = 7889;  // TODO: Switch from port 8889 back to 443 after 
-                            //       server transition
-    } else {
-        GS.WS.port = 8889;
-    }
-    GS.WS.url = "wss://" + GS.WS.domain + ":" + GS.WS.port + "/gs/websocket";
-    GS.WS.noreconnect = false;
-    GS.WS.maxFails = 36;
-    GS.WS.failCount = 0;
-    GS.WS.lastPingTime = new Date();
-    GS.WS.callbacks = {};
-    GS.WS.clientInfoReceived = false;
+    GS.WS = {
+        domain: 'gokosalvager.com',
+        port: GS.get_option('testmode') ? 7889 : 8889,
+        maxFails: 36,
+        failCount: 0,
+        lastPingTime: new Date(),
+        callbacks: {},
+        clientInfoReceived: false
+    };
+    GS.WS.url = "wss://" + GS.WS.domain + ":" + GS.WS.port + "/gs/websocket",
 
     GS.WS.isConnReady = function () {
         return typeof GS.WS.conn !== 'undefined'
@@ -128,8 +123,6 @@
             }
         };
 
-
-
         GS.WS.waitSendMessage = function (msgtype, msg, callback) {
             var waitInt = window.setInterval(function () {
                 if (GS.WS.isConnReady()) {
@@ -205,9 +198,7 @@
             }
 
             // Wait 5 seconds and attempt to reconnect.
-            if (GS.WS.noreconnect) {
-                console.log('Auto-reconnect to GS server disabled.');
-            } else if (GS.WS.failCount >= GS.WS.maxFails) {
+            if (GS.WS.failCount >= GS.WS.maxFails) {
                 console.log('Max connection failures reached.');
             } else {
                 console.log('Attempting reconnect to GS server.');
