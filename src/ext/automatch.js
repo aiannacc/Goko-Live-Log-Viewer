@@ -499,7 +499,7 @@
                 GS.AM.tableSettings = null;
                 // TODO: handle this in a more UI-consistent way
                 GS.AM.showOfferPop(false);
-                alert('Automatch offer was rescinded:\n' + msg.reason);
+                GS.notifyUser('Automatch offer was rescinded:\n' + msg.reason);
             };
         
             announceGame = function (msg) {
@@ -573,7 +573,7 @@
             unannounceGame = function (msg) {
                 GS.AM.state.game = null;
                 GS.AM.showGamePop(false);
-                alert('Automatch game canceled. Reason:\n' + msg.reason);
+                GS.notifyUser('Automatch game canceled. Reason:\n' + msg.reason);
             };
         
             /*

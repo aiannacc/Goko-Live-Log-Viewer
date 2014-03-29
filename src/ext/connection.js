@@ -1,4 +1,4 @@
-/*jslint browser: true, devel: true, indent: 4, maxlen: 90, es5: true, vars:true, white:true, nomen:true */
+/*jslint browser: true, devel: true, indent: 4, maxlen: 90, es5: true, vars:true, nomen:true */
 /*global $, _, WebSocket, GS, mtgRoom */
 
 // Create a single WebSocket connection to gokosalvager.com
@@ -21,24 +21,35 @@
         'mtgRoom.conn.connInfo.playerName',
         'mtgRoom.conn.connInfo.playerPoolId'
     ];
-    mod.load = function () {
 
-        var startPingLoop, handleDisconnect, updateWSIcon, confirmReceipt;
+    // Connection variables
+    GS.WS = {};
+    GS.WS.domain = 'gokosalvager.com';
+    if (GS.get_option('testmode')) {
+        GS.WS.port = 7889;  // TODO: Switch from port 8889 back to 443 after 
+                            //       server transition
+    } else {
+        GS.WS.port = 8889;
+    }
+    GS.WS.url = "wss://" + GS.WS.domain + ":" + GS.WS.port + "/gs/websocket";
+    GS.WS.noreconnect = false;
+    GS.WS.maxFails = 36;
+    GS.WS.failCount = 0;
+    GS.WS.lastPingTime = new Date();
+    GS.WS.callbacks = {};
+    GS.WS.clientInfoReceived = false;
+
+    GS.WS.isConnReady = function () {
+        return typeof GS.WS.conn !== 'undefined'
+            && GS.WS.conn.readyState === 1
+            && GS.WS.clientInfoReceived;
+    };
+
+    mod.load = function () {
+        var startPingLoop, handleDisconnect, updateWSIcon, confirmReceipt, handleMessage;
+        var self = this;
 
         console.log('Loading WS Connection module');
-
-        // Connection variables
-        GS.WS = {};
-        GS.WS.domain = 'gokosalvager.com';
-        GS.WS.port = 8889;  // TODO: Switch from port 8889 back to 443 after 
-                            //       server transition
-        GS.WS.url = "wss://" + GS.WS.domain + ":" + GS.WS.port + "/gs/websocket";
-        GS.WS.noreconnect = false;
-        GS.WS.maxFails = 36;
-        GS.WS.failCount = 0;
-        GS.WS.lastPingTime = new Date();
-        GS.WS.callbacks = {};
-        GS.WS.clientInfoReceived = false;
 
         // Attempt to connect to the GokoSalvager server
         GS.WS.connectToGS = function () {
@@ -58,56 +69,65 @@
             };
 
             // Messages from server
-            GS.WS.conn.onmessage = function (evt) {
-                var d = JSON.parse(evt.data);
-                var m = d.message;
-                
-                GS.WS.lastpingTime = new Date();
+            GS.WS.conn.onmessage = handleMessage;
+        };
 
-                switch (d.msgtype) {
-                case 'REQUEST_CLIENT_INFO':
-                    var info = {
-                        playerName: mtgRoom.conn.connInfo.playerName,
-                        playerId: mtgRoom.conn.connInfo.playerId,
-                        gsversion: GS.version
-                    };
-                    GS.WS.sendMessage('CLIENT_INFO', info, function () {
-                        GS.WS.clientInfoReceived = true;
+        handleMessage = function (evt) {
+            var d = JSON.parse(evt.data);
+            var m = d.message;
+            
+            GS.WS.lastpingTime = new Date();
+
+            switch (d.msgtype) {
+            case 'REQUEST_CLIENT_INFO':
+                var info = {
+                    playerName: mtgRoom.conn.connInfo.playerName,
+                    playerId: mtgRoom.conn.connInfo.playerId,
+                    gsversion: GS.version
+                };
+                GS.WS.sendMessage('CLIENT_INFO', info, function () {
+                    GS.WS.clientInfoReceived = true;
+                    // Invoke listening callbacks
+                    _.each(mod.connListeners, function (cb) {
+                        cb();
                     });
-                    break;
-                case 'RESPONSE':
-                    // Server response to client's request for information.
-                    // Evaluate the callback the client registered, with the
-                    // server's response as its argument.
-                    var callback = GS.WS.callbacks[m.queryid];
-                    if (typeof callback !== 'undefined') {
-                        if (callback !== null) {
-                            callback(m);
-                        }
-                        delete GS.WS.callbacks[m.queryid];
+                });
+                break;
+            case 'RESPONSE':
+                // Server response to client's request for information.
+                // Evaluate the callback the client registered, with the
+                // server's response as its argument.
+                var callback = GS.WS.callbacks[m.queryid];
+                if (typeof callback !== 'undefined') {
+                    if (callback !== null) {
+                        callback(m);
                     }
-                    break;
-                case 'UPDATE_ISO_LEVELS':
-                    _.each(m.new_levels, function (isoLevel, playerId) {
-                        GS.isoLevelCache[playerId] = isoLevel;
-                    });
-                    // TODO: update HTML elements for these players, if they
-                    //       happen to be in the same lobby as us
-                    break;
-                case 'UPDATE_AVATAR_INFO':
-                    // TODO: implement
-                    break;
-                default:
-                    throw 'Invalid server message type: ' + d.msgtype;
+                    delete GS.WS.callbacks[m.queryid];
                 }
-            };
+                break;
+            case 'UPDATE_ISO_LEVELS':
+                _.each(m.new_levels, function (isoLevel, playerId) {
+                    GS.isoLevelCache[playerId] = isoLevel;
+                });
+                // TODO: update HTML elements for these players, if they
+                //       happen to be in the same lobby as us
+                break;
+            case 'UPDATE_AVATAR_INFO':
+                // TODO: implement
+                break;
+            default:
+                // Check registered listeners
+                var callbacks = self.msgListeners[d.msgtype];
+                if (typeof callbacks === 'undefined') {
+                    throw 'Invalid server message type: ' + d.msgtype;
+                } else {
+                    _.each(callbacks, function (cb) {
+                        cb(m);
+                    });
+                }
+            }
         };
 
-        GS.WS.isConnReady = function () {
-            return typeof GS.WS.conn !== 'undefined'
-                && GS.WS.conn.readyState === 1
-                && GS.WS.clientInfoReceived;
-        };
 
 
         GS.WS.waitSendMessage = function (msgtype, msg, callback) {
@@ -198,5 +218,26 @@
         };
 
         GS.WS.connectToGS();
+    };
+
+    // Register callbacks to be invoked whenever we (re)connect.
+    // Call immediately if already connected.
+    // Note that we're not formally "connected" until the server has received
+    // our user details.
+    mod.connListeners = [];
+    mod.listenForConnection = function (callback) {
+        this.connListeners.push(callback);
+        if (GS.WS.isConnReady()) {
+            callback();
+        }
+    };
+
+    // Register callbacks to receive specific message types.
+    mod.msgListeners = {};
+    mod.listenForMessage = function (msgtype, callback) {
+        if (typeof this.msgListeners[msgtype] === 'undefined') {
+            this.msgListeners[msgtype] = [];
+        }
+        this.msgListeners[msgtype].push(callback);
     };
 }());

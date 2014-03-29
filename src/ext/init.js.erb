@@ -15,8 +15,10 @@
     };
 
     var default_options = {
+        autozap: false,
         autokick_by_rating: true,
         autokick_by_forname: true,
+        explain_kicks: false,
         quick_game_name: 'My Table',
         quick_game_type: 'pro',
         quick_game_players: 2,
@@ -32,6 +34,8 @@
         adventurevp: true,
         sidebar: true,
         sidebar_chat: true,
+        flash_chat: false,
+        chat_noise: false,
         vp_request: false,
         vp_refuse: false,
         always_stack: true,
@@ -47,7 +51,8 @@
         debug_mode: false,
         lasttablename: 'My Table',
         blacklist2: {},
-        blacklist_common: 0
+        blacklist_common: 0,
+        testmode: false
     };
 
     // Transform old blacklist data structure to new one

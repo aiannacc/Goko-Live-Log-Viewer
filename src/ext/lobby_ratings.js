@@ -36,17 +36,20 @@
         // Cache all Isotropish ratings
         var noIsoCacheWarned = false;
         var queuedRequests = [];
-        GS.WS.waitSendMessage('QUERY_ISO_TABLE', {}, function (resp) {
-            console.log('Loaded isotropish level cache from ' + GS.WS.domain);
-            GS.isoLevelCache = resp.isolevel;
 
-            // Resolve queued ratings requests
-            _.each(queuedRequests, function (r) {
-                try {
-                    updateIsoRating(r.playerId, r.playerElement);
-                } catch (e) {
-                    console.error(e);
-                }
+        GS.modules.wsConnection.listenForConnection(function () {
+            GS.WS.sendMessage('QUERY_ISO_TABLE', {}, function (resp) {
+                console.log('Loaded isotropish level cache from ' + GS.WS.domain);
+                GS.isoLevelCache = resp.isolevel;
+
+                // Resolve queued ratings requests
+                _.each(queuedRequests, function (r) {
+                    try {
+                        updateIsoRating(r.playerId, r.playerElement);
+                    } catch (e) {
+                        console.error(e);
+                    }
+                });
             });
         });
 
