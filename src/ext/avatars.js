@@ -8,7 +8,6 @@
     mod.dependencies = [
         'Goko.Player.AvatarLoader',
         'Goko.Player.preloader',
-        'GS.WS',
         'mtgRoom'
     ];
     mod.load = function () {
@@ -18,11 +17,11 @@
 
         // Populate a local list of who has a custom avatar
         GS.noAvatarCacheWarned = false;
-        GS.modules.wsConnection.listenForConnection(function () {
-            GS.WS.sendMessage('QUERY_AVATAR_TABLE', {}, function (resp) {
-                console.log('Loaded avatar cache from ' + GS.WS.domain);
-                GS.hasAvatar = resp.available;
-            });
+        GS.whenConnectionReady.then(function () {
+            return GS.sendWSMessage('QUERY_AVATAR_TABLE', {});
+        }).then(function (resp) {
+            console.log('Received avatar cache from server.');
+            GS.hasAvatar = resp.available;
         });
 
         // Goko's default avatar loader and our replacement function
@@ -88,7 +87,7 @@
                     gsAvatarLoader(userdata, callback);
                 } else {
                     if (!GS.noAvatarCacheWarned) {
-                        console.log('The avatar cache from ' + GS.WS.domain
+                        console.log('The avatar cache from ' + GS.wsdomain
                                   + ' is not yet loaded.  Using retrobox for now');
                         GS.noAvatarCacheWarned = true;
                     }

@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <script src='lib/jquery-1.9.1.js'></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
+    <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <script src='lib/underscore-min.js'></script>
+    <script src='js/setup.js'></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+    <!--link href="css/jquery-gokocolors.css" rel="stylesheet"-->
+    <!--link href="css/chat-style.css" rel="stylesheet"-->
+    <style>
+      #dialog label, #dialog input { display:block; }
+      #dialog label { margin-top: 0.5em; }
+      #dialog input, #dialog textarea { width: 95%; }
+      #tabs { margin-top: .5em; }
+      #tabs li .ui-icon-close { float: left; margin: 0.4em 0.2em 0 0; cursor: pointer; }
+      #add_tab { cursor: pointer; }
+      body{font-size:12px}
+    </style>
+  </head>
+
+  <body ng-app="chatApp" ng-controller="chatController">
+    <div id="chatDiv" style="width:400; height:600">
+      <ul>
+        <li ng-repeat="(id, player) in extusers">
+          <a ng-href="#pchat-{{id}}">
+            <!--img ng-src="{{player.avatarURL}}"-->
+            {{player.playerName}}</a>
+          <span class="ui-icon ui-icon-close" role="presentation">Remove Tab</span>
+        </li>
+      </ul>
+      <div ng-repeat="(id, player) in extusers" id="pchat-{{id}}" style="width:100%">
+        <textarea style="background: blue; width:90%; height:85%"></textarea><br>
+        <input type="text" style="width:90%"/>
+      </div>
+    </div>
+  </div-->
+  </body>
+</html>

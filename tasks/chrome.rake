@@ -20,7 +20,7 @@ namespace :chrome do
         update_url= '%s%s%s' % [server, props[:hostURLBase], file]
 
         Rake::Task['chrome:zip'].invoke(title)
-        Rake::Task['chrome:crx'].invoke(update_url, title)
+        #Rake::Task['chrome:crx'].invoke(update_url, title)
     end
 
     task :assemble, :update_url, :title do |task, args|

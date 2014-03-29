@@ -8,7 +8,6 @@
     GS.modules.blacklistSync.dependencies = [
         '$',
         'angular',
-        'GS.WS',
     ];
     GS.modules.blacklistSync.load = function () {
 
@@ -19,7 +18,7 @@
                   .attr('ng-app', 'settingsApp')
                   .attr('ng-controller', 'blReconcileController')
             .append("The blacklist on this computer is out of sync "
-                  + "with the version stored on " + GS.WS.domain + ":<br>")
+                  + "with the version stored on " + GS.wsdomain + ":<br>")
             .append($('<br>'))
             .append($('<table>').addClass('indented')
                 .append($('<tr>')
