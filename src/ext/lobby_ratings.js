@@ -38,17 +38,18 @@
         var queuedRequests = [];
 
         GS.modules.wsConnection.listenForConnection(function () {
-        GS.WS.waitSendMessage('QUERY_ISO_TABLE', {}, function (resp) {
-            console.log('Loaded isotropish level cache from ' + GS.WS.domain);
-            GS.isoLevelCache = resp.isolevel;
+            GS.WS.sendMessage('QUERY_ISO_TABLE', {}, function (resp) {
+                console.log('Loaded isotropish level cache from ' + GS.WS.domain);
+                GS.isoLevelCache = resp.isolevel;
 
-            // Resolve queued ratings requests
-            _.each(queuedRequests, function (r) {
-                try {
-                    updateIsoRating(r.playerId, r.playerElement);
-                } catch (e) {
-                    console.error(e);
-                }
+                // Resolve queued ratings requests
+                _.each(queuedRequests, function (r) {
+                    try {
+                        updateIsoRating(r.playerId, r.playerElement);
+                    } catch (e) {
+                        console.error(e);
+                    }
+                });
             });
         });
 
@@ -227,7 +228,4 @@
             insertInPlace(playerElement);
         };
     };
-
-
-
 }());
