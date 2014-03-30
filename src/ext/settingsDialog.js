@@ -11,7 +11,6 @@
         '#viewport',
         '.fs-rs-logout-row',
         'FS',
-        'GS.WS',
         'FS.LaunchScreen.View.Container',
         'mtgRoom.conn.connInfo',
         'GS.submitBlacklist',
@@ -138,8 +137,7 @@
                 .append($('<div>').addClass('indented')
                     .append('Also blacklist the ')
                     .append($('<select>').attr('ng-model', 'so.blacklist_common')
-                                        .attr('ng-options', 's for s in blacklist_strengths')
-                                        .attr('ng-change', 'cacheCommonBlacklist'))
+                                        .attr('ng-options', 's for s in blacklist_strengths'))
                     .append('% most-commonly blacklisted players')));
 
         // Pressing enter adds the new blacklist entry
@@ -327,9 +325,6 @@
                     };
                 }
                 $scope.blnewpname = '';
-            };
-            $scope.cacheCommonBlacklist = function () {
-                GS.cacheCommonBlacklist($scope.so.blacklist_common, function () {});
             };
 
             $scope.$watch('so.sortkey', function () {

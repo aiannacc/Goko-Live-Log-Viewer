@@ -97,6 +97,7 @@
         'connection.js',
         'extUsers.js',
         'autozap.js',
+        'proRecorder.js',
         'module_loader.js'
     ]
 }

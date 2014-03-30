@@ -11,15 +11,15 @@
     mod.players = {};
     mod.gotInitialList = false;
 
-    GS.modules.wsConnection.listenForConnection(function (u) {
-        function receiveList(msg) {
-            mod.players = {};
-            _.each(msg.clientlist, function (c) {
-                mod.players[c.connId] = c;
-            });
-            mod.gotInitialList = true;
-        }
-        GS.WS.sendMessage('QUERY_EXTUSERS', {}, receiveList);
+    GS.whenConnectionReady.then(function () {
+        return GS.sendWSMessage('QUERY_EXTUSERS', {});
+    }).then(function (resp) {
+        console.log('Received list of extension users from server.');
+        mod.players = {};
+        _.each(resp.clientlist, function (c) {
+            mod.players[c.connId] = c;
+        });
+        mod.gotInitialList = true;
     });
 
     GS.modules.wsConnection.listenForMessage('ADD_EXTUSER', function (msg) {

@@ -89,38 +89,40 @@
                 }
             }
 
-            // Kick players on my blacklist
-            var i, blist = GS.getCombinedBlacklist();
-            if (typeof blist[hisName] !== 'undefined' && blist[hisName].noplay) {
-                GS.debug(hisName + 'is on my noplay blacklist... kicking');
-                shouldKick = true;
-                whyKick = {reason: 'blacklist'};
-            }
-
             // Never kick bots
             if (joiner.get('isBot')) {
                 GS.debug(hisName + ' is a bot... not kicking.');
                 shouldKick = false;
             }
 
-            // Kick joiner or play a sound to notify of successful join
-            if (shouldKick) {
-                gokoconn.bootTable({
-                    table: table.get('number'),
-                    playerAddress: joiner.get('playerAddress')
-                });
-                explainKick(joiner, whyKick);
-            } else {
-                var room = mtgRoom.roomList.findByRoomId(mtgRoom.currentRoomId);
-                if (!joiner.get('isBot')
-                        && typeof room !== 'undefined'
-                        && room.get('name').indexOf('Private') !== 0) {
-                    console.info('Opp joined', joiner, room);
-                    var msg = 'Opponent joined: ' + joiner.get('playerName')
-                                   + ' [Pro ' + hisRating + ']';
-                    GS.notifyUser(msg, new Audio('sounds/startTurn.ogg'));
+            // Kick players on my blacklist
+            var i;
+            GS.getCombinedBlacklist.then(function (blist) {
+                if (typeof blist[hisName] !== 'undefined' && blist[hisName].noplay) {
+                    GS.debug(hisName + 'is on my noplay blacklist... kicking');
+                    shouldKick = true;
+                    whyKick = {reason: 'blacklist'};
                 }
-            }
+    
+                // Kick joiner or play a sound to notify of successful join
+                if (shouldKick) {
+                    gokoconn.bootTable({
+                        table: table.get('number'),
+                        playerAddress: joiner.get('playerAddress')
+                    });
+                    explainKick(joiner, whyKick);
+                } else {
+                    var room = mtgRoom.roomList.findByRoomId(mtgRoom.currentRoomId);
+                    if (!joiner.get('isBot')
+                            && typeof room !== 'undefined'
+                            && room.get('name').indexOf('Private') !== 0) {
+                        console.info('Opp joined', joiner, room);
+                        var msg = 'Opponent joined: ' + joiner.get('playerName')
+                                       + ' [Pro ' + hisRating + ']';
+                        GS.notifyUser(msg, new Audio('sounds/startTurn.ogg'));
+                    }
+                }
+            });
         };
 
         explainKick = function (joiner, whyKick) {

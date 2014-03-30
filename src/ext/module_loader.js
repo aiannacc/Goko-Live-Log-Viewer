@@ -36,7 +36,8 @@
         'vpcounterui',          // Depends on sidebar
         'chatbox',              // Depends on sidebar
         'extUsers',             // Depends on wsConnection
-        'autozap'
+        'autozap',
+        'proRecorder'
     ];
 
     var loadModule = function (i) {

@@ -53,6 +53,14 @@
             });
         });
 
+        //    case 'UPDATE_ISO_LEVELS':
+        //        _.each(m.new_levels, function (isoLevel, playerId) {
+        //            GS.isoLevelCache[playerId] = isoLevel;
+        //        });
+        //        // TODO: update HTML elements for these players, if they
+        //        //       happen to be in the same lobby as us
+        //        break;
+
         // Display Isotropish rating on the player's lobby html element.  Sort
         // the player in the list of other players.
         updateIsoRating = function (playerId, playerElement) {
@@ -214,15 +222,16 @@
             }
 
             // Don't show censored players on the player list
-            var blist = GS.getCombinedBlacklist(true);
             var pname = playerElement
                 .querySelector('.fs-mtrm-player-name>strong').innerHTML;
-            if (typeof blist[pname.toLowerCase()] !== 'undefined'
-                    && blist[pname.toLowerCase()].censor) {
-                $(playerElement).hide();
-            } else {
-                $(playerElement).show();
-            }
+            var blist = GS.getCombinedBlacklist.then(function (blist) {
+                if (typeof blist[pname.toLowerCase()] !== 'undefined'
+                        && blist[pname.toLowerCase()].censor) {
+                    $(playerElement).hide();
+                } else {
+                    $(playerElement).show();
+                }
+            });
 
             // Keep the list of players sorted
             insertInPlace(playerElement);

@@ -7,8 +7,7 @@
     var mod = GS.modules.blacklist = new GS.Module('Blacklist');
     mod.dependencies = [
         'FS.MeetingRoom',
-        'FS.ClassicTableView',
-        'GS.WS'
+        'FS.ClassicTableView'
     ];
     mod.load = function () {
         FS.MeetingRoom.prototype.old_onRoomChat = FS.MeetingRoom.prototype.onRoomChat;
@@ -26,45 +25,32 @@
             return GS.get_option('blacklist2');
         };
 
-        GS.cacheCommonBlacklist = function (percentile, callback) {
-            GS.WS.waitSendMessage(
-                'QUERY_BLACKLIST_COMMON',
-                {percentile: percentile},
-                function (resp) {
+        // Get the cached common blacklist or retreive it from the server
+        GS.getCommonBlacklist = new Promise(function (resolve, reject) {
+            if (typeof mod.cachedCommonBlacklist !== 'undefined') {
+                resolve(mod.cachedCommonBlacklist);
+            } else {
+                GS.whenConnectionReady().then(function () {
+                    return GS.sendWSMessage('QUERY_BLACKLIST_COMMON',
+                        {percentile: GS.get_option('blacklist_common')});
+                }).then(function (resp) {
                     GS.cachedCommonBlacklist = resp.common_blacklist;
-                    GS.commonBlacklistRetreived = true;
-                    console.log('Retrieved and cached common blacklist');
-                    if (typeof callback !== 'undefined') {
-                        callback();
-                    }
-                }
-            );
-        };
-
-        // Attempt to retreive the common blacklist from GS server.
-        GS.commonBlacklistRetreived = false;
-        GS.commonBlacklistWarningGiven = false;
-        GS.cacheCommonBlacklist(GS.get_option('blacklist_common'));
+                    resolve(GS.cachedCommonBlacklist);
+                });
+            }
+        });
 
         // Until and unless we can connect to the GS server, just use an empty
         // common blacklist.  Warn once in console.
-        GS.getCombinedBlacklist = function () {
-            var combined = {};
-            if (GS.commonBlacklistRetreived) {
-                combined = _.clone(GS.cachedCommonBlacklist);
-            } else {
-                if (!GS.commonBlacklistWarningGiven) {
-                    console.warn('Common blacklist not available.');
-                    GS.commonBlacklistWarningGiven = true;
-                }
-            }
-
-            var local = GS.get_option('blacklist2');
-            _.keys(local).map(function (pname) {
-                combined[pname] = local[pname];
+        GS.getCombinedBlacklist =
+            GS.getCommonBlacklist.then(function(common) {
+                var combined = _.clone(common);
+                var local = GS.getMyBlacklist();
+                _.keys(local).map(function (pname) {
+                    combined[pname] = local[pname];
+                });
+                resolve(combined);
             });
-            return combined;
-        };
 
         FS.ClassicTableView.prototype.old_modifyDOM = FS.ClassicTableView.prototype.modifyDOM;
         FS.ClassicTableView.prototype.modifyDOM = function () {
