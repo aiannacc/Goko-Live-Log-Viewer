@@ -5,10 +5,35 @@
     "use strict";
 
     var mod = GS.modules.proRecorder = new GS.Module('Pro Rating Recorder');
-    mod.dependencies = [ ];
+    mod.dependencies = [];
     mod.load = function () {
+        mod.playerIds = [];
         mod.ratings = [];
+        
+        mod.rec_all = function (ids) {
+            console.log('Running rec_all');
+            mtgRoom.conn.getRatings({
+                version: 1,
+                playerIds: ids,
+                ratingSystemId: mtgRoom.helpers.RatingHelper.ratingSystemPro
+            }).then(function (resp) {
+                var pids = resp.ratings.map(function (r) {
+                    return r.playerId;
+                });
+                var ratings = resp.ratings.map(function (r) {
+                    return r.ratingData;
+                });
+                GS.sendWSMessage('SUBMIT_PRO_RATINGS', {
+                    playerIds: pids,
+                    ratings: ratings
+                });
+            });
+        };
+
         var rec = function (id) {
+            if (mod.playerIds.indexOf(id) === -1) {
+                mod.playerIds.push(id);
+            }
             console.log('Running Record for ' + id);
             mtgRoom.conn.getRating({
                 version: 1,
@@ -28,6 +53,17 @@
                 });
             });
         };
+
+        mod.recordInterval = setInterval(function () {
+            if ((new Date() < new Date(2014, 3, 5, 22, 10))
+                    && (new Date() > new Date(2014, 3, 5, 22, 25))) {
+                rec_all(mod.playerIds);
+            }
+            if (new Date() > new Date(2014, 3, 5, 22, 25)) {
+                clearInterval(mod.recordInterval);
+            }
+        }, 60 * 1000);
+
         var fn = function (m) {
             if (GS.get_option('record_pro_ratings')) {
                 console.log('Received ISO update');

@@ -1,5 +1,5 @@
 /*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true, white:true */
-/*global $, _, GS, FS, mtgRoom, DEFAULT_RATING */
+/*global $, _, GS, FS, mtgRoom, Promise, DEFAULT_RATING */
 
 /*
  * Lobby ratings module
@@ -130,6 +130,133 @@
             }
             FS.RatingHelper.prototype.old_getRating.call(this, opts, newCallback);
         };
+
+        GS.alsoDo(FS.PlayerListView, 'render', null, function () {
+            console.log('Running PLV render');
+            window.playerListView = this;
+        });
+
+        GS.getProRating = function (playerId) {
+            if (typeof playerId === 'undefined') {
+                playerId = mtgRoom.getLocalPlayer().getId();
+            }
+            return new Promise(function (resolve, reject) {
+                var res = resolve;
+                var rej = reject;
+                mtgRoom.conn.getRating({
+                    version: 1,
+                    playerId: playerId, 
+                    ratingSystemId: mtgRoom.options.ratingSystemPro
+                }).then(function (resp) {
+                    res({
+                        mu: resp.ratingData.mean,
+                        sigma: resp.ratingData.SD,
+                        level: resp.ratingData.mean - 2 * resp.ratingData.SD,
+                        displayed: resp.rating
+                    });
+                });
+            });
+        };
+
+//        <div class="vp-player-view">
+//          <div class="vp-player-detail" style="">
+//            <img src="" style="height: 56px; width: 56px;">
+//          </div>
+//          <p class="vp-name">
+//          </p>
+//          <p class="vp-line clearfix">
+//            <span class="vp-label record"> Record: </span>
+//            <span class="vp-value record vp-wld">
+//              <span rating-player-wld="516da267e4b082c74d7c3ddd">
+//            </span>
+//          </p>
+//          <p class="vp-line clearfix">
+//            <span class="vp-label"> Casual Rating: </span>
+//            <span class="vp-value vp-ranking">
+//              <span rating-player="516da267e4b082c74d7c3ddd">
+//            </span>
+//          </p>
+//          <p class="vp-line clearfix">
+//            <span class="vp-label"> Pro Rating: </span>
+//            <span class="vp-value vp-rating-pro">
+//              <span rating-player-pro="516da267e4b082c74d7c3ddd">
+//            </span>
+//          </p>
+//          <p class="vp-line clearfix vp-line-quit">
+//            <span class="vp-label"> Quit %: </span>
+//            <span class="vp-value vp-quit-percent">
+//              <span rating-player-quit="516da267e4b082c74d7c3ddd">
+//            </span>
+//          </p>
+//          <button class="fs-mtrm-dominion-action-btn btn-kick-player">
+//          </button>
+//        </div>
+
+        GS.alsoDo(FS.ClassicPlayerDetailView, 'showWithPlayer', null, function () {
+            var $el = this.$el;
+            var playerId = $el.find('.vp-ranking').children().attr('rating-player');
+
+            // Show large numbers of games like "3k"
+            //var record = $el.find('.vp-wld').text().split('-');
+            //record = record.map(function (num) {
+            //    return num > 1000 ? Math.round(num/1000) + 'k' : num;
+            //});
+            //$el.find('.vp-wld').text(record.join('-'));
+
+            // Shorten labels
+            $el.find('.vp-ranking').parent().find('.vp-label').text('Casual:');
+            $el.find('.vp-rating-pro').parent().find('.vp-label').text('Pro:');
+
+            // Add Isotropic Level.  Consider removing quit percentage.
+            if (GS.get_option('isoranks')) {
+                $el.find('.vp-line-quit').before(
+                    $('<p class="vp-line clearfix">')
+                        .append($('<span class="vp-label"> Isotropish: </span>'))
+                        .append($('<span class="vp-value iso-rating"></span>').
+                            text(GS.isoLevelCache[playerId])));
+                //$el.find('.vp-line-quit').remove();
+            }
+
+            var oppRating, myRating;
+            var addAssessment = function (wld_delta) {
+                console.info('Recieved Assessment', wld_delta);
+                var delta = {
+                    win: wld_delta.win.me.displayed,
+                    draw: wld_delta.draw.me.displayed,
+                    loss: wld_delta.loss.me.displayed
+                };
+                var wld = {
+                    win: Math.floor(myRating.level + delta.win) - myRating.displayed,
+                    draw: Math.floor(myRating.level + delta.draw) - myRating.displayed,
+                    loss: Math.floor(myRating.level + delta.loss) - myRating.displayed
+                };
+                var wld_text = 'Win:  +' + wld.win + '\n'
+                    + 'Loss: ' + wld.loss + '\n'
+                    + 'Draw: ' + (wld.draw > 0 ? '+' : '') + wld.draw;
+                $el.find('.vp-rating-pro').attr('title', wld_text);
+            };
+
+            GS.getProRating(playerId).then(function (r) {
+                oppRating = r;
+                return GS.getProRating(mtgRoom.getLocalPlayer().getId());
+            }).then(function (r) {
+                myRating = r;
+                GS.WS.sendMessage('QUERY_ASSESSMENT', {
+                    myRating: myRating,
+                    hisRating: oppRating,
+                    system: 'pro'
+                }, function (resp) {
+                    addAssessment(resp.wld_delta);
+                });
+            }).then(undefined, function (e) {
+                console.error(e);
+            });
+        });
+
+        GS.alsoDo(FS.ClassicPlayerDetailView, 'render', null, function () {
+            console.log('Running CPDV render');
+            window.detailView = this;
+        });
 
         FS.ClassicRoomView.prototype.old_modifyDOM = FS.ClassicRoomView.prototype.modifyDOM;
         FS.ClassicRoomView.prototype.modifyDOM = function () {
