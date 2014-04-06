@@ -14,6 +14,8 @@
 (function () {
     "use strict";
 
+    var startPingLoop, handleDisconnect, handleOpen, handleMessage, connectToGS;
+
     var mod = GS.modules.wsConnection = new GS.Module('WS Connection');
     mod.dependencies = [
         'GS',
@@ -25,8 +27,6 @@
         connectToGS();
         startPingLoop();
     };
-
-    var startPingLoop, handleDisconnect, handleOpen, handleMessage, connectToGS;
 
     // Constants
     GS.wsdomain = 'gokosalvager.com';
