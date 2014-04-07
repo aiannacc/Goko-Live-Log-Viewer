@@ -8,6 +8,8 @@
 
     // Module load order
     var modNames = [
+        'eventIntermediary',
+        'state',
         'wsConnection',
         'avatars',
         'avatarUpload',
