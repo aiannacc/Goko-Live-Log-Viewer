@@ -29,34 +29,33 @@
 
         // Look up avatars on gokosalvager.com; fall back on Goko
         gsAvatarLoader = function (userdata, callback) {
-            // NOTE: there is no need for image-resizing code that used to be
-            //       here.  The Goko framework will resize as necessary.
             var img = new Image();
-
             img.onerror = function () {
-                // Defer to goko if GokoSalvager has gone offline or does not 
-                // have a custom avatar.
+                // Defer to goko if the GS server fails us
                 gokoAvatarLoader(userdata, callback);
             };
+            img.onload = function () {
+                callback(img);
+            };
 
-            img.crossOrigin = "Anonymous";
             // TODO: Switch from port 8889 back to 443 after server transition
+            img.crossOrigin = "Anonymous";
             img.src = "https://gokosalvager.com:8889/"
                     + "gs/avatars/" + userdata.player.id + ".jpg";
-            callback(img);
         };
 
         // Look up avatars on dom.retrobox.eu; fall back on Goko
         retroboxAvatarLoader = function (userdata, callback) {
             var img = new Image();
             img.onerror = function () {
+                // Defer to goko if the Retrobox server fails us
                 gokoAvatarLoader(userdata, callback);
             };
+            img.onload = function () {
+                callback(img);
+            };
+            img.crossOrigin = "Anonymous";
             img.src = "http://dom.retrobox.eu/avatars/" + userdata.player.id + ".png";
-            img.onerror = function () {
-                gokoAvatarLoader(userdata, callback);
-            };
-            callback(img);
         };
 
         // Prevent the billions of 404 CORS and mixed content errors that

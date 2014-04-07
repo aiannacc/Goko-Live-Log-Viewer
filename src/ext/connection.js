@@ -1,5 +1,5 @@
 /*jslint browser: true, devel: true, indent: 4, maxlen: 90, es5: true, vars:true, nomen:true */
-/*global $, _, WebSocket, GS, mtgRoom */
+/*global $, _, WebSocket, Promise, GS, mtgRoom */
 
 // Create a single WebSocket connection to gokosalvager.com
 //
@@ -30,8 +30,6 @@
 
     // Constants
     GS.wsdomain = 'gokosalvager.com';
-    mod.port = GS.get_option('testmode') ? 7889 : 8889;
-    mod.url = "wss://" + GS.wsdomain + ":" + mod.port + "/gs/websocket";
 
     // Status
     mod.lastPingTime = new Date();
@@ -46,6 +44,10 @@
     // Attempt to connect to the GokoSalvager server
     connectToGS = function () {
         console.log('Connecting to ' + GS.wsdomain + ' via WebSocket.');
+
+        mod.port = GS.get_option('testmode') ? 7889 : 8889;
+        mod.url = "wss://" + GS.wsdomain + ":" + mod.port + "/gs/websocket";
+
         mod.ws = new WebSocket(mod.url);
         mod.ws.onopen = handleOpen;
         mod.ws.onclose = handleDisconnect;
@@ -75,6 +77,7 @@
         mod.lastPingTime = new Date();
         console.log(JSON.parse(evt.data));
 
+        // TODO: Use "dispatchEvent" and "removeEventListener"
         if (d.msgtype === 'RESPONSE') {
             // Server responded to a client message.
             // Fulfill and remove the corresponding Promise.
@@ -104,7 +107,7 @@
             msgid: msgid
         });
         console.info('Sending message', msgJSON);
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             mod.promises[msgid] = {resolve: resolve, reject: reject};
             mod.ws.send(msgJSON);
         });
@@ -143,10 +146,10 @@
     };
 
     mod.isConnReady = function () {
-        return typeof mod.ws !== 'undefined' 
+        return typeof mod.ws !== 'undefined'
                 && mod.ws.readyState === 1
                 && mod.registered;
-    }
+    };
 
     // Register callbacks to be invoked whenever we (re)connect.
     // Note: "connected" means server has received our user details.
@@ -154,6 +157,7 @@
         this.connListeners.push(callback);
     };
 
+    // TODO: replace with API's own "addEventListener"
     // Register callbacks to receive specific message types.
     mod.listenForMessage = function (msgtype, callback) {
         if (typeof this.msgListeners[msgtype] === 'undefined') {
@@ -162,9 +166,9 @@
         this.msgListeners[msgtype].push(callback);
     };
 
-    GS.whenConnectionReady = new Promise(function(resolve, reject) {
+    GS.whenConnectionReady = new Promise(function (resolve, reject) {
         if (mod.isConnReady()) {
-            resolve(); 
+            resolve();
         } else {
             mod.listenForConnection(resolve);
         }

@@ -28,38 +28,27 @@
         var insertInPlace, getSortablePlayerObjectFromElement,
             updateIsoRating, updateIsoRating2, modifyPlayerListElement;
 
-        // One-time option conversion
+        // One-time option conversion TODO: remove after all upgrade
         if (GS.get_option('sortkey') === 'pro') {
             GS.set_option('sortkey', 'rating');
         }
 
-        // Cache all Isotropish ratings
-        var noIsoCacheWarned = false;
-        var queuedRequests = [];
-
-        GS.modules.wsConnection.listenForConnection(function () {
-            GS.WS.sendMessage('QUERY_ISO_TABLE', {}, function (resp) {
+        // Cache all players' Isotropish ratings
+        var fetchIsoTable; 
+            GS.sendWSMessage('QUERY_ISO_TABLE', {}).then(function (resp) {
                 console.log('Loaded isotropish level cache from ' + GS.WS.domain);
                 GS.isoLevelCache = resp.isolevel;
+            });
+        GS.modules.wsConnection.listenForConnection(fetchIsoTable);
+        GS.whenConnectionReady.then(fetchIsoTable);
 
-                // Resolve queued ratings requests
-                _.each(queuedRequests, function (r) {
-                    try {
-                        updateIsoRating(r.playerId, r.playerElement);
-                    } catch (e) {
-                        console.error(e);
-                    }
-                });
+        GS.modules.wsConnection.listenForMessage('UPDATE_ISO_LEVELS', function (m) {
+            _.each(m.new_levels, function (isoLevel, playerId) {
+                GS.isoLevelCache[playerId] = isoLevel;
+                // TODO: update HTML elements for these players, if they
+                //       happen to be in the same lobby as us
             });
         });
-
-        //    case 'UPDATE_ISO_LEVELS':
-        //        _.each(m.new_levels, function (isoLevel, playerId) {
-        //            GS.isoLevelCache[playerId] = isoLevel;
-        //        });
-        //        // TODO: update HTML elements for these players, if they
-        //        //       happen to be in the same lobby as us
-        //        break;
 
         // Display Isotropish rating on the player's lobby html element.  Sort
         // the player in the list of other players.
@@ -332,12 +321,8 @@
                                 + 'resolved later');
                             GS.noIsoCacheWarned = true;
                         }
-                        // Insert rating into this element when the
+                        // TODO: Insert rating into this element when the
                         // cache becomes available
-                        queuedRequests.push({
-                            playerId: playerId,
-                            playerElement: playerElement
-                        });
                     } else {
                         // Update player's lobby list element.
                         updateIsoRating(playerId, playerElement);

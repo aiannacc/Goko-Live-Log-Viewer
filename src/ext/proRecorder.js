@@ -48,6 +48,8 @@
                 });
                 GS.sendWSMessage('SUBMIT_PRO_RATING', {
                     playerId: id,
+                    old_mu: x.ratingData.mean,
+                    old_sd: x.ratingData.mean,
                     mu: x.ratingData.mean,
                     sd: x.ratingData.SD
                 });
@@ -57,7 +59,7 @@
         mod.recordInterval = setInterval(function () {
             if ((new Date() < new Date(2014, 3, 5, 22, 10))
                     && (new Date() > new Date(2014, 3, 5, 22, 25))) {
-                rec_all(mod.playerIds);
+                mod.rec_all(mod.playerIds);
             }
             if (new Date() > new Date(2014, 3, 5, 22, 25)) {
                 clearInterval(mod.recordInterval);

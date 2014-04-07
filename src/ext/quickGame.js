@@ -23,7 +23,7 @@
                 $('.room-section-header-buttons')
                     .append($('<li>')
                         .append($('<button>').addClass('fs-mtrm-text-border')
-                                             .addClass('fs-mtrm-dominion-action-btn')
+                                             //.addClass('fs-mtrm-dominion-action-btn')
                                              .css('margin', '0px 3px 0px 3px')
                                              .click(GS.QG.createQuickGameTable)
                                              .attr('id', 'quickGameButton')
