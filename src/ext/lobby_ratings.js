@@ -126,11 +126,7 @@
 
                     // insert iso level right after Goko Pro rating
                     opts.$el.closest('div').find('.vp-rating-pro').closest('p')
-                        .after('<p class = "vp-line clearfix">' +
-                               '<span class="vp-label"> Iso Level: </span>' +
-                               '<span class="vp-value vp-rating-iso">' +
-                               '<span>' + GS.isoLevelCache[opts.playerId] + '</span>' +
-                               '</span>');
+                        .after(GS.template('popup-iso-level', { level: GS.isoLevelCache[opts.playerId] }));
                 };
             }
 

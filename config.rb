@@ -67,6 +67,7 @@
     :js => [
         'init.js',
         'utils.js',
+        'templates.js',
         'avatarUpload.js',
         'blacklist.js',
         'blacklistSync.js',

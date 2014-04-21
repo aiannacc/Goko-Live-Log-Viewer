@@ -23,7 +23,7 @@
 
         // Cache original method
         object.prototype[methodname_o] = object.prototype[methodname];
-    
+
         // Replace original method with a method sandwich
         object.prototype[methodname] = function () {
 
@@ -77,7 +77,7 @@
         }
         throw 'Meeting Room undefined';
     };
-    
+
     GS.sendRoomChat = function (message, nocheck) {
         if (typeof GS.vp.toggle !== 'undefined'
                 && GS.vp.toggle.isChatCommand(message)
@@ -150,4 +150,14 @@
         var m = tablename.match(/L(\S*)/);
         return m === null ? GS.parseProRange('') : GS.parseProRange(m[1]);
     };
+
+    // load templates from the generated templates.js
+    GS.template = function (templateName, options) {
+      try {
+          return window['JST'][templateName](options);
+      } catch (e) {
+          GS.debug('Template not found: ' + templateName);
+          return '';
+      }
+    }
 }());

@@ -6,3 +6,5 @@
 \#*
 build
 new_create_game*
+src/ext/templates.js
+node_modules/

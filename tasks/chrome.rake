@@ -18,7 +18,7 @@ namespace :chrome do
             title = "%s" % props[:title]
         end
         update_url = '%s%s%s' % [server, props[:hostURLBase], file]
-        
+
         Rake::Task['chrome:zip'].invoke(title)
         Rake::Task['chrome:crx'].invoke(update_url, title)
     end
@@ -48,6 +48,9 @@ namespace :chrome do
         man_json = fill_template 'src/config/chrome/loadAll.js.erb', props
         File.open('build/chrome/loadAll.js', 'w') {|f| f.write man_json }
 
+        # prepare templates.js
+        sh 'grunt templates'
+
         # Copy js, css, and png files
         FileUtils.cp_r Dir.glob('src/lib/*.js'), 'build/chrome/'
         FileUtils.cp_r Dir.glob('src/ext/*.js'), 'build/chrome/'
@@ -58,7 +61,7 @@ namespace :chrome do
         init_json = fill_template 'src/ext/init.js.erb', props
         File.open('build/chrome/init.js', 'w') {|f| f.write init_json }
 
-        puts 'Assembled Chrome extension files. Ready to use as ' + 
+        puts 'Assembled Chrome extension files. Ready to use as ' +
              '"unpacked extension."'
     end
 
@@ -70,7 +73,7 @@ namespace :chrome do
         puts 'Created .zip, for deploying in Chrome Store.'
         puts
     end
-    
+
     # Create a self-updating .crx for Chrome
     task :crx, :update_url, :title do |task, args|
         Rake::Task['chrome:assemble'].reenable

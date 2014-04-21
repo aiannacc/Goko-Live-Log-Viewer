@@ -53,6 +53,9 @@ namespace :safari do
         File.open(build_dir + 'Info.plist', 'w') {|f| f.write info_plist }
         FileUtils.cp_r 'src/config/safari/Settings.plist', build_dir
 
+        # prepare templates.js
+        sh 'grunt templates'
+
         # Copy js, css, and png content
         # TODO: How to specify the Safari extension icon?
         FileUtils.cp_r Dir.glob('src/ext/*.js'), build_dir
@@ -96,7 +99,7 @@ namespace :safari do
             title = "%s" % props[:title]
         end
         update_url= '%s%s%s' % [server, props[:hostURLBase], upfile]
-        source_url = '%s/%s' % [server, sofile] 
+        source_url = '%s/%s' % [server, sofile]
         puts update_url
 
         Rake::Task['safari:signed'].invoke(update_url, source_url, title)
