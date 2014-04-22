@@ -37,7 +37,7 @@
         var noIsoCacheWarned = false;
         var queuedRequests = [];
         GS.WS.waitSendMessage('QUERY_ISO_TABLE', {}, function (resp) {
-            console.log('Loaded isotropish level cache from ' + GS.WS.domain);
+
             GS.isoLevelCache = resp.isolevel;
 
             // Resolve queued ratings requests
@@ -56,11 +56,11 @@
             // Players not in iso level cache may either have no rated games
             // or may not have a playerId to playerName connection in the
             // database.
-            // 
+            //
             // Resolve the ambiguity by querying this player by both playerId
             // and playerName.  This will also allow the server to record the
             // id-name connection.
-            // 
+            //
             if (typeof GS.isoLevelCache[playerId] !== 'undefined') {
                 // Player in cache
                 updateIsoRating2(playerId, playerElement);
@@ -104,11 +104,12 @@
         // and hide censored players
         FS.RatingHelper.prototype.getRating = function (opts, callback) {
             var newCallback = callback, playerElement;
+
+            // list view
             if (opts.$el && opts.$el.hasClass('player-rank')) {
                 playerElement = opts.$el.closest('li')[0];
                 newCallback = function (resp) {
                     callback(resp);
-
                     modifyPlayerListElement(playerElement);
                 };
                 if (GS.get_option('proranks')) {
@@ -117,6 +118,18 @@
                     delete opts.$el;
                 }
             }
+
+            // popup view
+            if (opts.$el && opts.$el.hasClass('vp-ranking')) {
+                newCallback = function (resp) {
+                    callback(resp);
+
+                    // insert iso level right after Goko Pro rating
+                    opts.$el.closest('div').find('.vp-rating-pro').closest('p')
+                        .after(GS.template('popup-iso-level', { level: GS.isoLevelCache[opts.playerId] }));
+                };
+            }
+
             FS.RatingHelper.prototype.old_getRating.call(this, opts, newCallback);
         };
 
@@ -224,5 +237,6 @@
             // Keep the list of players sorted
             insertInPlace(playerElement);
         };
+
     };
 }());

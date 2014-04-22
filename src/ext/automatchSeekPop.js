@@ -127,6 +127,18 @@
                 '    </tr>',
                 '    <tr>',
                 '      <td colspan="1">',
+                '        <label>VP Counter</label>',
+                '      </td>',
+                '      <td colspan="1">',
+                '        <select id="vpCounterSeek" ng:model="so.automatch_vpcounter">',
+                '          <option value="null">Any</option>',
+                '          <option value="true">On</option>',
+                '          <option value="false">Off</option>',
+                '        </select>',
+                '      </td>',
+                '    </tr>',
+                '    <tr>',
+                '      <td colspan="1">',
                 '        <input type="submit" id="seekreq" value="Submit"',
                 '               ng:click="save(us)" />',
                 '      </td>',
@@ -160,7 +172,7 @@
 
             // Submit request
             $('#seekreq').click(function () {
-                var np, ns, rr, rs;
+                var np, ns, rr, rs, vp;
                 GS.debug('requested seek');
 
                 np = {rclass: 'NumPlayers', props: {}};
@@ -179,6 +191,19 @@
                 rs = {rclass: 'RatingSystem', props: {}};
                 rs.props.rating_system = $('#ratingSystem').val();
 
+                vp = {rclass: 'VPCounter', props: {}};
+                switch ($('#vpCounterSeek').val()) {
+                case 'null':
+                    vp.props.vpcounter = null;
+                    break;
+                case 'true':
+                    vp.props.vpcounter = true;
+                    break;
+                case 'false':
+                    vp.props.vpcounter = false;
+                    break;
+                }
+
                 // Clear any cached table information from an automatch request
                 // that was generated through a table create.
                 GS.AM.tableSettings = null;
@@ -186,7 +211,7 @@
                 // Send seek request
                 GS.AM.submitSeek({
                     player: GS.AM.player,
-                    requirements: [np, ns, rr, rs]
+                    requirements: [np, ns, rr, rs, vp]
                 });
 
                 // Hide the dialog

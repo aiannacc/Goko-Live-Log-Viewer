@@ -14,6 +14,7 @@
         'blacklist',
         'blacklistSync',
         'settingsDialog',       // Depends on blacklist, blacklistSync
+        'launchScreenLoader',   // Depends on avatars, settingsDialog modules
         //'eventLogger',
         'notifications',
         'lobbyRatings',
@@ -28,18 +29,19 @@
         'automatchSeekPop',
         'automatch',
         'quickGame',
-        'launchScreenLoader',   // Depends on avatars, settingsDialog modules
         'sidebar',              
         'logviewer',            // Depends on sidebar
         'vpcalculator',         // Depends on sidebar
         'vptoggle',             // Depends on sidebar
         'vpcounterui',          // Depends on sidebar
-        'chatbox'               // Depends on sidebar
+        'chatbox',              // Depends on sidebar
+        'autozap'
     ];
 
     var loadModule = function (i) {
         var failCount = 0;
         var mod = GS.modules[modNames[i]];
+        console.log('Preparing to load module ' + mod.name);
         var missing = mod.getMissingDeps();
 
         if (missing.length === 0) {
@@ -67,8 +69,6 @@
                         console.log(missing);
                     }
                     if (failCount === 120) {
-                        alert('Goko Salvager could not load. Module ' + mod.name
-                            + ' could not find its Goko object dependencies.');
                         console.log('Goko Salvager could not load. Module ' + mod.name
                                   + ' could not find its Goko object dependencies.');
                     }

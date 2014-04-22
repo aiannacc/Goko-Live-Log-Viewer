@@ -59,7 +59,7 @@
         toggle.init();
     };
 
-    var humanSetup = function (request, refuse, title) {
+    var humanSetup = function (request, refuse, title, automatchToggle) {
         createGSStub(GS);
         log('---');
         if (typeof title === 'undefined') {
@@ -68,6 +68,12 @@
         toggle = new GS.VPToggle(request, refuse, title, 'me', ['me', 'opp'], [false, false]);
         toggle.shownChat = [];
         toggle.sentChat = [];
+        GS.AM = {};
+        if (typeof automatchToggle === 'undefined') {
+            GS.AM.vpcounter = null;
+        } else {
+            GS.AM.vpcounter = automatchToggle;
+        }
         toggle.init();
     };
 
@@ -122,6 +128,18 @@
         humanSetup(false, false);
         state(false, false, null);
         shownChats(/is available/, /#vphelp/);
+    });
+
+    test("default - AM VPON", function () {
+        humanSetup(false, false, undefined, true);
+        state(true, true, /specified using Automatch/);
+        //shownChats(/is available/, /#vphelp/);
+    });
+
+    test("default - AM VPOFF", function () {
+        humanSetup(false, false, undefined, false);
+        state(false, true, /specified using Automatch/);
+        //shownChats(/is available/, /#vphelp/);
     });
 
     test("default - Opp #vpon", function () {
@@ -225,7 +243,6 @@
         humanSetup(false, false);
         toggle.onTurn('me', 5);
         state(false, true, /Turn 5/);
-        shownChats(/now LOCKED/);
         var n = toggle.shownChat.length;
         toggle.onTurn('opp', 5);
         ok(toggle.shownChat.length === n);
@@ -237,7 +254,6 @@
         humanSetup(false, false);
         toggle.onTurn('opp', 5);
         state(false, true, /Turn 5/);
-        shownChats(/now LOCKED/);
         var n = toggle.shownChat.length;
         toggle.onTurn('me', 5);
         ok(toggle.shownChat.length === n);

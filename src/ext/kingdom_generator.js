@@ -284,7 +284,7 @@ kinggen_utils = (function () {
 					   break;
 				case 10:this.$ = {};if($$[$0-2]){for(i in $$[$0]){ this.$[i]=$$[$0][i]*$$[$0-2];}}
 						break;
-				case 11:this.$ = {};s = pubfuncts.sets[pubfuncts.canonizeName(yytext)];if(!s){throw new Error('Unknown cnard or set: '+yytext);} for (i in s){this.$[i] = s[i];}
+				case 11:this.$ = {};s = pubfuncts.sets[pubfuncts.canonizeName(yytext)];if(!s){throw new Error('Unknown card or set: '+yytext);} for (i in s){this.$[i] = s[i];}
 						break;
 				case 12:this.$ = Number(yytext);
 						break;
@@ -724,7 +724,17 @@ kinggen_utils.KingdomselCode = (function() {
 		try {
 			var all = {};
 			kinggen_utils.myCachedCards.each(function (c) {all[c.get('nameId').toLowerCase()] = c.toJSON(); });
+
+			// if blank just use all
+			selval.value = selval.value === "" ? "All" : selval.value;
+
 			var myret = kinggen_utils.myBuildDeck(all, kinggen_utils.set_parser.parse(selval.value));
+
+			// if we got nothing, try appending All before throwing an exception
+			if (!myret) {
+				myret = kinggen_utils.myBuildDeck(all, kinggen_utils.set_parser.parse(selval.value + ", All"));
+			}
+
 			if (myret) {
 				sel.style.display = 'none';
 				x = myret;

@@ -29,6 +29,9 @@ namespace :firefox do
         File.open('build/firefox/install.rdf', 'w') {|f| f.write inst_rdf }
         FileUtils.rm 'build/firefox/install.rdf.erb'
 
+        # prepare templates.js
+        sh 'grunt templates'
+
         # Copy js, css, and png files
         FileUtils.cp_r Dir.glob('src/lib/*.js'), 'build/firefox/content/'
         FileUtils.cp_r Dir.glob('src/ext/*.js'), 'build/firefox/content/'

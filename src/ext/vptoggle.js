@@ -79,6 +79,9 @@
 
         init: function () {
             this.alreadyResponded = false;
+            this.amLocked = false;  // If locked becasue of automatch settings,
+                                    // we'll need to account for cross-version
+                                    // incompatibilities
             
             if (this.isMultiplayer()) {
                 if (GS.get_option('greeting').length > 0) {
@@ -94,6 +97,17 @@
                 this.whyLocked = null;
                 GS.showRoomChat('The VP Counter is ON because all the other '
                               + 'players are bots.');
+                GS.showRoomChat('Say "#vphelp" for more info.');
+            } else if (typeof GS.AM !== 'undefined'
+                    && typeof GS.AM.vpcounter !== 'undefined'
+                    && GS.AM.vpcounter !== null) {   // Needless caution
+                this.vpon = GS.AM.vpcounter;
+                this.locked = true;
+                this.amLocked = true;
+                this.whyLocked = 'it was specified using Automatch';
+                GS.showRoomChat('The VP Counter is '
+                        + (this.vpon ? 'on' : 'off')
+                        + ' and LOCKED because ' + this.whyLocked);
                 GS.showRoomChat('Say "#vphelp" for more info.');
 
             } else if (this.gameTitle.match(/#vpoff/i)) {
@@ -267,7 +281,13 @@
 
         handleOppVPON: function (speaker) {
             this.players[speaker].request = true;
-            if (this.locked && !this.vpon) {
+            if (this.locked && !this.vpon && this.amLocked && !this.alreadyResponded) {
+                GS.sendRoomChat('#vpoff');
+                this.alreadyResponded = true;
+            } else if (this.locked && this.vpon && this.amLocked && !this.alreadyResponded) {
+                GS.sendRoomChat('#vpon');
+                this.alreadyResponded = true;
+            } else if (this.locked && !this.vpon) {
                 GS.sendRoomChat('Sorry. My VP counter is locked to OFF '
                               + 'because ' + this.whyLocked + '. ');
             } else {
@@ -295,7 +315,13 @@
 
         handleOppVPOFF: function (speaker) {
             this.players[speaker].request = false;
-            if (this.locked && this.vpon) {
+            if (this.locked && !this.vpon && this.amLocked) {
+                // Do nothing.  AM user keeps his #vpon setting.
+                GS.debug('AM user keeps his automatch settings');
+            } else if (this.locked && this.vpon && this.amLocked && !this.alreadyResponded) {
+                GS.sendRoomChat('#vpon');
+                this.alreadyResponded = true;
+            } else if (this.locked && this.vpon) {
                 GS.sendRoomChat('Sorry. My VP counter is locked to ON '
                               + 'because ' + this.whyLocked + '. ');
             } else {
@@ -314,7 +340,8 @@
 
             // Announce VP counter at the start of our Turn 2.
             if (turnNumber === 2 && playerName === this.myName
-                    && this.isMultiplayer() && this.reqcount() === 0) {
+                    && this.isMultiplayer() && this.reqcount() === 0
+                    && !this.amLocked) {
                 if (this.always_request && !this.locked) {
                     GS.sendRoomChat('#vpon');
                 } else if (this.vpon && this.locked) {
@@ -377,7 +404,8 @@
     ];
     GS.modules.vptoggle.load = function () {
 
-        var onGameSetup, onRoomChat, onAddLog, checkGameOver;
+        var onGameSetup, onFirstAddLog, onRoomChat, onAddLog, checkGameOver,
+            firstLogReceived;
 
         // Update each player's VP total and tell angular to redraw
         var updateTable = function () {
@@ -399,11 +427,19 @@
                     return pinfo.hasOwnProperty('bot') && pinfo.bot;
                 })
             );
+            firstLogReceived = false;
+        };
+
+        onFirstAddLog = function () {
             GS.vp.toggle.init();
             updateTable();
         };
 
         onAddLog = function (data) {
+            if (!firstLogReceived) {
+                onFirstAddLog();
+                firstLogReceived = true;
+            }
             if (typeof data.text === 'undefined') { return; }
 
             var m = data.text.match(/^-+ (.*): turn ([0-9]*)/);

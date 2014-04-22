@@ -17,14 +17,33 @@
                 '  <ul id="plist"> </ul>',
                 '  Sets: <label id="offersets" /><br>',
                 '  Rating: <label id="offerrating" /><br>',
-                //'  Room: <label id="offerroom" /><br>',
+                '  VP Counter: <label id="offervpc" /><br>',
                 '  ',
                 '  <p id="offerwaitinfo" />',
+                '  ',
+                '  <div>',
+                '    <textarea id="amChatArea" style="width:100%" ',
+                '     readOnly="true" rows="5" />',
+                '    <input type="text" id="amChatLine" style="width:100%"/><br>',
+                '  </div>',
                 '  ',
                 '  <input type="button" id="offeracc" value="Accept" />',
                 '  <input type="button" id="offerdec" value="Decline/Cancel" />',
                 '</div>'
             ].join('\n'));
+
+            GS.AM.showOfferChat = function (pname, text) {
+                $('#amChatArea').val($('#amChatArea').val()
+                    + pname + ': ' + text + '\n');
+            };
+
+            $('#amChatLine').keyup(function (e) {
+                if (e.keyCode === 13) {
+                    var chatLine = $('#amChatLine').val();
+                    $('#amChatLine').val('');
+                    GS.AM.sendChat(chatLine);
+                }
+            });
 
             $('#offerPop').dialog({
                 modal: false,
@@ -67,6 +86,12 @@
                 visible = true;
             }
 
+            if (visible) {
+                $('#amChatArea').val('');
+                $('#amChatLine').val('');
+                $('#amChatLine').focus();
+            }
+
             if (GS.AM.state.offer !== null) {
                 // List players
                 $('#plist').empty();
@@ -101,6 +126,9 @@
                 default:
                     $('#offersets').text(hostsets.length + ' sets');
                 }
+
+                $('#offervpc').text(GS.AM.state.offer.vpcounter === null
+                        ? "Not specified" : (GS.AM.state.offer.vpcounter ? 'On' : 'Off'));
 
                 $('#offerrating').text(GS.AM.state.offer.rating_system);
 
