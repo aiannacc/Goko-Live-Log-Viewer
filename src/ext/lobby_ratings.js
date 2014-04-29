@@ -195,9 +195,6 @@
                 try {
                     var playerId = playerElement.querySelector('.player-list-item')
                                                 .getAttribute('data-playerid');
-                    // var playerName = mtgRoom.playerList
-                    //                         .findById(playerId)[0]
-                    //                         .get('playerName');
 
                     if (GS.isoLevelCache === undefined) {
                         // Warn that the cache is not available

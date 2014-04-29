@@ -1,5 +1,3 @@
-// unused var declarations commented out to appease jslint; unsure about just
-// removing them in case they were useful for debugging stuff
 (function () {
     "use strict";
 
@@ -15,9 +13,6 @@
                 createAutomatchGame, showChat,
                 enableAutoAccept, disableAutoAccept,
                 gameReady, sendAutoAutomatchSeekRequest;
-            // var addAutomatchButton, joinAutomatchGame, enableButtonWhenAutomatchReady,
-            //     testPop, handleLostAutomatchConnection, attemptAutomatchInit,
-            //     automatchInitStarted;
 
             // Configuration
             GS.AM = GS.AM || {};
@@ -488,7 +483,6 @@
                 GS.debug('Receipt of message confirmed: ' + msg.msgid);
                 var crCallback = GS.AM.ws.callbacks[msg.msgid];
                 if (crCallback !== undefined && crCallback !== null) {
-                    //GS.debug(crCallback);
                     crCallback();
                 }
                 updateAMButton();
@@ -561,10 +555,6 @@
                     var joinGame = function () {
                         GS.AM.gokoconn.unbind(GS.AM.ENTER_LOBBY, joinGame);
                         var seatindex, joinOpts;
-                        // var table = GS.AM.mtgRoom.roomList
-                        //     .where({roomId: GS.AM.mtgRoom.currentRoomId})[0]
-                        //     .get('tableList')
-                        //     .where({number: GS.AM.state.game.tableindex})[0];
                         seatindex = GS.AM.state.game.seeks.map(function (seek) {
                             return seek.player.pname;
                         }).filter(function (pname) {

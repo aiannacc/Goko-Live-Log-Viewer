@@ -1,9 +1,6 @@
 (function () {
     "use strict";
 
-    // var chromeUnblock = 'Settings/advanced settings/Privacy/Content Settings/Notifications/Manage Exceptions/',
-    //     firefoxUnblock = 'Tools/Page Info/Permissions/Show Notifications';
-
     console.log('Loading Notifications Module');
 
     GS.modules.notifications = new GS.Module('Notifications');

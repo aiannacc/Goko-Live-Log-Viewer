@@ -12,7 +12,6 @@
         'blacklistSync',
         'settingsDialog',       // Depends on blacklist, blacklistSync
         'launchScreenLoader',   // Depends on avatars, settingsDialog modules
-        //'eventLogger',
         'notifications',
         'lobbyRatings',
         'decktracker',

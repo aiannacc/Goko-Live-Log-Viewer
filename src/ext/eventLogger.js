@@ -15,26 +15,16 @@
             GameInstance: []
         };
 
-        // var eh = window.eventHistory;
-
         GS.alsoDo(FS.MeetingRoom, 'trigger', function (msg) {
-            //eh.MeetingRoom.push(arguments);
             console.log('MeetingRoom: ' + msg);
             console.log(Array.prototype.slice.call(arguments,1));
         });
 
         GS.alsoDo(FS.Connection, 'trigger', function (msg) {
             if (msg === 'gameMessage') { return; }
-            //eh.Connection.push(arguments);
             console.log('Connection: ' + msg);
             console.log(Array.prototype.slice.call(arguments,1));
         });
-
-        //GS.alsoDo(FS.GameInstance, 'trigger', function (msg) {
-        //    eh.MeetingRoom.push(arguments);
-        //    console.log('GameInstance: ' + msg);
-        //    console.log(Array.prototype.slice.call(arguments,1));
-        //});
 
         GS.alsoDo(DominionClient, 'trigger', function (msg) {
             switch (msg) {
@@ -46,7 +36,6 @@
                 var args = Array.prototype.slice.call(arguments,1);
                 if (args[0] !== 'gamePingMessage' &&
                         args[0] !== 'messageGroup') {
-                    //eh.DominionClient.push(arguments);
                     console.log('DominionClient: ' + msg);
                     console.log(Array.prototype.slice.call(arguments,1));
                 }

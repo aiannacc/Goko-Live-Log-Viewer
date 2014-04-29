@@ -9,7 +9,8 @@ module.exports = function (grunt) {
                 src: [
                     'Gruntfile.js',
                     'src/ext/*.js',
-                    'src/ext/init.js.erb'
+                    'src/ext/init.js.erb',
+                    'src/config/**/*.js.erb'
                 ],
                 exclude: [
                     'src/ext/templates.js',
@@ -78,7 +79,12 @@ module.exports = function (grunt) {
 
         watch: {
             jslint: {
-                files: ['Gruntfile.js', 'src/ext/*.js', 'src/ext/init.js.erb'],
+                files: [
+                  'Gruntfile.js',
+                  'src/ext/*.js',
+                  'src/ext/init.js.erb',
+                  'src/config/**/*.js.erb'
+                ],
                 tasks: ['jslint']
             }
         }

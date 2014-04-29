@@ -21,7 +21,6 @@
     mod.load = function () {
 
         var startPingLoop, handleDisconnect, updateWSIcon;
-        // var confirmReceipt;
 
         console.log('Loading WS Connection module');
 
