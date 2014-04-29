@@ -1,10 +1,9 @@
-/*jslint vars:true, devel:true */
 /*globals Services, Components, document, gBrowser, window, GokoSalvagerChrome */
 
 /**
  * GokoSalvagerChrome namespace.
  */
-if (typeof GokoSalvagerChrome === 'undefined') {
+if (GokoSalvagerChrome === undefined) {
     var GokoSalvagerChrome = {};
 }
 
@@ -31,12 +30,12 @@ var myExtension = {
             // Load javascript files in Goko page context
             var scriptDir = "chrome://gokosalvager/content/";
             var scriptFiles = [
-                "<%= config[:jslib].join("\",\n                \"") %>",
-                "<%= config[:js].join("\",\n                \"") %>",
+                '<%= config[:jslib].join("\",\n                \"") %>',
+                '<%= config[:js].join("\",\n                \"") %>'
             ];
-            var i;
+            var i, script;
             for (i = 0; i < scriptFiles.length; i += 1) {
-                var script = scriptFiles[i];
+                script = scriptFiles[i];
                 Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
                     .getService(Components.interfaces.mozIJSSubScriptLoader)
                     .loadSubScript(scriptDir + script, doc, "UTF-8");
@@ -45,16 +44,17 @@ var myExtension = {
             // Inject css into Goko page
             var styleDir = "chrome://gokosalvager/content/";
             var styleFiles = [
-                "<%= config[:css].join("\",\n                \"") %>",
+                '<%= config[:css].join("\",\n                \"") %>'
             ];
             var ios = Components.classes["@mozilla.org/network/io-service;1"]
                     .getService(Components.interfaces.nsIIOService);
             var domWindowUtils = doc.defaultView
                 .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                 .getInterface(Components.interfaces.nsIDOMWindowUtils);
+            var styleFile, styleURI;
             for (i = 0; i < styleFiles.length; i += 1) {
-                var styleFile = styleDir + styleFiles[i];
-                var styleURI = ios.newURI(styleFile, null, null);
+                styleFile = styleDir + styleFiles[i];
+                styleURI = ios.newURI(styleFile, null, null);
                 domWindowUtils.loadSheet(styleURI, 1);
             }
         }

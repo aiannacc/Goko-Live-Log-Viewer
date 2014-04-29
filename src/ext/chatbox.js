@@ -15,9 +15,6 @@
         var pname2pclass;
         var gameClient;
 
-        // commented to appease jslint
-        // var chatHistory = [];
-
         // Add the chat box widget to the sidebar. The sidebar module is
         // responsible for whether to display it or not.
         $('#chatdiv')

@@ -1,5 +1,5 @@
 (function () {
-    "use strict";   // JSLint setting
+    "use strict";
 
     var mod = GS.modules.logviewer = new GS.Module('Prettified Log Viewer');
     mod.dependencies = [

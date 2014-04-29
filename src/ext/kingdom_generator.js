@@ -5,7 +5,6 @@ kinggen_utils = (function () {
 	var pubfuncts = {};
 	pubfuncts.sets = {};
 	pubfuncts.hideKingdomGenerator = false;
-	pubfuncts.myCachedCards;
 	//standardizes card names
 	pubfuncts.canonizeName = function (n) {
             return n.toLowerCase().replace(/\W+/g, '');
@@ -256,8 +255,6 @@ kinggen_utils = (function () {
 		terminals_: {2:"error",6:",",7:"EOF",10:"+",11:"/",12:"*",13:"(",14:")",15:"ID",16:"NUMBER"},
 		productions_: [0,[3,1],[4,3],[4,2],[5,1],[5,2],[8,3],[8,3],[8,3],[8,3],[8,3],[8,1],[9,1]],
 		performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate, $$, _$) {
-			/* this == yyval */
-
 			var $0 = $$.length - 1;
 			var i, s;
 			switch (yystate) {
@@ -763,8 +760,6 @@ GS.kG = kinggen_utils;
 
 (function() {
     "use strict";
-
-    //console.log('Loading Kingdom Generator');
 
     GS.modules.kingdomGenerator = new GS.Module('Kingdom Generator');
     GS.modules.kingdomGenerator.dependencies =
