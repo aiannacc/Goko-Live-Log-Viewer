@@ -213,9 +213,8 @@
                     }
 
                 } else {
-                    // TODO: get Isotropish rating
                     GS.AM.player.rating.isotropish_rating
-                        = GS.isoLevelCache[GS.AM.player.pid];
+                        = GS.getIsoLevel(GS.AM.player.pid);
 
                     // Asynchronously get casual rating
                     GS.AM.gokoconn.getRating({

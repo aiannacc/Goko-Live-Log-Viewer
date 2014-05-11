@@ -58,7 +58,7 @@
             // and playerName.  This will also allow the server to record the
             // id-name connection.
             //
-            if (GS.isoLevelCache[playerId] !== undefined) {
+            if (GS.isoLevelCache.hasOwnProperty(playerId)) {
                 // Player in cache
                 updateIsoRating2(playerId, playerElement);
             } else {
@@ -86,7 +86,7 @@
         updateIsoRating2 = function (playerId, playerElement) {
             var rankDiv = playerElement.querySelector('.rank');
             $(rankDiv).append('  Level: ')
-                      .append($('<span>').text(GS.isoLevelCache[playerId])
+                      .append($('<span>').text(GS.getIsoLevel(playerId, '?'))
                                          .addClass('iso-level'));
 
             // Keep the list of players sorted
@@ -121,11 +121,7 @@
                 newCallback = function (resp) {
                     callback(resp);
 
-                    var isoLevel = '?';
-                    if (GS.isoLevelCache !== undefined
-                            && GS.isoLevelCache.hasOwnProperty(opts.playerId)) {
-                        isoLevel = GS.isoLevelCache[opts.playerId];
-                    }
+                    var isoLevel = GS.getIsoLevel(opts.playerId, '?');
 
                     // insert iso level right after Goko Pro rating
                     opts.$el.closest('div').find('.vp-rating-pro').closest('p')

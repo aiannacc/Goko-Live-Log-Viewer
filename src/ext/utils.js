@@ -154,4 +154,15 @@
       }
     };
 
+    GS.getIsoLevel = function (id, defaultValue) {
+        var cache = GS.isoLevelCache,
+            level = defaultValue;
+
+        if (cache !== undefined && cache.hasOwnProperty(id)) {
+            level = GS.isoLevelCache[id];
+        }
+
+        return level;
+    };
+
 }());

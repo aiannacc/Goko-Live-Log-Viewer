@@ -29,15 +29,8 @@
                 var proCache = mtgRoom.helpers.RatingHelper._rankingsCached;
                 var oppPro = proCache[oppId].ratingPro;
                 var myPro = proCache[myId].ratingPro;
-                var myIso = null, oppIso = null;
-                if (GS.isoLevelCache !== undefined) {
-                    if (GS.isoLevelCache.hasOwnProperty(myId)) {
-                        myIso = GS.isoLevelCache[myId];
-                    }
-                    if (GS.isoLevelCache.hasOwnProperty(oppId)) {
-                        oppIso = GS.isoLevelCache[oppId];
-                    }
-                }
+                var myIso = GS.getIsoLevel(myId, null),
+                    oppIso = GS.getIsoLevel(oppId, null);
                 console.info('Ratings', myPro, oppPro, myIso, oppIso);
 
                 // Isotropish kick criteria
