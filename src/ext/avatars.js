@@ -110,7 +110,7 @@
         // Note that the cache will still be populated later and used, but it
         // will be populated using our avatar loading code rather than Goko's.
         Goko.Player.preloader = function (ids, which) {
-          GS.debug('Goko.Player.preloader()');
+            GS.debug('Goko.Player.preloader()');
         };
 
         // Also clear anything that got into the cache befor this module loaded

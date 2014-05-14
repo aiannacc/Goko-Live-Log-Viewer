@@ -1,4 +1,4 @@
-(function() {
+(function () {
     "use strict";
 
     var mod = GS.modules.blacklist = new GS.Module('Blacklist');

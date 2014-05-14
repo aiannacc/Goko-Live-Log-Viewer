@@ -5,14 +5,25 @@
     mod.dependencies = ['FS.EventDispatcher'];
     mod.load = function () {
         var loadAutomatchModule = function () {
-            var initAutomatch,
-                fetchOwnRatings, updateAMButton, createTable,
-                fetchOwnSets, handleDisconnect,
-                connectToAutomatchServer, confirmReceipt, confirmSeek, offerMatch,
-                rescindOffer, announceGame, unannounceGame,
-                createAutomatchGame, showChat,
-                enableAutoAccept, disableAutoAccept,
-                gameReady, sendAutoAutomatchSeekRequest;
+            var announceGame,
+                confirmReceipt,
+                confirmSeek,
+                connectToAutomatchServer,
+                createAutomatchGame,
+                createTable,
+                disableAutoAccept,
+                enableAutoAccept,
+                fetchOwnRatings,
+                fetchOwnSets,
+                gameReady,
+                handleDisconnect,
+                initAutomatch,
+                offerMatch,
+                rescindOffer,
+                sendAutoAutomatchSeekRequest,
+                showChat,
+                unannounceGame,
+                updateAMButton;
 
             // Configuration
             GS.AM = GS.AM || {};

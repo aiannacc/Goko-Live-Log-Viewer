@@ -157,7 +157,8 @@
                 elements = list.children,
                 b = elements.length,
                 a = 0,
-                c, compare;
+                c,
+                compare;
 
             while (a !== b) {
                 c = Math.floor((a + b) / 2);
@@ -175,14 +176,13 @@
 
         getSortablePlayerObjectFromElement = function (element) {
             var rankSpan, isoSpan;
-            switch (GS.get_option('sortkey'))
-            {
-            case('pname'):
+            switch (GS.get_option('sortkey')) {
+            case ('pname'):
                 return element.querySelector('.fs-mtrm-player-name>strong').innerHTML;
-            case('rating'):
+            case ('rating'):
                 rankSpan = element.querySelector('.player-rank>span');
                 return rankSpan ? parseInt(-rankSpan.innerHTML, 10) : 1;
-            case('iso'):
+            case ('iso'):
                 // Sort by pro rating if Iso level cache is unavailable
                 if (GS.isoLevelCache === undefined) {
                     rankSpan = element.querySelector('.player-rank>span');
