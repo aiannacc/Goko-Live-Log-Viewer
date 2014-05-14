@@ -8,16 +8,7 @@
     mod.load = function () {
         var alwaysStack;
 
-        // first bind to gameServerHello so an instance of DominionClient is
-        // available
-        mtgRoom.conn.bind('gameServerHello', function (msg) {
-            var gameClient;
-
-            gameClient = _.find(mtgRoom.games, function (game) {
-                return game.gameAddress === msg.data.gameServerAddress;
-            }, this);
-
-            // bind to the native Goko event
+        GS.whenGameClientReady(function (gameClient) {
             if (GS.get_option('always_stack')) {
                 gameClient.clientConnection.bind('moveCards', alwaysStack);
             }
