@@ -165,4 +165,20 @@
         return level;
     };
 
+    // first bind to gameServerHello so an instance of DominionClient is
+    // available, make sure it's bound to the client associated with the current
+    // game
+    //
+    // TODO: test this with multiple tabs starting different games in the same
+    // browser
+    GS.whenGameClientReady = function (callback) {
+        mtgRoom.conn.bind('gameServerHello', function (msg) {
+            var gameClient = _.find(mtgRoom.games, function (game) {
+                return game.gameAddress === msg.data.gameServerAddress;
+            }, this);
+            callback(gameClient);
+        });
+    };
+
+
 }());
