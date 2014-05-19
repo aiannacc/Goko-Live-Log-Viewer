@@ -36,9 +36,9 @@
 
             $('#chatdiv').css('visibility', GS.get_option('sidebar_chat') ? 'visible' : 'hidden');
             $('#chatdiv').css('height', 200);
-            $('#chatarea').width($('#chatdiv').width()-2)
+            $('#chatarea').width($('#chatdiv').width() - 2)
                           .height(166);
-            $('#chatline').width($('#chatdiv').width()-2)
+            $('#chatline').width($('#chatdiv').width() - 2)
                           .height(20);
 
             var logheight = $('#sidebar').height() - 20

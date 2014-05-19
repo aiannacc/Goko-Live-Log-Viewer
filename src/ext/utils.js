@@ -146,12 +146,12 @@
 
     // load templates from the generated templates.js
     GS.template = function (templateName, options) {
-      try {
-          return window.JST[templateName](options);
-      } catch (e) {
-          GS.debug('Template not found: ' + templateName);
-          return '';
-      }
+        try {
+            return window.JST[templateName](options);
+        } catch (e) {
+            GS.debug('Template not found: ' + templateName);
+            return '';
+        }
     };
 
     GS.getIsoLevel = function (id, defaultValue) {

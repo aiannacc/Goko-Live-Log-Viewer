@@ -1,7 +1,7 @@
 (function () {
     "use strict";
 
-    var mod = GS.modules.automatchSeekPop=  new GS.Module('Automatch Seek Popup');
+    var mod = GS.modules.automatchSeekPop = new GS.Module('Automatch Seek Popup');
     mod.dependencies = ['$'];
     mod.load = function () {
         GS.AM = GS.AM || {};

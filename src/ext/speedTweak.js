@@ -37,9 +37,9 @@
             // Apply speed factor uniformly to all animation speeds
             if (GS.get_option('speed_tweak_uniform')) {
                 _.each(factors, function (fac, mode) {
-                    Dom.GlobalLayout.animationTimings[mode]= {
+                    Dom.GlobalLayout.animationTimings[mode] = {
                         name: mode,
-                        factor : 1/fac,
+                        factor : 1 / fac,
                         boltSpeed : 1000 * fac,
                         trailDuration : 500 / fac,
                         finalDuration : 500 / fac,

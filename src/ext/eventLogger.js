@@ -17,13 +17,13 @@
 
         GS.alsoDo(FS.MeetingRoom, 'trigger', function (msg) {
             console.log('MeetingRoom: ' + msg);
-            console.log(Array.prototype.slice.call(arguments,1));
+            console.log(Array.prototype.slice.call(arguments, 1));
         });
 
         GS.alsoDo(FS.Connection, 'trigger', function (msg) {
             if (msg === 'gameMessage') { return; }
             console.log('Connection: ' + msg);
-            console.log(Array.prototype.slice.call(arguments,1));
+            console.log(Array.prototype.slice.call(arguments, 1));
         });
 
         GS.alsoDo(DominionClient, 'trigger', function (msg) {
@@ -33,11 +33,11 @@
                 break;
             case 'incomingMessage':
             case 'default':
-                var args = Array.prototype.slice.call(arguments,1);
+                var args = Array.prototype.slice.call(arguments, 1);
                 if (args[0] !== 'gamePingMessage' &&
                         args[0] !== 'messageGroup') {
                     console.log('DominionClient: ' + msg);
-                    console.log(Array.prototype.slice.call(arguments,1));
+                    console.log(Array.prototype.slice.call(arguments, 1));
                 }
                 break;
             }

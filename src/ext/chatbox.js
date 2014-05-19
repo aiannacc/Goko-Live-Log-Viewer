@@ -54,19 +54,19 @@
         // Fake version has methods for game window destructor to call.
         var createRealGokoChatManager = Dom.DominionWindow.prototype._createChatManager;
         var createFakeGokoChatManager = function () {
-		    var chatManager = {
+            var chatManager = {
                 destroy: function () {
-                  GS.debug('chatManager.destroy()');
+                    GS.debug('chatManager.destroy()');
                 },
                 addChat: function () {
-                  GS.debug('chatManager.addChat()');
+                    GS.debug('chatManager.addChat()');
                 },
                 setVisible: function () {
-                  GS.debug('chatManager.setVisible()');
+                    GS.debug('chatManager.setVisible()');
                 }
             };
-		    this.chatManager = chatManager;
-	    };
+            this.chatManager = chatManager;
+        };
 
         onGameSetup = function (gameData, domClient) {
             pname2pclass = {};
