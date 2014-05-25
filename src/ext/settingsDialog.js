@@ -1,6 +1,3 @@
-/*jslint browser:true, devel:true, es5:true, nomen:true, forin:true, vars:true */
-/*globals $, _, angular, GS, FS, mtgRoom */
-
 (function () {
     "use strict";
     console.log('Loading Settings Dialog');
@@ -15,7 +12,7 @@
         'FS.LaunchScreen.View.Container',
         'mtgRoom.conn.connInfo',
         'GS.submitBlacklist',
-        'GS.reconcileBlacklist',
+        'GS.reconcileBlacklist'
     ];
     GS.modules.settingsDialog.load = function () {
 
@@ -315,7 +312,7 @@
             $scope.quick_game_types = [
                 {name: 'pro'},
                 {name: 'casual'},
-                {name: 'unrated'},
+                {name: 'unrated'}
             ];
             $scope.blnewpname = '';
             $scope.blnew = {
@@ -355,7 +352,9 @@
                 $scope.blnewpname = '';
             };
             $scope.cacheCommonBlacklist = function () {
-                GS.cacheCommonBlacklist($scope.so.blacklist_common, function () {});
+                GS.cacheCommonBlacklist($scope.so.blacklist_common, function () {
+                    GS.Debug('GS.cacheCommonBlacklist()');
+                });
             };
 
             $scope.$watch('so.sortkey', function () {

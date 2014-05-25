@@ -1,6 +1,3 @@
-/*jslint browser: true, devel: true, indent: 4, maxlen: 90, es5: true, vars:true */
-/*global $, GS */
-
 (function () {
     "use strict";
 
@@ -82,7 +79,7 @@
 
         // Update and show/hide the dialog
         GS.AM.showOfferPop = function (visible) {
-            if (typeof visible === "undefined") {
+            if (visible === undefined) {
                 visible = true;
             }
 

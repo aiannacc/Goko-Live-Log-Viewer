@@ -1,6 +1,3 @@
-/*jslint browser:true, devel:true, es5:true, nomen:true, forin:true, vars:true */
-/*globals $, _, angular, GS, */
-
 (function () {
     "use strict";
     console.log('Loading Settings Dialog');
@@ -8,7 +5,7 @@
     GS.modules.blacklistSync.dependencies = [
         '$',
         'angular',
-        'GS.WS',
+        'GS.WS'
     ];
     GS.modules.blacklistSync.load = function () {
 
@@ -94,7 +91,7 @@
                 }
             });
         };
-    
+
         GS.submitBlacklist = function () {
             var blist = GS.get_option('blacklist2');
 
@@ -114,7 +111,7 @@
                           + 'Cannot submit blacklist.');
             }
         };
-    
+
         // angularJS Controller for blacklist reconciliation UI
         window.blReconcileController = function ($scope) {
             $scope.local = null;

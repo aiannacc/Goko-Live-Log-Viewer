@@ -1,8 +1,5 @@
-/*jslint browser: true, devel: true, indent: 4, es5: true, vars: true, nomen: true, regexp: true, forin: true, white:true */
-/*global _, $, Audio, GS, FS, Dom, DominionClient */
-
 (function () {
-    "use strict";   // JSLint setting
+    "use strict";
 
     var mod = GS.modules.logviewer = new GS.Module('Prettified Log Viewer');
     mod.dependencies = [
@@ -18,7 +15,7 @@
         var pname2pclass;
 
         // Current player/phase
-        var gamePhase, logPhase, possessed, gameStarted, gameOver;
+        var gamePhase, logPhase, gameStarted, gameOver;
 
         // "Listen" to game phase changes. These always precede the log messages
         // of the new phase.
@@ -40,7 +37,8 @@
             if (opt.logUrl) {
                 // Link to gokosalvager.com prettified log instead of Goko
                 // Credit to nutki for prettifier code
-                opt.logUrl = 'http://www.gokosalvager.com/static/logprettifier.html?' + opt.logUrl.substr(40);
+                opt.logUrl = 'http://www.gokosalvager.com/static/logprettifier.html?' +
+                    opt.logUrl.substr(40);
             }
             if (opt.text) {
                 parseLogLine(opt.text);
@@ -62,7 +60,7 @@
         }).join('|'), 'g');
 
         // Append a list of formatted cards to the log
-        // Ex: ['Copper', 'Estate'] appends 
+        // Ex: ['Copper', 'Estate'] appends
         // <span class="treasure">Copper</span>, <span class="victory">Estate</span>
         logAppendCards = function (cardList) {
             var i, card, cardTitle;
@@ -100,7 +98,7 @@
         var gameOverPatt = new RegExp(/^-+ Game Over -+$/);
 
         parseLogLine = function (line) {
-            var m, pname, pclass;
+            var m, pname, pclass;//, startingCards;
 
             if (line.match(setupPatt)) {
                 $('#prettylog').empty();
@@ -121,8 +119,11 @@
                 gameStarted = true;
 
             } else if ((m = line.match(startingCardsPatt)) !== null) {
+                var startingCards;
+                GS.debug(startingCards);
+
                 pname = m[1];
-                var startingCards = m[2];
+                startingCards = m[2];
                 logAppendPlayer(pname);
                 logAppend(' starting cards: ');
                 logAppendCards(m[2].split(', '));
@@ -155,7 +156,7 @@
                     cards.push(match);
                     return '--XXX--';
                 }).split('--XXX--');
-                var i, nctext;
+                var i;
                 for (i = 0; i < nonCardText.length; i += 1) {
                     logAppend(' ' + nonCardText[i] + ' ');
                     if (i < cards.length) {

@@ -1,6 +1,3 @@
-/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true */
-/*global $, _, GS, Goko, FS, mtgRoom */
-
 (function () {
     "use strict";
 
@@ -33,7 +30,7 @@
             //       here.  The Goko framework will resize as necessary.
             var img = new Image();
             img.onerror = function () {
-                // Defer to goko if GokoSalvager has gone offline or does not 
+                // Defer to goko if GokoSalvager has gone offline or does not
                 // have a custom avatar.
                 gokoAvatarLoader(userdata, callback);
             };
@@ -41,8 +38,7 @@
                 callback(img);
             };
             img.crossOrigin = "Anonymous";
-            // TODO: Switch from port 8889 back to 443 after server transition
-            img.src = "https://gokosalvager.com:8889/"
+            img.src = "https://gokosalvager.com:443/"
                     + "gs/avatars/" + userdata.player.id + ".jpg";
         };
 
@@ -65,11 +61,12 @@
         // 1. Use the GS websocket to ask whether a custom avatar exists.
         // 2a. Look up a custom avatar from GS via https
         // 2b. Look up a vanilla avatar using the regular goko method
-        // 
+        //
         // Goko should also provide any large (size >= 3) versions of the
         // avatars, even if a custom one is available.
         //
-        var SMALL = 1, MEDIUM = 2;
+        // var SMALL = 1
+        var MEDIUM = 2;
 
         Goko.Player.AvatarLoader = function (userdata, callback) {
             // If displaying the launch (title) screen before the hasAvatar[]
@@ -82,7 +79,7 @@
             //
             if (userdata.which > MEDIUM) {
                 gokoAvatarLoader(userdata, callback);
-            } else if (typeof GS.hasAvatar === 'undefined') {
+            } else if (GS.hasAvatar === undefined) {
                 if (mtgRoom.currentRoomId === null && userdata.which <= MEDIUM) {
                     gsAvatarLoader(userdata, callback);
                 } else {
@@ -93,7 +90,7 @@
                     }
                     retroboxAvatarLoader(userdata, callback);
                 }
-            } else if (typeof GS.hasAvatar[userdata.player.id] !== 'undefined') {
+            } else if (GS.hasAvatar[userdata.player.id] !== undefined) {
                 if (GS.hasAvatar[userdata.player.id]) {
                     gsAvatarLoader(userdata, callback);
                 } else {
@@ -111,12 +108,14 @@
         // Prevent Goko's preloader from building a cache of vanilla avatars.
         // Note that the cache will still be populated later and used, but it
         // will be populated using our avatar loading code rather than Goko's.
-        Goko.Player.preloader = function (ids, which) {};
+        Goko.Player.preloader = function (ids, which) {
+            GS.debug('Goko.Player.preloader()');
+        };
 
         // Also clear anything that got into the cache befor this module loaded
         try {
             Goko.ObjectCache.getInstance().player = {};
-        } catch (e) {
+        } catch (ignore) {
             // Player cache does not yet exist --> no need to clear it
         }
     };

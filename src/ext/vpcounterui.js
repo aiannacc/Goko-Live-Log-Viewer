@@ -1,6 +1,3 @@
-/*jslint vars:true, nomen:true, forin:true, regexp:true, browser:true */
-/*globals $, _, angular, GS, FS */
-
 (function () {
     "use strict";
 

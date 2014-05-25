@@ -1,6 +1,3 @@
-/*jslint vars:true, nomen:true, forin:true, regexp:true, browser:true, devel:true */
-/*globals _, $, GS, FS, mtgRoom */
-
 // TODO: Immediately send Turn 2 messages when opponents have all joined the game.
 
 (function () {
@@ -25,7 +22,7 @@
            + 'says #vpoff, or if all players have said #vpon, or if the host '
            + 'has announced it in advance by putting #vpon or #vpoff in the '
            + 'game title.');
-    
+
     GS.VPToggle = function (always_request, always_refuse, gameTitle, myName, pnames, isBots) {
         this.always_request = always_request;
         this.always_refuse = always_refuse;
@@ -82,7 +79,7 @@
             this.amLocked = false;  // If locked becasue of automatch settings,
                                     // we'll need to account for cross-version
                                     // incompatibilities
-            
+
             if (this.isMultiplayer()) {
                 if (GS.get_option('greeting').length > 0) {
                     GS.sendRoomChat(GS.get_option('greeting'));
@@ -98,8 +95,8 @@
                 GS.showRoomChat('The VP Counter is ON because all the other '
                               + 'players are bots.');
                 GS.showRoomChat('Say "#vphelp" for more info.');
-            } else if (typeof GS.AM !== 'undefined'
-                    && typeof GS.AM.vpcounter !== 'undefined'
+            } else if (GS.AM !== undefined
+                    && GS.AM.vpcounter !== undefined
                     && GS.AM.vpcounter !== null) {   // Needless caution
                 this.vpon = GS.AM.vpcounter;
                 this.locked = true;
@@ -440,7 +437,7 @@
                 onFirstAddLog();
                 firstLogReceived = true;
             }
-            if (typeof data.text === 'undefined') { return; }
+            if (data.text === undefined) { return; }
 
             var m = data.text.match(/^-+ (.*): turn ([0-9]*)/);
             if (m !== null) {

@@ -1,6 +1,3 @@
-/*jslint browser: true, devel: true, indent: 4, maxlen: 90, es5: true */
-/*global $, angular, GS */
-
 (function () {
     "use strict";
 
@@ -278,7 +275,7 @@
             $('#seekhide').prop('disabled', false);
             $('#seekstatus').html(seeking ? 'Looking for a match...' : '');
 
-            if (typeof visible === "undefined") {
+            if (visible === undefined) {
                 visible = true;
             }
 

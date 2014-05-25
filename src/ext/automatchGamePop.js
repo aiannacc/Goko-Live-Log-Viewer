@@ -1,6 +1,3 @@
-/*jslint browser: true, devel: true, indent: 4, maxlen: 90, es5: true */
-/*global $, GS */
-
 (function () {
     "use strict";
 
@@ -42,7 +39,7 @@
 
         // Update and show/hide the dialog
         GS.AM.showGamePop = function (visible) {
-            if (typeof visible === "undefined") {
+            if (visible === undefined) {
                 visible = true;
             }
 

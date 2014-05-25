@@ -1,6 +1,3 @@
-/*jslint browser:true, devel:true, vars:true, forin:true, nomen:true */
-/*globals $, _ */
-
 (function () {
     "use strict";
 
@@ -141,7 +138,7 @@
                         return true;
                     }
                 }
-                return typeof dep === 'undefined' || dep === null;
+                return dep === undefined || dep === null;
             });
         };
 

@@ -1,6 +1,3 @@
-/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true, white:true */
-/*global $, _, GS, Dom */
-
 (function () {
     "use strict";
 
@@ -39,11 +36,10 @@
 
             // Apply speed factor uniformly to all animation speeds
             if (GS.get_option('speed_tweak_uniform')) {
-                var mode, prop;
                 _.each(factors, function (fac, mode) {
-                    Dom.GlobalLayout.animationTimings[mode]= {
+                    Dom.GlobalLayout.animationTimings[mode] = {
                         name: mode,
-                        factor : 1/fac,
+                        factor : 1 / fac,
                         boltSpeed : 1000 * fac,
                         trailDuration : 500 / fac,
                         finalDuration : 500 / fac,

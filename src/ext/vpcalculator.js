@@ -1,6 +1,3 @@
-/*jslint vars:true, nomen:true, forin:true, regexp:true */
-/*globals _, GS, FS */
-
 (function () {
     "use strict";
 
@@ -62,7 +59,7 @@
         // Sum of card VP values and vp tokens
         GS.vp.getVPTotal = function (pname) {
             var deck = GS.cardCounts[pname];
-            if (typeof deck === 'undefined') { return 0; }
+            if (deck === undefined) { return 0; }
             if (Object.keys(deck).length === 0) { return 0; }
             return _.keys(deck).map(function (card) {
                 return cardVPValue(card, deck) * deck[card];

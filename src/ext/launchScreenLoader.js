@@ -1,6 +1,3 @@
-/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true */
-/*global $, _, GS, FS, mtgRoom */
-
 (function () {
     "use strict";
     console.log('Loading LaunchScreenLoader');
@@ -57,13 +54,13 @@
         };
 
         // Loop until Goko finishes preparing the launch screen, then make
-        // our modifications. 
+        // our modifications.
         var intv, delay = 250, count = 0;
         var checkReadyAndModify = function () {
             var ls = FS.LaunchScreen.getInstance();
-            if (typeof ls !== 'undefined'
-                    && typeof ls.container !== 'undefined'
-                    && typeof ls.container.isReady !== 'undefined'
+            if (ls !== undefined
+                    && ls.container !== undefined
+                    && ls.container.isReady !== undefined
                     && ls.container.isReady === true) {
 
                 console.log('Launch Screen ready.');

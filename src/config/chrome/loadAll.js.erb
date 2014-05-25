@@ -1,16 +1,17 @@
-/*jslint browser:true, devel:true */
 /*globals chrome */
 var i, j, JS, cssNode;
 
 var scripts =  [
-    "<%= config[:jslib].join("\",\n    \"") %>",
-    "<%= config[:js].join("\",\n    \"") %>"
+    '<%= config[:jslib].join("\',\n    \'") %>',
+    '<%= config[:js].join("\',\n    \'") %>'
 ];
 
 // Wait until each script is actually loaded in the target page before adding
 // the next one. When they're all added at once, Chrome can sometimes load them
 // out of order. I don't know why that happens.
 var loadNextScript = function (j) {
+    'use strict';
+
     JS = document.createElement('script');
     JS.src = chrome.extension.getURL(scripts[j]);
     JS.onload = function () {
@@ -20,21 +21,19 @@ var loadNextScript = function (j) {
             loadNextScript(j);
         }
     };
-    //console.log('Appending ' + scripts[j])
     document.head.appendChild(JS);
-}
+};
+
 loadNextScript(0);
 
 var styles =  [
-    "<%= config[:css].join("\",\n    \"") %>"
+    '<%= config[:css].join("\',\n    \'") %>'
 ];
-var headID = document.getElementsByTagName("head")[0];         
+var headID = document.getElementsByTagName("head")[0];
 for (i = 0; i < styles.length; i += 1) {
     cssNode = document.createElement('link');
     cssNode.type = 'text/css';
     cssNode.rel = 'stylesheet';
     cssNode.href = chrome.extension.getURL(styles[i]);
-    //cssNode.media = 'screen';
     headID.appendChild(cssNode);
 }
-

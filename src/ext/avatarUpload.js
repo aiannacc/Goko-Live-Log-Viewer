@@ -1,6 +1,3 @@
-/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true */
-/*global $, _, GS, FS, mtgRoom, FormData */
-
 (function () {
     "use strict";
 
@@ -40,7 +37,7 @@
         $('#auInput').change(function () {
             var file = this.files[0];
             var type = file.type;
-        
+
             if (type === 'image/jpeg' || type === 'image/png' || type === 'image/gif') {
                 $('#auButton').prop('disabled', false);
                 $('#auInfo').html('Ready to submit.');
@@ -48,7 +45,7 @@
                 $('#auButton').prop('disabled', true);
                 $('#auInfo').html('Invalid file type.  Please select an image file.');
             }
-        
+
             if (file.size / 1000 > 1000) {
                 $('#auInfo').html('File is too large: 1 MB max');
                 $('#auButton').prop('disabled', true);
@@ -64,7 +61,7 @@
         $('#auButton').on("click", function () {
             $('#auPID').val(mtgRoom.conn.connInfo.playerId);
             $.ajax({
-                url: 'https://www.gokosalvager.com:8889/gs/submit_avatar',
+                url: 'https://www.gokosalvager.com:443/gs/submit_avatar',
                 type: 'POST',
                 xhr: function () { return $.ajaxSettings.xhr(); },
                 beforeSend: null,

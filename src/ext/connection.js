@@ -1,6 +1,3 @@
-/*jslint browser: true, devel: true, indent: 4, maxlen: 90, es5: true, vars:true, white:true, nomen:true */
-/*global $, _, WebSocket, GS, mtgRoom */
-
 // Create a single WebSocket connection to gokosalvager.com
 //
 // I plan to use this connection for all client-server communication, including:
@@ -23,15 +20,14 @@
     ];
     mod.load = function () {
 
-        var startPingLoop, handleDisconnect, updateWSIcon, confirmReceipt;
+        var startPingLoop, handleDisconnect, updateWSIcon;
 
         console.log('Loading WS Connection module');
 
         // Connection variables
         GS.WS = {};
         GS.WS.domain = 'gokosalvager.com';
-        GS.WS.port = 8889;  // TODO: Switch from port 8889 back to 443 after 
-                            //       server transition
+        GS.WS.port = 443;
         GS.WS.url = "wss://" + GS.WS.domain + ":" + GS.WS.port + "/gs/websocket";
         GS.WS.noreconnect = false;
         GS.WS.maxFails = 36;
@@ -61,7 +57,7 @@
             GS.WS.conn.onmessage = function (evt) {
                 var d = JSON.parse(evt.data);
                 var m = d.message;
-                
+
                 GS.WS.lastpingTime = new Date();
 
                 switch (d.msgtype) {
@@ -80,7 +76,7 @@
                     // Evaluate the callback the client registered, with the
                     // server's response as its argument.
                     var callback = GS.WS.callbacks[m.queryid];
-                    if (typeof callback !== 'undefined') {
+                    if (callback !== undefined) {
                         if (callback !== null) {
                             callback(m);
                         }
@@ -104,7 +100,7 @@
         };
 
         GS.WS.isConnReady = function () {
-            return typeof GS.WS.conn !== 'undefined'
+            return GS.WS.conn !== undefined
                 && GS.WS.conn.readyState === 1
                 && GS.WS.clientInfoReceived;
         };
@@ -122,7 +118,7 @@
         // Convenience wrapper for websocket send() method.  Globally accessible.
         var msgcount = 0;
         GS.WS.sendMessage = function (msgtype, msg, smCallback) {
-            
+
             var msgid, msgJSON;
 
             msgcount += 1;
@@ -133,7 +129,7 @@
                 msgid: msgid
             });
 
-            if (typeof smCallback !== 'undefined' && smCallback !== null) {
+            if (smCallback !== undefined && smCallback !== null) {
                 GS.WS.callbacks[msgid] = smCallback;
             }
 
@@ -180,7 +176,7 @@
             updateWSIcon();
 
             // Stop the ping cycle
-            if (typeof GS.WS.pingLoop !== 'undefined') {
+            if (GS.WS.pingLoop !== undefined) {
                 clearInterval(GS.WS.pingLoop);
             }
 

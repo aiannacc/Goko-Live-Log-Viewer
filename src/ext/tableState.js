@@ -1,9 +1,6 @@
-/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true, white:true */
-/*global $, _, GS, FS */
-
 (function () {
     "use strict";
-    
+
     var mod = GS.modules.tableState = new GS.Module('Table State');
     mod.dependencies = ['FS.EditTableView', 'FS.DominionEditTableView'];
     mod.load = function () {
@@ -15,7 +12,7 @@
         }, function () {
             this.$tableName.val(GS.get_option('lasttablename'));
         });
-    
+
         // Cache table settings whenever a table is created manually.
         // Note that this does not trigger when automatch creates a table.
         GS.alsoDo(FS.DominionEditTableView, 'onClickCreateTable', function () {

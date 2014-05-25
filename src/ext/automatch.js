@@ -1,6 +1,3 @@
-/*jslint browser: true, devel: true, indent: 4, maxlen: 90, es5: true, vars:true, nomen:true */
-/*global $, _, WebSocket, Audio, FS, GS, mtgRoom */
-
 (function () {
     "use strict";
 
@@ -8,14 +5,25 @@
     mod.dependencies = ['FS.EventDispatcher'];
     mod.load = function () {
         var loadAutomatchModule = function () {
-            var initAutomatch, automatchInitStarted, addAutomatchButton,
-                fetchOwnRatings, updateAMButton, createTable,
-                fetchOwnSets, handleDisconnect,
-                connectToAutomatchServer, confirmReceipt, confirmSeek, offerMatch,
-                rescindOffer, announceGame, unannounceGame, joinAutomatchGame,
-                createAutomatchGame, enableButtonWhenAutomatchReady, showChat,
-                handleLostAutomatchConnection, enableAutoAccept, disableAutoAccept,
-                gameReady, attemptAutomatchInit, testPop, sendAutoAutomatchSeekRequest;
+            var announceGame,
+                confirmReceipt,
+                confirmSeek,
+                connectToAutomatchServer,
+                createAutomatchGame,
+                createTable,
+                disableAutoAccept,
+                enableAutoAccept,
+                fetchOwnRatings,
+                fetchOwnSets,
+                gameReady,
+                handleDisconnect,
+                initAutomatch,
+                offerMatch,
+                rescindOffer,
+                sendAutoAutomatchSeekRequest,
+                showChat,
+                unannounceGame,
+                updateAMButton;
 
             // Configuration
             GS.AM = GS.AM || {};
@@ -23,15 +31,14 @@
             GS.AM.wsMaxFails = 100;
 
             // Use secure websockets
-            // TODO: switch from 8889 back to 443 port after transition
             if (GS.get_option('testmode')) {
-                GS.AM.server_url = 'wss://gokosalvager.com:7889/automatch';
+                GS.AM.server_url = 'wss://gokosalvager.com:7443/automatch';
             } else {
-                GS.AM.server_url = 'wss://gokosalvager.com:8889/automatch';
+                GS.AM.server_url = 'wss://gokosalvager.com:443/automatch';
             }
 
             // Initial state
-            automatchInitStarted = false;
+            // automatchInitStarted = false;
             GS.AM.tableSettings = null;
             GS.AM.wsFailCount = 0;
             GS.AM.noreconnect = false;
@@ -156,7 +163,7 @@
 
                     // Disable auto-reconnect and disconnect from automatch server
                     GS.AM.noreconnect = true;
-                    if (typeof GS.AM.ws !== 'undefined'
+                    if (GS.AM.ws !== undefined
                             && GS.AM.ws !== null
                             && GS.AM.ws.readyState === 1) {
                         GS.AM.ws.close();
@@ -174,7 +181,7 @@
 
                         // Enable auto-reconnect and connect to automatch server
                         GS.AM.noreconnect = false;
-                        if (typeof GS.AM.ws === 'undefined'
+                        if (GS.AM.ws === undefined
                                 || GS.AM.ws === null
                                 || GS.AM.ws.readyState !== 1) {
                             connectToAutomatchServer();
@@ -194,7 +201,7 @@
 
                         // Disable auto-reconnect and disconnect from automatch server
                         GS.AM.noreconnect = true;
-                        if (typeof GS.AM.ws !== 'undefined'
+                        if (GS.AM.ws !== undefined
                                 && GS.AM.ws !== null
                                 && GS.AM.ws.readyState === 1) {
                             GS.AM.ws.close();
@@ -211,14 +218,13 @@
                     // TODO: look up guest ratings correctly
                     GS.AM.player.rating.goko_casual_rating = 1000;
                     GS.AM.player.rating.goko_pro_rating = 1000;
-                    if (typeof frCallback !== undefined) {
+                    if (frCallback !== undefined) {
                         frCallback();
                     }
 
                 } else {
-                    // TODO: get Isotropish rating
                     GS.AM.player.rating.isotropish_rating
-                        = GS.isoLevelCache[GS.AM.player.pid];
+                        = GS.getIsoLevel(GS.AM.player.pid);
 
                     // Asynchronously get casual rating
                     GS.AM.gokoconn.getRating({
@@ -226,10 +232,10 @@
                         ratingSystemId: GS.AM.CASUAL_SYS_ID
                     }, function (resp) {
                         GS.AM.player.rating.goko_casual_rating = resp.data.rating;
-                        if (typeof resp.data.rating === 'undefined') {
+                        if (resp.data.rating === undefined) {
                             GS.AM.player.rating.goko_casual_rating = 1000;
                         }
-                        if (typeof frCallback !== undefined) {
+                        if (frCallback !== undefined) {
                             frCallback();
                         }
                     });
@@ -240,11 +246,11 @@
                         ratingSystemId: GS.AM.PRO_SYS_ID
                     }, function (resp) {
                         GS.AM.player.rating.goko_pro_rating = resp.data.rating;
-                        if (typeof resp.data.rating === 'undefined') {
+                        if (resp.data.rating === undefined) {
                             GS.AM.player.rating.goko_pro_rating = 1000;
                         }
                         GS.AM.player.ratingsDirty = false;
-                        if (typeof frCallback !== undefined) {
+                        if (frCallback !== undefined) {
                             frCallback();
                         }
                     });
@@ -256,7 +262,7 @@
                 if (GS.AM.player.kind === "guest") {
                     // Guests only have Base. No need to check.
                     GS.AM.player.sets_owned = ['Base'];
-                    if (typeof fsCallback !== undefined) {
+                    if (fsCallback !== undefined) {
                         fsCallback();
                     }
                 } else {
@@ -299,7 +305,7 @@
                                     }
                                 });
                                 GS.AM.player.sets_owned = setsOwned;
-                                if (typeof fsCallback !== undefined) {
+                                if (fsCallback !== undefined) {
                                     fsCallback();
                                 }
                             });
@@ -327,7 +333,7 @@
 
                     // Ping AM server every 25 sec. Timeout if no messages (including
                     // pingbacks) received for 180 sec.
-                    if (typeof GS.AM.pingLoop !== 'undefined') {
+                    if (GS.AM.pingLoop !== undefined) {
                         clearInterval(GS.AM.pingLoop);
                     }
                     GS.AM.pingLoop = setInterval(function () {
@@ -337,7 +343,7 @@
                             clearInterval(GS.AM.pingLoop);
                             try {
                                 GS.AM.ws.close();
-                            } catch (e) {}
+                            } catch (ignore) {}
                         } else {
                             GS.debug('Sending ping');
                             GS.AM.ping();
@@ -410,7 +416,8 @@
             };
 
             updateAMButton = function () {
-                var connected, gotPlayerInfo, ready, buttonText, buttonColor;
+                var ready, buttonText, buttonColor;
+                // var connected, gotPlayerInfo;
 
                 if (!GS.AM.player.hasOwnProperty('sets_owned')
                         || !GS.AM.player.rating.hasOwnProperty('goko_casual_rating')
@@ -418,7 +425,7 @@
                     ready = false;
                     buttonText = 'Automatch: Initializing';
                     buttonColor = 'LightGray';
-                } else if (typeof GS.AM.ws === 'undefined') {
+                } else if (GS.AM.ws === undefined) {
                     ready = false;
                     buttonText = 'Automatch: Connecting';
                     buttonColor = 'LightGray';
@@ -461,7 +468,7 @@
                 updateAMButton();
 
                 // Stop trying to ping
-                if (typeof GS.AM.pingLoop !== 'undefined') {
+                if (GS.AM.pingLoop !== undefined) {
                     clearInterval(GS.AM.pingLoop);
                 }
 
@@ -484,8 +491,7 @@
             confirmReceipt = function (msg) {
                 GS.debug('Receipt of message confirmed: ' + msg.msgid);
                 var crCallback = GS.AM.ws.callbacks[msg.msgid];
-                if (typeof crCallback !== 'undefined' && crCallback !== null) {
-                    //GS.debug(crCallback);
+                if (crCallback !== undefined && crCallback !== null) {
                     crCallback();
                 }
                 updateAMButton();
@@ -511,7 +517,7 @@
                 GS.AM.tableSettings = null;
                 // TODO: handle this in a more UI-consistent way
                 GS.AM.showOfferPop(false);
-    
+
                 var chatText = $('#amChatArea').val();
                 GS.notifyUser('Automatch offer was rescinded:\n' + msg.reason
                         + (chatText ? '  ' + chatText : ''));
@@ -557,11 +563,7 @@
                 if (GS.AM.state.game.hostname !== GS.AM.player.pname) {
                     var joinGame = function () {
                         GS.AM.gokoconn.unbind(GS.AM.ENTER_LOBBY, joinGame);
-                        var table, seatindex, joinOpts;
-                        table = GS.AM.mtgRoom.roomList
-                            .where({roomId: GS.AM.mtgRoom.currentRoomId})[0]
-                            .get('tableList')
-                            .where({number: GS.AM.state.game.tableindex})[0];
+                        var seatindex, joinOpts;
                         seatindex = GS.AM.state.game.seeks.map(function (seek) {
                             return seek.player.pname;
                         }).filter(function (pname) {
@@ -708,15 +710,15 @@
 
             var rangeToRequirement = function (range, rSystem) {
                 var out;
-                if (typeof range.difference !== 'undefined') {
+                if (range.difference !== undefined) {
                     out = {rclass: 'RelativeRating', props: {}};
                     out.propsjpts_lower = range.difference;
                     out.props.pts_higher = range.difference;
                 } else {
                     out = {rclass: 'AbsoluteRating', props: {}};
-                    out.props.min_pts = typeof range.min !== 'undefined'
+                    out.props.min_pts = range.min !== undefined
                                              ? range.min : null;
-                    out.props.max_pts = typeof range.max !== 'undefined'
+                    out.props.max_pts = range.max !== undefined
                                              ? range.max : null;
                 }
                 out.props.rating_system = rSystem;
@@ -743,8 +745,8 @@
                 }
 
                 // Do not automatch if looking for a particular opponent
-                var m;
-                if ((m = tName.toLowerCase().match(/for\s*\S*/)) !== null) {
+                var m = tName.toLowerCase().match(/for\s*\S*/);
+                if (m !== null) {
                     GS.debug('Table is for a specific opp; no automatch');
                 } else {
                     var np, rs, vp, rGoko, rIso;
@@ -833,7 +835,7 @@
 
             disableAutoAccept = function () {
                 var reqView = GS.AM.mtgRoom.views.ClassicRoomsPermit;
-                if (typeof reqView.showByRequest_orig !== 'undefined') {
+                if (reqView.showByRequest_orig !== undefined) {
                     reqView.showByRequest = reqView.showByRequest_orig;
                 }
             };
@@ -842,7 +844,8 @@
                 var reqView = GS.AM.mtgRoom.views.ClassicRoomsPermit;
                 reqView.showByRequest_orig = reqView.showByRequest;
                 reqView.showByRequest = function (request) {
-                    var joinerName, opts, isAutomatchOpp;
+                    var joinerName, isAutomatchOpp;
+                    // var opts;
 
                     joinerName = GS.AM.mtgRoom.playerList
                                 .findByAddress(request.data.playerAddress)
@@ -870,7 +873,8 @@
                     GS.AM.zch.leaveTable(GS.AM.zch.currentTable);
                 }
 
-                var seatsState, tKingdom, tSettings, tOpts;
+                var seatsState, tSettings, tOpts;
+                // var tKingdom;
                 seatsState = [1, 2, 3, 4, 5, 6].map(function (i) {
                     return (i <= opps.length + 1);
                 });
@@ -929,12 +933,12 @@
                     var mtgRoom = window.mtgRoom;
                     var conn = mtgRoom.conn;
                     var zch = mtgRoom.helpers.ZoneClassicHelper;
-                    if (typeof conn !== 'undefined' && typeof zch !== 'undefined') {
+                    if (conn !== undefined && zch !== undefined) {
                         alreadyLoaded = true;
                         console.log('Not already loaded Automatch');
                         loadAutomatchModule();
                     }
-                } catch (e) {}
+                } catch (ignore) {}
             }
         });
     };

@@ -1,6 +1,3 @@
-/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true */
-/*global $, _, Audio, GS, FS, mtgRoom */
-
 (function () {
     "use strict";
 
@@ -12,7 +9,7 @@
         'mtgRoom.conn'
     ];
     mod.load = function () {
-        var kick, kickOrNotify, self = this;
+        var kick, self = this;
         this.myProRating = null;
         this.kickedOpps = [];
         this.explainedOpps = [];
@@ -32,22 +29,15 @@
                 var proCache = mtgRoom.helpers.RatingHelper._rankingsCached;
                 var oppPro = proCache[oppId].ratingPro;
                 var myPro = proCache[myId].ratingPro;
-                var myIso = null, oppIso = null;
-                if (GS.isoLevelCache !== undefined) {
-                    if (GS.isoLevelCache.hasOwnProperty(myId)) {
-                        myIso = GS.isoLevelCache[myId];
-                    }
-                    if (GS.isoLevelCache.hasOwnProperty(oppId)) {
-                        oppIso = GS.isoLevelCache[oppId];
-                    }
-                }
+                var myIso = GS.getIsoLevel(myId, null),
+                    oppIso = GS.getIsoLevel(oppId, null);
                 console.info('Ratings', myPro, oppPro, myIso, oppIso);
 
                 // Isotropish kick criteria
                 var isoCrit = new RangeKickCriterion('isotropish.com rating level',
                                     GS.parseIsoRange(tableName), myIso, oppIso);
                 isoCrit.apply = GS.get_option('autokick_by_level')
-                                && typeof oppIso !== 'undefined'
+                                && oppIso !== undefined
                                 && oppIso !== null;
 
                 // Goko Pro kick criteria
@@ -67,7 +57,7 @@
                 // or when the user adds a bot to his own game
                 var room = mtgRoom.roomList.findByRoomId(mtgRoom.currentRoomId);
                 var doKickNotify = !opp.get('isBot')
-                        && typeof room !== 'undefined'
+                        && room !== undefined
                         && room.get('name').indexOf('Private') !== 0;
 
                 // Either notify the user or kick the joiner and optionally
@@ -106,7 +96,7 @@
             GS.debug(joiner.get('playerName').toLowerCase().indexOf('guest') !== 0);
             GS.debug(whyKick !== null);
             GS.debug(whyKick);
-           
+
             // Explain kick if a non-guest tries to join twice
             if (GS.get_option('explain_kicks')
                     && _.contains(self.kickedOpps, oppId)

@@ -1,7 +1,7 @@
 {
     # Info for extension configuration files (package.json, manifest.json, etc)
     :name => 'gokosalvager',
-    :version => '2.5.4.3',
+    :version => '2.5.4.4',
     :title => 'Goko Dominion Salvager',
     :desc => 'Enhance your Online Dominion experience',
     :author => 'The unofficial forum.dominionstrategy dev team',
@@ -36,6 +36,9 @@
 
     # AI's Safari Developer Certificate ID:
     :safari_dev_cert_id => '366P22F9M8',
+
+    # the normal title property breaks for the Safari build for unknown reasons
+    :safari_title => 'Goko Dominion Salvager',
 
     # CSS to be injected
     :css => [

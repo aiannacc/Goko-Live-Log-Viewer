@@ -1,7 +1,4 @@
-/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true, white:true */
-/*global $, _, GS, FS */
-
-(function() {
+(function () {
     "use strict";
 
     var mod = GS.modules.blacklist = new GS.Module('Blacklist');
@@ -17,7 +14,7 @@
 
             // Hide chat messages from censored players
             var blist = GS.getCombinedBlacklist();
-            if (typeof blist[player] === 'undefined' || !blist[player].censor) {
+            if (blist[player] === undefined || !blist[player].censor) {
                 this.old_onRoomChat(resp);
             }
         };
@@ -34,7 +31,7 @@
                     GS.cachedCommonBlacklist = resp.common_blacklist;
                     GS.commonBlacklistRetreived = true;
                     console.log('Retrieved and cached common blacklist');
-                    if (typeof callback !== 'undefined') {
+                    if (callback !== undefined) {
                         callback();
                     }
                 }
@@ -69,9 +66,9 @@
         FS.ClassicTableView.prototype.old_modifyDOM = FS.ClassicTableView.prototype.modifyDOM;
         FS.ClassicTableView.prototype.modifyDOM = function () {
             FS.ClassicTableView.prototype.old_modifyDOM.call(this);
-    
+
             var players, name, blacklisted, localPlayerJoined;
-    
+
             if (this.model && this.model.getJoinedPlayers) {
 
                 players = this.model.getJoinedPlayers();
@@ -81,7 +78,7 @@
 
                     // Determine whether a blacklisted player is at the table
                     var blist = GS.get_option('blacklist2');
-                    if (typeof blist[name] !== 'undefined' && !blist[name].noplay
+                    if (blist[name] !== undefined && !blist[name].noplay
                             && this.model && this.model.view && this.model.view.$el) {
                         blacklisted = true;
                     }
@@ -91,7 +88,7 @@
                         localPlayerJoined = true;
                     }
                 }, this);
-    
+
                 if (blacklisted && !localPlayerJoined) {
                     // Hide games with blacklisted players unless we're in them too
                     this.model.view.$el.hide();

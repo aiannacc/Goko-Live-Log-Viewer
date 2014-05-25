@@ -1,6 +1,3 @@
-/*jslint browser: true, devel: true, indent: 4, vars: true, nomen: true, regexp: true, forin: true */
-/*global $, _, GS, VhonTools, CampaignBattleScreen */
-
 (function () {
     "use strict";
 
@@ -9,7 +6,7 @@
         'CampaignBattleScreen.prototype.show_campaign_battle'
     ];
     mod.load = function () {
-        var zapitup, i, j;
+        var zapitup, i;
         zapitup = function () {
             VhonTools.zaps.total = 80;
             var j = 0;
@@ -28,23 +25,3 @@
         }
     };
 }());
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
