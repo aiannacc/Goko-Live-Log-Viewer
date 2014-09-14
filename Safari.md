@@ -28,6 +28,7 @@ instructions again to get the proper files into your `~/.private/safari`.
 
 6. Create and sign your Safari extension manually with the built-in Safari
    Extension builder
+     * Enable the Developer menu `Safari > Preferences... > Advanced > Show Developer menu in the menu bar`
      * `Develop > Show Extension Builder`
      * click the `+` button in the lower left, then `New extension...`
      * save the new extension wherever you like (for example, on the Desktop as
