@@ -57,7 +57,7 @@ instructions again to get the proper files into your `~/.private/safari`.
     openssl pkcs12 -in Certificates.p12 -nodes | openssl rsa -out key.pem
     cp cert.der key.pem ~/.private/safari
     cd ~/.private/safari
-    openssl dgst -sign key.pem -binary < key.pem | wc -c size.txt
+    openssl dgst -sign key.pem -binary < key.pem | wc -c > size.txt
     ```
 
 11. Your `~/.private/safari` should now have the following files:
