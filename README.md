@@ -1,8 +1,13 @@
 Goko Dominion Salvager
 ======================
 
-Discuss the extension at the [Dominion Strategy forum](http://forum.dominionstrategy.com/index.php?topic=9063.0).
+This project is no longer being actively developed.  It was a browser extension that added functionality to the Dominion game client produced by [Goko](http://www.gamezebo.com/2012/08/16/html5-games-get-their-own-dominion-gokocom/), a now-defunct online game company.
 
+Much of this project's original functionality was incorporated in the successor to that game client, available from [MakingFun](playdominion.com).  A [mod](http://forum.dominionstrategy.com/index.php?topic=14009.0) for that successor client also exists.  Its creator is currently producing a completely new Dominion game server, which is planned to eventually replace MakingFun's version.
+
+The rest of this readme is as it was when this project was being actively developed.
+
+------------
 
 Installation
 ------------
